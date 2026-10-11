@@ -1,0 +1,10 @@
+{
+  "id": "stash-review",
+  "name": "Stash Review",
+  "version": "0.1.0",
+  "minAppVersion": "1.6.0",
+  "description": "Organize Git stashes, review syntax-highlighted diffs, and annotate code without creating commits or branches.",
+  "author": "Nielk74",
+  "authorUrl": "https://github.com/Nielk74",
+  "isDesktopOnly": true
+}

@@ -1,0 +1,13 @@
+node_modules/
+main.js
+*.map
+dist/
+dist-preview/
+dist-release/
+test-results/
+playwright-report/
+.DS_Store
+.env*
+!.env.example
+.test-vault/
+release-artifacts/

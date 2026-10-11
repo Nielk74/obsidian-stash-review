@@ -1,0 +1,42 @@
+name: Release
+on:
+  push:
+    tags: ['[0-9]*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:package
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Package Obsidian plugin
+        run: node scripts/package-release.mjs
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+      - name: Publish release assets
+        run: >-
+          gh release create "$RELEASE_TAG"
+          dist-release/main.js dist-release/manifest.json dist-release/styles.css
+          "dist-release/stash-review-$RELEASE_TAG.zip" dist-release/SHA256SUMS
+          --verify-tag --title "Stash Review $RELEASE_TAG" --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-browser-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
