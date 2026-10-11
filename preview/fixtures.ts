@@ -167,6 +167,87 @@ Question: should a duplicate title append to yesterday's note?
   { path: 'assets/capture-preview.png', base: '', staged: '', working: '', status: 'added', untracked: true, binary: true }
 ];
 
+// Real nested paths make tree navigation, repeated basenames, and directory
+// progress visible in the demo without inventing line counts or Git statuses.
+const nestedCaptureSnapshots: Array<{ path: string; before: string; after: string }> = [
+  {
+    path: 'README.md',
+    before: '# Fieldbook\n\nA thoughtful workspace for your notes.\n',
+    after: '# Fieldbook\n\nA thoughtful workspace for your notes.\n\nCapture ideas into your inbox without leaving the current note.\n'
+  },
+  {
+    path: 'src/capture/append.ts',
+    before: `export function appendCapture(existing: string, capture: string): string {
+  return existing + '\\n' + capture;
+}
+`,
+    after: `export function appendCapture(existing: string, capture: string): string {
+  const body = capture.trim();
+  if (!body) return existing;
+  return existing.trimEnd() + '\\n\\n' + body;
+}
+`
+  },
+  {
+    path: 'src/capture/format.ts',
+    before: `export function formatCapture(text: string): string {
+  return text;
+}
+`,
+    after: `export function formatCapture(text: string): string {
+  return text.trim().replace(/\\r\\n/g, '\\n');
+}
+`
+  },
+  {
+    path: 'src/capture/ui/modal.ts',
+    before: `export function openCapture(input: HTMLTextAreaElement): void {
+  input.focus();
+}
+`,
+    after: `export function openCapture(input: HTMLTextAreaElement): void {
+  input.focus({ preventScroll: true });
+  input.setSelectionRange(input.value.length, input.value.length);
+}
+`
+  },
+  {
+    path: 'src/utils/format.ts',
+    before: `export function formatTimestamp(date: Date): string {
+  return date.toLocaleString();
+}
+`,
+    after: `export function formatTimestamp(date: Date): string {
+  return date.toISOString();
+}
+`
+  },
+  {
+    path: 'tests/capture/append.test.ts',
+    before: `import { expect, test } from 'vitest';
+import { appendCapture } from '../../src/capture/append';
+
+test('appends a captured thought', () => {
+  expect(appendCapture('First', 'Second')).toBe('First\\nSecond');
+});
+`,
+    after: `import { expect, test } from 'vitest';
+import { appendCapture } from '../../src/capture/append';
+
+test('separates captured thoughts with a blank line', () => {
+  expect(appendCapture('First', ' Second ')).toBe('First\\n\\nSecond');
+});
+
+test('preserves the note for an empty capture', () => {
+  expect(appendCapture('First', '   ')).toBe('First');
+});
+`
+  }
+];
+captureSnapshots.push(...nestedCaptureSnapshots.map(snapshot => ({
+  path: snapshot.path, base: snapshot.before, staged: snapshot.after, working: snapshot.after
+})));
+
 export const demoStashes: Stash[] = [
   { hash: '8d7be6a901afe7794ed9a6f1a3cb0318409876da', ref: 'stash@{0}', message: 'On main: feat: ambient note capture', branch: 'main', createdAt: '2026-10-12T08:42:00.000Z', baseHash: '14bcb71161eb10b1404db78e06f98e1b7fb45601' },
   { hash: 'b45ac04f374a236e7410b2ef592b65a0d7d2f603', ref: 'stash@{1}', message: 'On main: experiment: command palette refresh', branch: 'main', createdAt: '2026-10-11T15:16:00.000Z', baseHash: '14bcb71161eb10b1404db78e06f98e1b7fb45601' },

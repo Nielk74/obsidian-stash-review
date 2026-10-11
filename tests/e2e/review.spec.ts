@@ -62,7 +62,7 @@ test('dark and light desktop screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Split diff', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('desktop-split.png'), fullPage: true });
   await page.getByRole('tab', { name: /Annotations/ }).click();
-  await expect(page.getByText('Notes that keep the thread.', { exact: true })).toBeVisible();
+  await expect(page.locator('.sr-annotations-panel').getByRole('heading', { name: 'Annotations', exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('desktop-annotations.png'), fullPage: true });
   await page.getByRole('tab', { name: /Files changed/ }).click();
   await page.getByRole('button', { name: 'Unified diff', exact: true }).click();
@@ -100,6 +100,7 @@ test('stash titles, description, tags, pins, and file progress survive a restart
   await expect(page.getByRole('heading', { name: 'Capture without losing focus', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Pin stash', exact: true }).click();
   await page.getByRole('checkbox', { name: 'Mark src/capture.ts as reviewed', exact: true }).check();
+  await expect(page.locator('[data-file-path="src/capture.ts"] .sr-code')).toHaveCount(0);
   await page.getByRole('button', { name: 'Show pinned stashes', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Open stash Mobile reading spacing', exact: true })).toHaveCount(0);
   const search = page.getByRole('searchbox', { name: 'Search stashes', exact: true });
@@ -113,6 +114,7 @@ test('stash titles, description, tags, pins, and file progress survive a restart
   await expect(page.getByRole('heading', { name: 'Capture without losing focus', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Unpin stash', exact: true })).toBeVisible();
   await expect(page.getByRole('checkbox', { name: 'Mark src/capture.ts as reviewed', exact: true })).toBeChecked();
+  await expect(page.locator('[data-file-path="src/capture.ts"] .sr-code')).toHaveCount(0);
   const metadata = await page.evaluate(() => window.__demoHost.getMetadata('demo-fieldbook', '8d7be6a901afe7794ed9a6f1a3cb0318409876da'));
   expect(metadata).toMatchObject({ title: 'Capture without losing focus', pinned: true, tags: ['next-up', 'capture'], reviewedFiles: ['src/capture.ts'] });
 });
@@ -121,11 +123,13 @@ test('diff layers preserve staged versus working changes and split view retains 
   await openCapture(page);
   await page.getByRole('button', { name: 'Staged', exact: true }).click();
   await expect(page.locator('[data-file-path="src/paths.ts"]')).toBeVisible();
+  await expect(page.getByRole('tree', { name: 'Changed files', exact: true }).locator('[data-tree-path="assets"]')).toHaveCount(0);
   await expect(page.locator('[data-file-path="styles/capture.css"]')).toHaveCount(0);
   await expect(page.locator('[data-file-path="notes/capture-experiment.md"]')).toHaveCount(0);
   await expect(page.locator('.sr-thread')).toHaveCount(0);
   await page.getByRole('button', { name: 'Unstaged', exact: true }).click();
   await expect(page.locator('[data-file-path="styles/capture.css"]')).toBeVisible();
+  await expect(page.getByRole('tree', { name: 'Changed files', exact: true }).locator('[data-tree-path="docs"]')).toHaveCount(0);
   await expect(page.locator('[data-file-path="docs/capture.md"]')).toHaveCount(0);
   await expect(page.locator('[data-file-path="notes/capture-experiment.md"]')).toBeVisible();
   await page.getByRole('button', { name: 'All changes', exact: true }).click();
@@ -133,6 +137,9 @@ test('diff layers preserve staged versus working changes and split view retains 
   await page.getByRole('button', { name: 'Split diff', exact: true }).click();
   const file = page.locator('[data-file-path="src/capture.ts"]');
   await expect(file.locator('.sr-split-row').first()).toBeVisible();
+  await file.locator('.sr-split-labels').scrollIntoViewIfNeeded();
+  await expect(file.locator('.sr-split-labels').getByText('Before', { exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(file.locator('.sr-split-labels').getByText('Stashed changes', { exact: true })).toBeInViewport({ ratio: 1 });
   await expect(file.getByText('Before', { exact: true })).toBeVisible();
   await expect(file.getByText('Stashed changes', { exact: true })).toBeVisible();
   await expect(file.locator('[data-annotation-id="demo-question"]')).toBeVisible();
@@ -341,4 +348,241 @@ test('an annotation outside the current hunk reveals its saved layer and full co
   await expect(page.getByRole('button', { name: 'All changes', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(file.getByText('Full file context', { exact: true })).toBeVisible();
   await expect(file.getByText('Review opening the saved note without stealing focus.', { exact: true })).toBeInViewport();
+});
+
+test('changed files use a real hierarchy with nested folders, duplicate names, and directories first', async ({ page }) => {
+  await openCapture(page);
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await expect(tree).toBeVisible();
+  const src = tree.locator('[data-tree-path="src"]');
+  const capture = tree.locator('[data-tree-path="src/capture"]');
+  const ui = tree.locator('[data-tree-path="src/capture/ui"]');
+  const modal = tree.locator('[data-tree-path="src/capture/ui/modal.ts"]');
+  await expect(src).toHaveAttribute('aria-level', '1');
+  await expect(capture).toHaveAttribute('aria-level', '2');
+  await expect(ui).toHaveAttribute('aria-level', '3');
+  await expect(modal).toHaveAttribute('aria-level', '4');
+  await expect(tree.locator('[data-tree-path="src/capture/format.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="docs/capture.md"]')).toHaveAccessibleName(/renamed from docs\/quick-capture\.md/);
+  await expect(tree.locator('[data-tree-path="assets/capture-preview.png"]')).toHaveAccessibleName(/untracked, binary/);
+  await expect(tree.locator('[data-tree-path="notes/capture-experiment.md"]')).toHaveAccessibleName(/untracked/);
+  const rootPaths = await tree.locator('[role="treeitem"][aria-level="1"]').evaluateAll(items => items.map(item => item.getAttribute('data-tree-path')));
+  expect(rootPaths).toEqual(['assets', 'docs', 'notes', 'src', 'styles', 'tests', 'README.md']);
+  const srcPaths = await tree.locator('[role="treeitem"][aria-level="2"]').evaluateAll(items => items.map(item => item.getAttribute('data-tree-path')).filter(path => path?.startsWith('src/')));
+  expect(srcPaths).toEqual(['src/capture', 'src/utils', 'src/capture.ts', 'src/paths.ts']);
+  await capture.click();
+  await expect(capture).toHaveAttribute('aria-expanded', 'false');
+  await expect(modal).toHaveCount(0);
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await capture.click();
+  await expect(modal).toBeVisible();
+  await page.getByRole('button', { name: 'Collapse all folders', exact: true }).click();
+  await expect(tree.locator('[role="treeitem"][aria-level="2"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Expand all folders', exact: true }).click();
+  await expect(modal).toBeVisible();
+});
+
+test('file filtering retains and expands matching ancestors and tree/list views retain selection', async ({ page }) => {
+  await openCapture(page);
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await page.getByRole('button', { name: 'Collapse all folders', exact: true }).click();
+  const filter = page.getByRole('searchbox', { name: 'Filter changed files', exact: true });
+  await filter.fill('modal.ts');
+  for (const path of ['src', 'src/capture', 'src/capture/ui']) {
+    await expect(tree.locator(`[data-tree-path="${path}"]`)).toHaveAttribute('aria-expanded', 'true');
+  }
+  await expect(tree.locator('[data-tree-path="src/capture/ui/modal.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="src/utils"]')).toHaveCount(0);
+  await filter.fill('src/capture/');
+  await expect(tree.locator('[data-tree-path="src/capture/append.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="src/capture/format.ts"]')).toBeVisible();
+  await filter.fill('format.ts');
+  await expect(tree.locator('[data-tree-path="src/capture/format.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await filter.fill('');
+  await expect(tree.locator('[data-tree-path="src"]')).toHaveAttribute('aria-expanded', 'false');
+  await filter.fill('format.ts');
+  await tree.locator('[data-tree-path="src/utils/format.ts"]').click();
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('button', { name: 'Show flat file list', exact: true }).click();
+  await expect(tree.locator('[aria-expanded]')).toHaveCount(0);
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Show file tree', exact: true }).click();
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toHaveAttribute('aria-selected', 'true');
+  await filter.fill('');
+  await expect(tree.locator('[data-tree-path="src"]')).toHaveAttribute('aria-expanded', 'true');
+});
+
+test('tree keyboard navigation stays inside changed files and leaves text entry alone', async ({ page }) => {
+  await openCapture(page);
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await page.getByRole('button', { name: 'Collapse all folders', exact: true }).click();
+  const src = tree.locator('[data-tree-path="src"]');
+  await src.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(src).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('ArrowRight');
+  const capture = tree.locator('[data-tree-path="src/capture"]');
+  await expect(capture).toBeFocused();
+  await page.keyboard.press('ArrowRight');
+  await expect(capture).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('ArrowLeft');
+  await expect(capture).toHaveAttribute('aria-expanded', 'false');
+  await page.keyboard.press('ArrowLeft');
+  await expect(src).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(tree.locator('[data-tree-path="README.md"]')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(tree.locator('[data-tree-path="README.md"]')).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('Home');
+  await expect(tree.locator('[data-tree-path="assets"]')).toBeFocused();
+  await page.keyboard.press('j');
+  await expect(page.getByRole('heading', { name: 'Ambient note capture', exact: true })).toBeVisible();
+  const filter = page.getByRole('searchbox', { name: 'Filter changed files', exact: true });
+  await filter.fill('format');
+  await page.keyboard.press('ArrowLeft');
+  await expect(filter).toBeFocused();
+  await expect(filter).toHaveValue('format');
+  await expect(page.getByRole('heading', { name: 'Ambient note capture', exact: true })).toBeVisible();
+});
+
+test('folder choices persist for the selected stash while search expansion stays temporary', async ({ page }) => {
+  await openCapture(page);
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await tree.locator('[data-tree-path="src/capture"]').click();
+  await expect(tree.locator('[data-tree-path="src/capture"]')).toHaveAttribute('aria-expanded', 'false');
+  await page.reload();
+  await expect(tree.locator('[data-tree-path="src/capture"]')).toHaveAttribute('aria-expanded', 'false');
+  await expect(tree.locator('[data-tree-path="src/capture/ui/modal.ts"]')).toHaveCount(0);
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  const filter = page.getByRole('searchbox', { name: 'Filter changed files', exact: true });
+  await filter.fill('modal.ts');
+  await expect(tree.locator('[data-tree-path="src/capture/ui/modal.ts"]')).toBeVisible();
+  await filter.fill('');
+  await expect(tree.locator('[data-tree-path="src/capture"]')).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('viewed files update folder progress and hide viewed preserves metadata and review totals', async ({ page }) => {
+  await openCapture(page);
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  const capture = tree.locator('[data-tree-path="src/capture"]');
+  await expect(capture).toHaveAccessibleName('src/capture, 3 changed files, 0 viewed');
+  for (const path of ['src/capture/append.ts', 'src/capture/format.ts', 'src/capture/ui/modal.ts']) {
+    await page.getByRole('checkbox', { name: `Mark ${path} as reviewed`, exact: true }).check();
+  }
+  await expect(capture).toHaveAccessibleName('src/capture, 3 changed files, 3 viewed');
+  await expect(tree.locator('[data-tree-path="src"]')).toHaveAccessibleName('src, 6 changed files, 3 viewed');
+  const viewed = page.getByRole('checkbox', { name: 'Hide viewed files', exact: true });
+  await viewed.check();
+  await expect(capture).toHaveCount(0);
+  await expect(page.locator('[data-file-path="src/capture/append.ts"]')).toHaveCount(0);
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await expect(page.getByText('3 of 12 files viewed', { exact: true })).toBeVisible();
+  const metadata = await page.evaluate(() => window.__demoHost.getMetadata('demo-fieldbook', '8d7be6a901afe7794ed9a6f1a3cb0318409876da'));
+  expect(metadata.reviewedFiles).toEqual(['src/capture/append.ts', 'src/capture/format.ts', 'src/capture/ui/modal.ts']);
+  await viewed.uncheck();
+  await expect(capture).toHaveAccessibleName('src/capture, 3 changed files, 3 viewed');
+  await expect(page.getByRole('checkbox', { name: 'Mark src/capture/append.ts as reviewed', exact: true })).toBeChecked();
+  const append = page.locator('[data-file-path="src/capture/append.ts"]');
+  await append.getByRole('button', { name: 'Show full context for src/capture/append.ts', exact: true }).click();
+  await expect(append.getByText('Full file context', { exact: true })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: 'Mark src/capture/append.ts as reviewed', exact: true })).toBeChecked();
+});
+
+test('single file review follows tree selection and previous/next without losing the complete tree', async ({ page }) => {
+  await openCapture(page);
+  await expect(page.locator('[data-file-path]')).toHaveCount(12);
+  await page.getByRole('button', { name: 'Single file', exact: true }).click();
+  await expect(page.locator('[data-file-path]')).toHaveCount(1);
+  await expect(page.locator('[data-file-path="src/capture.ts"]')).toBeVisible();
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await tree.locator('[data-tree-path="src/capture/format.ts"]').click();
+  await expect(page.locator('[data-file-path]')).toHaveCount(1);
+  await expect(page.locator('[data-file-path="src/capture/format.ts"]')).toBeVisible();
+  await expect(tree.locator('[data-tree-path="src/utils/format.ts"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Next changed file', exact: true }).click();
+  const nextPath = await page.locator('[data-file-path]').getAttribute('data-file-path');
+  expect(nextPath).not.toBe('src/capture/format.ts');
+  await expect(tree.locator(`[data-tree-path="${nextPath}"]`)).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('button', { name: 'Previous changed file', exact: true }).click();
+  await expect(page.locator('[data-file-path="src/capture/format.ts"]')).toBeVisible();
+  await page.getByRole('button', { name: 'All files', exact: true }).click();
+  await expect(page.locator('[data-file-path]')).toHaveCount(12);
+});
+
+test('narrow file navigator opens the full nested tree and returns to the selected diff', async ({ page }) => {
+  await page.setViewportSize({ width: 430, height: 932 });
+  await openCapture(page);
+  await page.getByRole('button', { name: 'Single file', exact: true }).click();
+  await page.getByRole('button', { name: 'Toggle file navigator', exact: true }).click();
+  const tree = page.getByRole('tree', { name: 'Changed files', exact: true });
+  await expect(tree).toBeVisible();
+  await tree.locator('[data-tree-path="src/capture/ui/modal.ts"]').click();
+  await expect(page.locator('[data-file-path="src/capture/ui/modal.ts"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Toggle file navigator', exact: true })).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(430);
+});
+
+test('an annotation reveals a viewed and collapsed file in single file review', async ({ page }) => {
+  await openCapture(page);
+  const file = page.locator('[data-file-path="src/capture.ts"]');
+  await page.getByRole('checkbox', { name: 'Mark src/capture.ts as reviewed', exact: true }).check();
+  await page.getByRole('button', { name: 'Collapse all files', exact: true }).click();
+  await expect(file.locator('.sr-code')).toHaveCount(0);
+  await page.getByRole('checkbox', { name: 'Hide viewed files', exact: true }).check();
+  await page.getByRole('button', { name: 'Single file', exact: true }).click();
+  await page.getByRole('searchbox', { name: 'Filter changed files', exact: true }).fill('format.ts');
+  await page.getByRole('tab', { name: /Annotations/ }).click();
+  await page.locator('.sr-annotations-panel [data-annotation-id="demo-question"] .sr-thread-location').click();
+  await expect(page.getByRole('checkbox', { name: 'Hide viewed files', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('searchbox', { name: 'Filter changed files', exact: true })).toHaveValue('');
+  await expect(page.locator('[data-file-path]')).toHaveCount(1);
+  await expect(file.locator('.sr-code').first()).toBeVisible();
+  await expect(file.locator('[data-annotation-id="demo-question"]')).toBeInViewport();
+  await expect(page.getByRole('checkbox', { name: 'Mark src/capture.ts as reviewed', exact: true })).toBeChecked();
+});
+
+test('inline changed regions preserve code and line-number range selection saves an old-side anchor', async ({ page }) => {
+  await openCapture(page);
+  const path = 'src/capture/format.ts';
+  const file = page.locator(`[data-file-path="${path}"]`);
+  const source = await page.evaluate(async path => {
+    const host = window.__demoHost;
+    const repository = (await host.listRepositories())[0];
+    const stash = (await host.listStashes())[0];
+    const file = (await host.getDiff(repository, stash, 'all', 3)).find(file => file.path === path)!;
+    return { old: file.oldContent!.split('\n')[1], next: file.newContent!.split('\n')[1] };
+  }, path);
+  const before = file.locator('.sr-line-delete .sr-code');
+  const after = file.locator('.sr-line-add .sr-code');
+  expect(await before.innerText()).toBe(source.old);
+  expect(await after.innerText()).toBe(source.next);
+  expect(await after.locator('.sr-inline-change').count()).toBeGreaterThan(0);
+  await file.getByRole('button', { name: 'Select old line 1', exact: true }).click();
+  await file.getByRole('button', { name: 'Select old line 3', exact: true }).click({ modifiers: ['Shift'] });
+  await expect(file.getByText('Old lines 1–3', { exact: true })).toBeVisible();
+  await expect(file.locator('.sr-line-selected')).toHaveCount(3);
+  await file.getByRole('textbox', { name: 'Annotation text', exact: true }).fill('Keep the original format readable while normalizing new captures.');
+  await file.getByRole('button', { name: 'Save annotation', exact: true }).click();
+  const note = await page.evaluate(() => window.__demoHost.getMetadata('demo-fieldbook', '8d7be6a901afe7794ed9a6f1a3cb0318409876da').annotations.find(note => note.path === 'src/capture/format.ts'));
+  expect(note).toMatchObject({ path, side: 'old', startLine: 1, endLine: 3, layer: 'all' });
+  await page.getByRole('button', { name: 'Split diff', exact: true }).click();
+  await expect(file.getByText('Keep the original format readable while normalizing new captures.', { exact: true })).toBeVisible();
+});
+
+test('collapsing files preserves an unsaved annotation until it is cancelled', async ({ page }) => {
+  await openCapture(page);
+  const file = page.locator('[data-file-path="src/capture.ts"]');
+  await file.getByRole('button', { name: 'Select new line 20', exact: true }).click();
+  const composer = file.getByRole('textbox', { name: 'Annotation text', exact: true });
+  await composer.fill('Do not lose this draft while scanning headers.');
+  await page.getByRole('button', { name: 'Collapse all files', exact: true }).click();
+  await expect(composer).toBeVisible();
+  await expect(composer).toHaveValue('Do not lose this draft while scanning headers.');
+  await expect(file.getByRole('button', { name: 'Collapse diff for src/capture.ts', exact: true })).toBeDisabled();
+  await file.getByRole('button', { name: 'Cancel annotation', exact: true }).click();
+  await expect(file.locator('.sr-code')).toHaveCount(0);
+  await file.getByRole('button', { name: 'Expand diff for src/capture.ts', exact: true }).click();
+  await expect(file.locator('.sr-code').first()).toBeVisible();
 });
