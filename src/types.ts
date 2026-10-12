@@ -4,6 +4,7 @@ export interface Repository {
   name: string;
   branch: string;
   dirty: boolean;
+  offline?: boolean;
 }
 
 export interface Stash {
@@ -13,6 +14,8 @@ export interface Stash {
   branch: string;
   createdAt: string;
   baseHash: string;
+  archived?: boolean;
+  recoverable?: boolean;
 }
 
 export type DiffLayer = 'all' | 'staged' | 'unstaged';
@@ -49,6 +52,12 @@ export interface DiffFile {
   oldContent?: string;
   newContent?: string;
   truncated?: boolean;
+  fingerprint?: string;
+  oldBlob?: string;
+  newBlob?: string;
+  oldMode?: string;
+  newMode?: string;
+  sourceUnavailable?: boolean;
 }
 
 export interface AnnotationReply {
@@ -68,6 +77,7 @@ export interface Annotation {
   updatedAt: string;
   resolved: boolean;
   replies: AnnotationReply[];
+  excerpt?: {text: string; startLine: number; truncated?: boolean};
 }
 export interface StashMetadata {
   title: string;
@@ -76,7 +86,20 @@ export interface StashMetadata {
   pinned: boolean;
   reviewedFiles: string[];
   annotations: Annotation[];
+  reviewedByLayer?: Partial<Record<DiffLayer, string[]>>;
+  fileFingerprints?: Partial<Record<DiffLayer, Record<string, string>>>;
+  continuedFrom?: string;
 }
+
+export interface RepositoryBinding {id: string; name: string; paths: string[]}
+export interface ReviewEntry {
+  stash: Stash;
+  archived: boolean;
+  snapshotLayers: DiffLayer[];
+  fingerprints: Partial<Record<DiffLayer, Record<string, string>>>;
+  predecessorHash?: string;
+}
+export interface SavedLayer {context: number; files: DiffFile[]}
 
 export const emptyMetadata = (): StashMetadata => ({
   title: '', description: '', tags: [], pinned: false, reviewedFiles: [], annotations: []
@@ -96,7 +119,9 @@ export const DEFAULT_SETTINGS: ReviewSettings = {
 export interface PluginData {
   settings: ReviewSettings;
   reviews: Record<string, Record<string, StashMetadata>>;
-  version: 1;
+  version: 1 | 2;
+  repositoryCatalog?: Record<string, RepositoryBinding>;
+  reviewCatalog?: Record<string, Record<string, ReviewEntry>>;
 }
 
 export interface ReviewHost {
@@ -120,4 +145,12 @@ export interface ReviewHost {
   exportReview(repository: Repository, stash: Stash, metadata: StashMetadata): Promise<string>;
   notify(message: string): void;
   openSettings(): void;
+  listArchivedReviews?(repository: Repository): Promise<Stash[]>;
+  archiveReview?(repository: Repository, stash: Stash, archived: boolean): Promise<void>;
+  continueReview?(repository: Repository, stash: Stash, predecessorHash: string): Promise<void>;
+  relocateRepository?(repositoryId: string, path: string): Promise<Repository>;
+  exportReviewData?(repository: Repository, stash: Stash): Promise<string>;
+  importReviewData?(source: string, repositoryId?: string): Promise<ReviewTarget>;
+  renderMarkdown?(source: string, element: HTMLElement): () => void;
+  invalidateReads?(): void;
 }

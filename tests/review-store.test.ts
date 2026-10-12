@@ -1,8 +1,74 @@
 import { describe, expect, it } from 'vitest';
 import { loadPluginData, readMetadata, reviewMarkdown } from '../src/review-store';
 import { emptyMetadata, type Repository, type Stash } from '../src/types';
+import * as store from '../src/review-store';
 
 describe('durable review data', () => {
+  it('migrates legacy progress only to All without losing notes', () => {
+    const data = loadPluginData({version: 1, reviews: {repo: {hash: {...emptyMetadata(), title: 'Keep me', reviewedFiles: ['app.ts']}}}});
+    const metadata = readMetadata(data, 'repo', 'hash');
+    expect(data.version).toBe(2);
+    expect(store.reviewedPaths(metadata, 'all')).toEqual(['app.ts']);
+    expect(store.reviewedPaths(metadata, 'staged')).toEqual([]);
+    expect(store.reviewedPaths(metadata, 'unstaged')).toEqual([]);
+    expect(metadata.title).toBe('Keep me');
+  });
+  it('persists independent layer progress and keeps the legacy All representation synchronized', () => {
+    const original = {...emptyMetadata(), reviewedFiles: ['all.ts']};
+    const staged = store.withReviewedPath(original, 'staged', 'app.ts', true);
+    const unstaged = store.withReviewedPath(staged, 'unstaged', 'other.ts', true);
+    const all = store.withReviewedPath(unstaged, 'all', 'added.ts', true);
+    const data = loadPluginData(JSON.parse(JSON.stringify({reviews: {repo: {hash: all}}})));
+    const restored = readMetadata(data, 'repo', 'hash');
+    expect(store.reviewedPaths(restored, 'staged')).toEqual(['app.ts']);
+    expect(store.reviewedPaths(restored, 'unstaged')).toEqual(['other.ts']);
+    expect(restored.reviewedFiles).toEqual(['all.ts', 'added.ts']);
+    expect(store.reviewedPaths(store.withReviewedPath(restored, 'staged', 'app.ts', false), 'all')).toEqual(['all.ts', 'added.ts']);
+    expect(original).toEqual({...emptyMetadata(), reviewedFiles: ['all.ts']});
+  });
+  it('continues only exact matching layer files and keeps both original and current discussions', () => {
+    const annotation = {id: 'same', path: 'same.ts', side: 'new' as const, layer: 'staged' as const, startLine: 2, endLine: 2, body: 'Original', createdAt: '', updatedAt: '', resolved: false, replies: [{id: 'reply', body: 'Keep reply', createdAt: ''}]};
+    const previous = {...emptyMetadata(), title: 'Previous', description: '[[Context]]', tags: ['prior'], pinned: true,
+      reviewedByLayer: {all: ['same.ts'], staged: ['same.ts'], unstaged: ['same.ts']},
+      annotations: [annotation, {...annotation, id: 'changed', layer: 'unstaged' as const, body: 'Changed content'}]};
+    const current = {...emptyMetadata(), title: 'Current', tags: ['next'], annotations: [{...annotation, id: 'current', body: 'New discussion'}]};
+    const before = structuredClone(previous);
+    const next = store.continueMetadata(previous, current, {staged: new Set(['same.ts'])}, 'a'.repeat(40));
+    expect(next.title).toBe('Current');
+    expect(next.description).toBe('[[Context]]');
+    expect(next.tags).toEqual(['next', 'prior']);
+    expect(next.pinned).toBe(true);
+    expect(next.continuedFrom).toBe('a'.repeat(40));
+    expect(store.reviewedPaths(next, 'staged')).toEqual(['same.ts']);
+    expect(store.reviewedPaths(next, 'all')).toEqual([]);
+    expect(store.reviewedPaths(next, 'unstaged')).toEqual([]);
+    expect(next.annotations.map(item => item.id)).toEqual(['current', 'same']);
+    expect(next.annotations[1].replies[0].body).toBe('Keep reply');
+    next.annotations[1].replies[0].body = 'Edited copy';
+    expect(previous).toEqual(before);
+    expect(current.annotations).toHaveLength(1);
+  });
+  it('keeps changed-file and unverifiable legacy notes on their original revision', () => {
+    const previous = {...emptyMetadata(), reviewedFiles: ['changed.ts'], annotations: [{id: 'old', path: 'changed.ts', side: 'old' as const, layer: 'all' as const, startLine: 3, endLine: 4, body: 'Do not move my anchor', createdAt: '', updatedAt: '', resolved: false, replies: []}]};
+    const next = store.continueMetadata(previous, emptyMetadata(), {}, 'b'.repeat(40));
+    expect(next.annotations).toEqual([]);
+    expect(next.reviewedFiles).toEqual([]);
+    expect(previous.annotations[0].body).toBe('Do not move my anchor');
+    expect(previous.reviewedFiles).toEqual(['changed.ts']);
+  });
+  it('validates layer fields and preserves excerpts through a restart', () => {
+    const excerpt = {text: 'const original = "<safe>";', startLine: 2};
+    const annotation = {id: 'excerpt', path: 'app.ts', side: 'new', layer: 'all', startLine: 2, endLine: 2, body: 'Keep source', createdAt: '', updatedAt: '', resolved: false, replies: [], excerpt};
+    const data = loadPluginData({reviews: {repo: {hash: {...emptyMetadata(), reviewedByLayer: {all: ['app.ts', null, 42, 'app.ts'], staged: 'broken', unstaged: ['u.ts']}, annotations: [annotation]}}}});
+    const metadata = readMetadata(data, 'repo', 'hash');
+    expect(store.reviewedPaths(metadata, 'all')).toEqual(['app.ts']);
+    expect(store.reviewedPaths(metadata, 'staged')).toEqual([]);
+    expect(store.reviewedPaths(metadata, 'unstaged')).toEqual(['u.ts']);
+    expect(metadata.reviewedFiles).toEqual(['app.ts']);
+    expect(metadata.annotations[0].excerpt).toEqual(excerpt);
+    metadata.annotations[0].excerpt!.text = 'Changed copy';
+    expect(readMetadata(data, 'repo', 'hash').annotations[0].excerpt!.text).toBe('const original = "<safe>";');
+  });
   it('loads defaults and validates settings from malformed saved data', () => {
     expect(loadPluginData(null).settings.gitPath).toBe('git');
     const loaded = loadPluginData({ settings: { repositories: [' /work/repo ', 12, ''], contextLines: -1, refreshInterval: 'bad', defaultView: 'bogus' }, reviews: [] });
