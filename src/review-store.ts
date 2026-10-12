@@ -1,4 +1,5 @@
 import { DEFAULT_SETTINGS, emptyMetadata, type Annotation, type PluginData, type StashMetadata, type Repository, type Stash } from './types';
+import {createReviewLink, markdownLink} from './markdown';
 
 export function loadPluginData(raw: unknown): PluginData {
   const data = raw && typeof raw === 'object' ? raw as Partial<PluginData> : {};
@@ -50,7 +51,7 @@ function escapeMarkdown(value: string): string {
   return value.replace(/[\\`*_\[\]<>#|]/g, '\\$&').replace(/[\r\n]/g, ' ');
 }
 
-export function reviewMarkdown(repository: Repository, stash: Stash, metadata: StashMetadata): string {
+export function reviewMarkdown(repository: Repository, stash: Stash, metadata: StashMetadata, vaultName?: string): string {
   const lines = [
     `# ${escapeMarkdown(metadata.title || stash.message)}`,
     '',
@@ -58,6 +59,7 @@ export function reviewMarkdown(repository: Repository, stash: Stash, metadata: S
     `Branch at capture: ${escapeMarkdown(stash.branch)}`,
     `Stash commit: \`${stash.hash}\``,
     `Captured: ${stash.createdAt}`,
+    ...(vaultName !== undefined ? ['', markdownLink('Open live stash review', createReviewLink(vaultName, {repositoryId: repository.id, stashHash: stash.hash}))] : []),
     '',
     ...(metadata.tags.length ? [`Tags: ${metadata.tags.map(escapeMarkdown).join(', ')}`, ''] : []),
     metadata.description,

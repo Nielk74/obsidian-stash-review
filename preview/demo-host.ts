@@ -1,4 +1,5 @@
-import { DEFAULT_SETTINGS, emptyMetadata, type DiffLayer, type DiffFile, type Repository, type ReviewHost, type Stash, type StashMetadata } from '../src/types';
+import { DEFAULT_SETTINGS, emptyMetadata, type DiffLayer, type DiffFile, type Repository, type ReviewHost, type ReviewTarget, type Stash, type StashMetadata } from '../src/types';
+import {reviewMarkdown} from '../src/review-store';
 import { demoStashes, fixtureDiff, initialMetadata } from './fixtures';
 
 const STORAGE_KEY = 'stash-review-demo-v1';
@@ -28,6 +29,8 @@ function readState(): DemoState {
 function clone<T>(value: T): T { return structuredClone(value); }
 
 export class DemoHost implements ReviewHost {
+  readonly vaultName = 'Demo vault';
+  private metadataListeners = new Set<(repositoryId: string, hash: string) => void>();
   readonly settings = { ...DEFAULT_SETTINGS, repositories: ['/Demo vault/fieldbook'], contextLines: 3 };
   private state = readState();
   private scenario = new URLSearchParams(location.search).get('state');
@@ -66,9 +69,24 @@ export class DemoHost implements ReviewHost {
   getMetadata(_repositoryId: string, hash: string): StashMetadata {
     return clone(this.state.metadata[hash] ?? emptyMetadata());
   }
+  updateMetadata(repositoryId: string, hash: string, change: (previous: StashMetadata) => StashMetadata): {metadata: StashMetadata; saved: Promise<void>} {
+    const metadata = change(this.getMetadata(repositoryId, hash));
+    return {metadata, saved: this.saveMetadata(repositoryId, hash, metadata)};
+  }
   async saveMetadata(_repositoryId: string, hash: string, metadata: StashMetadata): Promise<void> {
     this.state.metadata[hash] = clone(metadata);
     this.persist();
+    for (const listener of this.metadataListeners) listener(DEMO_REPOSITORY_ID, hash);
+  }
+  subscribeMetadata(listener: (repositoryId: string, hash: string) => void): () => void {
+    this.metadataListeners.add(listener);
+    return () => {this.metadataListeners.delete(listener);};
+  }
+  async openReview(target: ReviewTarget): Promise<void> {
+    const query = new URLSearchParams({repo: target.repositoryId, stash: target.stashHash, layer: target.layer ?? 'all'});
+    if (target.file) query.set('file', target.file);
+    history.replaceState(null, '', '?' + query);
+    window.dispatchEvent(new CustomEvent('demo-open-review', {detail: target}));
   }
   async createStash(_repository: Repository, message: string, includeUntracked: boolean): Promise<void> {
     if (!this.state.dirty) throw new Error('No local changes to stash.');
@@ -105,7 +123,7 @@ export class DemoHost implements ReviewHost {
     this.record({ name: 'restore', hash: stash.hash });
   }
   async exportReview(repository: Repository, stash: Stash, metadata: StashMetadata): Promise<string> {
-    const markdown = `# ${metadata.title || stash.message}\n\nRepository: ${repository.name}\nStash: ${stash.hash}\n\n${metadata.description}\n\n` + metadata.annotations.map(note => `## ${note.path}:${note.startLine}${note.endLine !== note.startLine ? `–${note.endLine}` : ''}\n\n${note.resolved ? '[Resolved] ' : ''}${note.body}\n`).join('\n');
+    const markdown = reviewMarkdown(repository, stash, metadata, this.vaultName);
     const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
     const link = document.createElement('a');
     link.href = url;

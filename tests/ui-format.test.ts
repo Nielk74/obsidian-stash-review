@@ -33,4 +33,16 @@ describe('review context and syntax', () => {
   it('shows unsupported file types as escaped source', () => {
     expect(highlightedLines('<img src=x onerror="alert(1)">', 'file.unknown')[0]).toBe('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;');
   });
+  it('reuses highlighted output across diff views without confusing languages or contents', () => {
+    const first = highlightedLines('const cachedSyntax = 42;', 'cache.ts');
+    expect(highlightedLines('const cachedSyntax = 42;', 'other.ts')).toBe(first);
+    expect(highlightedLines('const cachedSyntax = 42;', 'cache.unknown')).not.toBe(first);
+    expect(highlightedLines('const cachedSyntax = 43;', 'cache.ts')).not.toBe(first);
+  });
+  it('keeps large generated source readable without expensive syntax tokenization', () => {
+    const source = 'const generated = "<safe>";\n'.repeat(12_000);
+    const lines = highlightedLines(source, 'generated.ts');
+    expect(lines).toHaveLength(12_001);
+    expect(lines[0]).toBe('const generated = &quot;&lt;safe&gt;&quot;;');
+  });
 });

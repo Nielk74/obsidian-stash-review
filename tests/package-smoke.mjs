@@ -14,10 +14,12 @@ const source = await readFile(join(bundleRoot, 'main.js'), 'utf8');
 const manifest = JSON.parse(await readFile(join(bundleRoot, 'manifest.json'), 'utf8'));
 const notices = [];
 class Plugin {
-  constructor(app) { this.app = app; this.manifest = manifest; this.saved = []; this.commands = []; }
+  constructor(app) { this.app = app; this.manifest = manifest; this.saved = []; this.commands = []; this.protocols = new Map(); this.blocks = new Map(); }
   async loadData() { return null; }
   async saveData(data) { this.saved.push(structuredClone(data)); }
   registerView(type, factory) { this.registeredView = { type, factory }; }
+  registerObsidianProtocolHandler(action, handler) { this.protocols.set(action, handler); }
+  registerMarkdownCodeBlockProcessor(language, handler) { this.blocks.set(language, handler); }
   addRibbonIcon(icon, title, callback) { this.ribbon = { icon, title, callback }; }
   addCommand(command) { this.commands.push(command); }
   addSettingTab(tab) { this.tab = tab; }
@@ -25,9 +27,10 @@ class Plugin {
 class FileSystemAdapter { constructor(path) { this.path = path; } getBasePath() { return this.path; } }
 class PluginSettingTab { constructor(app, plugin) { this.app = app; this.plugin = plugin; } }
 class ItemView {}
+class MarkdownRenderChild { constructor(containerEl) { this.containerEl = containerEl; } }
 class Setting {}
 class Notice { constructor(message) { notices.push(message); } }
-const obsidian = { Plugin, FileSystemAdapter, PluginSettingTab, ItemView, Setting, Notice };
+const obsidian = { Plugin, FileSystemAdapter, PluginSettingTab, ItemView, MarkdownRenderChild, Setting, Notice };
 const mod = { exports: {} };
 const wrapper = vm.runInThisContext(`(function(exports, require, module, __filename, __dirname) {\n${source}\n})`, { filename: 'stash-review-release.js' });
 wrapper(mod.exports, name => name === 'obsidian' ? obsidian : require(name), mod, join(bundleRoot, 'main.js'), bundleRoot);
@@ -38,11 +41,12 @@ try {
   const app = {
     vault: {
       adapter: new FileSystemAdapter(sandbox),
+      getName() { return 'Fixture vault'; },
       async createFolder(path) { notes.set(path, { path }); },
       async create(path, body) { const note = { path, body }; notes.set(path, note); return note; }
     },
     workspace: {
-      getLeavesOfType() { return []; },
+      getLeavesOfType() { return app.existingLeaves ?? []; },
       getLeaf() { return { async setViewState(state) { app.lastState = state; }, async openFile(file) { app.lastFile = file; } }; },
       async revealLeaf(leaf) { app.lastLeaf = leaf; }
     }
@@ -55,6 +59,27 @@ try {
   await plugin.commands.find(c => c.id === 'open-review').callback();
   assert.equal(app.lastState.type, 'stash-review');
   const host = plugin.createHost();
+  const protocol = plugin.protocols.get('stash-review');
+  assert.equal(typeof protocol, 'function');
+  app.existingLeaves = [app.lastLeaf];
+  await protocol({repo: 'repoA', stash: 'a'.repeat(40), layer: 'staged', file: 'src/café.ts'});
+  assert.deepEqual(app.lastState.state, {repo: 'repoA', stash: 'a'.repeat(40), layer: 'staged', file: 'src/café.ts'});
+  assert.equal(app.lastLeaf, app.existingLeaves[0], 'A link must retarget the existing review tab');
+  const lastState = app.lastState;
+  await protocol({repo: 'repoA', stash: 'stash@{0}'});
+  assert.equal(app.lastState, lastState, 'An invalid URI must not navigate to another stash');
+  assert.match(notices.at(-1), /full stash commit hash/);
+  const children = [];
+  const block = plugin.blocks.get('stash-review');
+  assert.equal(typeof block, 'function');
+  block(`repo: repoA\nstash: ${'a'.repeat(40)}`, {}, {addChild(child) { children.push(child); }});
+  assert.equal(children.length, 1, 'Valid embeds register an Obsidian-managed child component');
+  assert.ok(children[0] instanceof MarkdownRenderChild);
+  const errors = [];
+  block('https://example.com/invalid', {empty() {}, addClass() {}, createEl(tag, attributes) { errors.push({tag, text: attributes.text}); }}, {addChild() { assert.fail('Invalid embeds must not mount a review'); }});
+  assert.equal(errors[0].text, 'Cannot display this stash review');
+  let updatedReview;
+  const unsubscribe = host.subscribeMetadata((repositoryId, hash) => { updatedReview = {repositoryId, hash}; });
   const metadata = { title: 'Review prototype', description: 'Remember this idea', tags: ['idea'], pinned: true, reviewedFiles: ['app.ts'], annotations: [] };
   await Promise.all([
     host.saveMetadata('repoA', 'a'.repeat(40), metadata),
@@ -62,6 +87,19 @@ try {
   ]);
   assert.equal(plugin.saved.at(-1).reviews.repoA['a'.repeat(40)].title, metadata.title);
   assert.equal(plugin.saved.at(-1).reviews.repoB['b'.repeat(40)].title, 'Different repository');
+  assert.deepEqual(updatedReview, {repositoryId: 'repoB', hash: 'b'.repeat(40)});
+  unsubscribe();
+  const originalPersist = plugin.persist.bind(plugin);
+  const finishWrites = [];
+  plugin.persist = () => new Promise((resolve, reject) => {finishWrites.push(() => {void originalPersist().then(resolve, reject);});});
+  const firstEdit = host.updateMetadata('repoC', 'c'.repeat(40), previous => ({...previous, pinned: true}));
+  const secondEdit = host.updateMetadata('repoC', 'c'.repeat(40), previous => ({...previous, description: 'Another view can edit while persistence is pending'}));
+  assert.equal(host.getMetadata('repoC', 'c'.repeat(40)).pinned, true, 'Concurrent edits must use the authoritative shared metadata');
+  assert.equal(host.getMetadata('repoC', 'c'.repeat(40)).description, 'Another view can edit while persistence is pending');
+  finishWrites.forEach(finish => finish());
+  await Promise.all([firstEdit.saved, secondEdit.saved]);
+  plugin.persist = originalPersist;
+  assert.equal(plugin.saved.at(-1).reviews.repoC['c'.repeat(40)].pinned, true);
   const loaded = host.getMetadata('repoA', 'a'.repeat(40));
   loaded.tags.push('local mutation');
   assert.deepEqual(host.getMetadata('repoA', 'a'.repeat(40)).tags, ['idea']);
@@ -79,8 +117,9 @@ try {
   const exported = await host.exportReview(repository, stash, metadata);
   assert.ok(exported.startsWith('Stash Reviews/'));
   assert.ok(notes.get(exported).body.includes('Remember this idea'));
+  assert.ok(notes.get(exported).body.includes('obsidian://stash-review?vault=Fixture+vault&repo=repoA&stash=' + stash.hash));
   assert.equal(app.lastFile.path, exported);
-  console.log('Release bundle passed: CommonJS loading, commands, view registration, serialized persistence, isolated metadata, self-file protection and vault export.');
+  console.log('Plugin bundle passed: CommonJS loading, commands, URI targeting, Markdown registration, shared metadata, persistence, self-file protection and live links in vault exports.');
 } finally {
   await rm(sandbox, { recursive: true, force: true });
 }

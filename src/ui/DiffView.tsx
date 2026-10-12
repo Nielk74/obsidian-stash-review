@@ -1,5 +1,5 @@
-import {Fragment, useMemo, useState} from 'react';
-import {ArrowDownUp, Check, ChevronDown, ChevronRight, FileCode2, FileImage, Maximize2, MessageSquare, MessageSquarePlus, Minimize2, Plus, UnfoldVertical} from 'lucide-react';
+import {Fragment, useMemo, useState, type ClipboardEvent} from 'react';
+import {ArrowDownUp, Check, ChevronDown, ChevronRight, Copy, FileCode2, FileImage, Maximize2, MessageSquare, MessageSquarePlus, Minimize2, Plus, UnfoldVertical} from 'lucide-react';
 import type {Annotation, DiffFile, DiffLayer, DiffLine, DiffSide} from '../types';
 import {AnnotationThread} from './AnnotationThread';
 import {escapeHtml, fileId, fullContextLines, highlightedLines} from './format';
@@ -7,6 +7,7 @@ import {changeRanges, markChangedText, type ChangeRange} from './word-diff';
 
 export interface AnnotationSelection {path: string; side: DiffSide; startLine: number; endLine: number; layer: DiffLayer}
 interface DiffViewProps {
+  idPrefix?: string;
   file: DiffFile;
   mode: 'unified' | 'split';
   layer: DiffLayer;
@@ -18,12 +19,34 @@ interface DiffViewProps {
   annotations: Annotation[];
   selection: AnnotationSelection | null;
   onToggleFull: () => void;
+  onCopySource?: () => void;
   onReviewed: () => void;
   onSelectLine: (side: DiffSide, line: number, extend: boolean) => void;
   onSaveAnnotation: (body: string) => void;
   onCancelAnnotation: () => void;
   onUpdateAnnotation: (annotation: Annotation) => void;
   onDeleteAnnotation: (id: string) => void;
+}
+
+function copyCodeSelection(event: ClipboardEvent<HTMLDivElement>): void {
+  if ((event.target as HTMLElement).closest('textarea, input')) return;
+  const selection = event.currentTarget.ownerDocument.defaultView?.getSelection();
+  if (!selection?.rangeCount || selection.isCollapsed) return;
+  const range = selection.getRangeAt(0);
+  if (!event.currentTarget.contains(range.startContainer) || !event.currentTarget.contains(range.endContainer)) return;
+  // Keep a vertical selection within one side of a split diff.
+  const anchor = selection.anchorNode?.nodeType === Node.ELEMENT_NODE ? selection.anchorNode as HTMLElement : selection.anchorNode?.parentElement;
+  const side = event.currentTarget.classList.contains('sr-diff-split') ? anchor?.closest<HTMLElement>('.sr-code')?.dataset.side : undefined;
+  const lines: string[] = [];
+  for (const code of event.currentTarget.querySelectorAll<HTMLElement>('.sr-code')) {
+    if (side && code.dataset.side !== side || !range.intersectsNode(code)) continue;
+    const clipped = event.currentTarget.ownerDocument.createRange();
+    clipped.selectNodeContents(code);
+    if (range.compareBoundaryPoints(Range.START_TO_START, clipped) > 0) clipped.setStart(range.startContainer, range.startOffset);
+    if (range.compareBoundaryPoints(Range.END_TO_END, clipped) < 0) clipped.setEnd(range.endContainer, range.endOffset);
+    lines.push(clipped.toString());
+  }
+  if (lines.length) {event.clipboardData.setData('text/plain', lines.join('\n')); event.preventDefault();}
 }
 
 function sourceMap(file: DiffFile, side: DiffSide): Map<number, string> {
@@ -65,24 +88,33 @@ function AnnotationComposer({selection, onSave, onCancel}: {selection: Annotatio
 
 export function DiffView(props: DiffViewProps) {
   const {file, mode, layer, fullContext, contextLoading, reviewed, annotations, selection} = props;
-  const oldSyntax = useMemo(() => sourceMap(file, 'old'), [file]);
-  const newSyntax = useMemo(() => sourceMap(file, 'new'), [file]);
-  const sections = useMemo(() => fullContext && file.oldContent !== undefined && file.newContent !== undefined
-    ? [{header: 'Full file context', lines: fullContextLines(file), oldStart: 1, newStart: 1, oldCount: 0, newCount: 0}]
-    : file.hunks, [file, fullContext]);
   const localSelection = selection?.path === file.path && selection.layer === layer ? selection : null;
   const collapsed = props.collapsed === true && !localSelection;
-  const threads = annotations.filter(annotation => annotation.path === file.path && annotation.layer === layer);
+  const oldSyntax = useMemo(() => collapsed ? new Map<number, string>() : sourceMap(file, 'old'), [file, collapsed]);
+  const newSyntax = useMemo(() => collapsed ? new Map<number, string>() : sourceMap(file, 'new'), [file, collapsed]);
+  const sections = useMemo(() => collapsed ? [] : fullContext && file.oldContent !== undefined && file.newContent !== undefined
+    ? [{header: 'Full file context', lines: fullContextLines(file), oldStart: 1, newStart: 1, oldCount: 0, newCount: 0}]
+    : file.hunks, [file, fullContext, collapsed]);
+  const pairedSections = useMemo(() => sections.map(section => pairLines(section.lines)), [sections]);
+  const threads = useMemo(() => annotations.filter(annotation => annotation.path === file.path && annotation.layer === layer), [annotations, file.path, layer]);
+  const threadsByLine = useMemo(() => {
+    const result = new Map<string, Annotation[]>();
+    for (const thread of threads) {
+      const key = `${thread.side}:${thread.endLine}`;
+      const group = result.get(key) ?? []; group.push(thread); result.set(key, group);
+    }
+    return result;
+  }, [threads]);
   const openThreads = threads.filter(thread => !thread.resolved).length;
   const inlineRanges = useMemo(() => {
     const result = new Map<string, ChangeRange>();
-    for (const section of sections) for (const row of pairLines(section.lines)) {
+    for (const rows of pairedSections) for (const row of rows) {
       if (row.old?.type !== 'delete' || row.next?.type !== 'add') continue;
       const ranges = changeRanges(row.old.text, row.next.text);
       if (ranges) {result.set(`old:${row.old.oldLine}`, ranges.old); result.set(`new:${row.next.newLine}`, ranges.next);}
     }
     return result;
-  }, [sections]);
+  }, [pairedSections]);
   const syntax = (line: DiffLine, side: DiffSide) => {
     const number = side === 'old' ? line.oldLine : line.newLine;
     const html = number === undefined ? escapeHtml(line.text) : (side === 'old' ? oldSyntax : newSyntax).get(number) ?? escapeHtml(line.text.replace(/\r$/, ''));
@@ -94,7 +126,7 @@ export function DiffView(props: DiffViewProps) {
     return localSelection?.side === side && number !== undefined && number >= localSelection.startLine && number <= localSelection.endLine;
   };
   const afterRow = (oldLine?: number, newLine?: number) => {
-    const rowThreads = threads.filter(thread => thread.endLine === (thread.side === 'old' ? oldLine : newLine));
+    const rowThreads = [...(threadsByLine.get(`old:${oldLine}`) ?? []), ...(threadsByLine.get(`new:${newLine}`) ?? [])];
     const composerHere = localSelection && localSelection.endLine === (localSelection.side === 'old' ? oldLine : newLine);
     if (!rowThreads.length && !composerHere) return null;
     return <div className="sr-line-discussion">{rowThreads.map(annotation => <AnnotationThread key={annotation.id} annotation={annotation} onUpdate={props.onUpdateAnnotation} onDelete={props.onDeleteAnnotation}/>)}
@@ -108,17 +140,18 @@ export function DiffView(props: DiffViewProps) {
     return <div className={`sr-split-cell ${line ? `sr-line-${line.type}` : 'sr-line-empty'} ${line && selected(line, side) ? 'sr-line-selected' : ''}`}>
       <div className="sr-split-gutter">{annotateButton(side, number)}{lineNumber(side, number)}</div>
       <span className="sr-line-sign" aria-hidden="true">{line?.type === 'delete' ? '−' : line?.type === 'add' ? '+' : ' '}</span>
-      <code className="sr-code" dangerouslySetInnerHTML={{__html: line ? syntax(line, side) || ' ' : ' '}}/>
+      <code className="sr-code" data-side={side} dangerouslySetInnerHTML={{__html: line ? syntax(line, side) || ' ' : ' '}}/>
     </div>;
   };
-  return <article id={fileId(file.path)} className={`sr-diff-file ${reviewed ? 'sr-diff-reviewed' : ''} ${collapsed ? 'sr-diff-collapsed' : ''}`} data-file-path={file.path}>
-    <div className="sr-diff-file-header">{props.onToggleCollapsed && <button className="sr-icon-button sr-diff-toggle" type="button" aria-label={`${collapsed ? 'Expand' : 'Collapse'} diff for ${file.path}`} aria-expanded={!collapsed} aria-controls={`${fileId(file.path)}-content`} onClick={props.onToggleCollapsed} disabled={!!localSelection} title={localSelection ? 'Save or cancel your annotation before collapsing this file' : collapsed ? 'Expand file diff' : 'Collapse file diff'}>{collapsed ? <ChevronRight size={16}/> : <ChevronDown size={16}/>}</button>}<FileCode2 size={16}/><div className="sr-diff-filename">{file.oldPath && file.oldPath !== file.path && <span>{file.oldPath} → </span>}<strong title={file.path}>{file.path}</strong></div>
+  return <article id={fileId(file.path, props.idPrefix)} className={`sr-diff-file ${reviewed ? 'sr-diff-reviewed' : ''} ${collapsed ? 'sr-diff-collapsed' : ''}`} data-file-path={file.path}>
+    <div className="sr-diff-file-header">{props.onToggleCollapsed && <button className="sr-icon-button sr-diff-toggle" type="button" aria-label={`${collapsed ? 'Expand' : 'Collapse'} diff for ${file.path}`} aria-expanded={!collapsed} aria-controls={`${fileId(file.path, props.idPrefix)}-content`} onClick={props.onToggleCollapsed} disabled={!!localSelection} title={localSelection ? 'Save or cancel your annotation before collapsing this file' : collapsed ? 'Expand file diff' : 'Collapse file diff'}>{collapsed ? <ChevronRight size={16}/> : <ChevronDown size={16}/>}</button>}<FileCode2 size={16}/><div className="sr-diff-filename">{file.oldPath && file.oldPath !== file.path && <span>{file.oldPath} → </span>}<strong title={file.path}>{file.path}</strong></div>
       <span className={`sr-file-status sr-status-${file.status}`}>{file.untracked ? 'untracked' : file.status}</span><span className="sr-diff-stat"><span className="sr-additions">+{file.additions}</span><span className="sr-deletions">−{file.deletions}</span></span>
       {openThreads > 0 && <span className="sr-file-thread-count" title={`${openThreads} unresolved annotation${openThreads === 1 ? '' : 's'}`}><MessageSquare size={13}/>{openThreads}</span>}
+      {!file.binary && props.onCopySource && <button className="sr-icon-button sr-copy-source" type="button" aria-label={`Copy ${file.status === 'deleted' ? 'original' : 'stashed'} code for ${file.path}`} title={`Copy ${file.status === 'deleted' ? 'original' : 'stashed'} file contents`} onClick={props.onCopySource}><Copy size={14}/></button>}
       {!file.binary && <button className="sr-icon-button sr-context-button" type="button" aria-label={`${fullContext ? 'Collapse full context for' : 'Show full context for'} ${file.path}`} title={fullContext ? 'Collapse full file context' : 'Show full file context'} onClick={props.onToggleFull} disabled={contextLoading}>{contextLoading ? <span className="sr-spinner"/> : fullContext ? <Minimize2 size={15}/> : <Maximize2 size={15}/>}</button>}
       <label className="sr-reviewed-control"><input type="checkbox" aria-label={`Mark ${file.path} as reviewed`} checked={reviewed} onChange={props.onReviewed}/><span className="sr-reviewed-check"><Check size={12}/></span><span>Viewed</span></label>
     </div>
-    {collapsed ? <div className="sr-collapsed-summary">{reviewed ? <Check size={13}/> : <FileCode2 size={13}/>}<span>{reviewed ? 'Viewed' : 'Diff collapsed'}{openThreads > 0 ? ` · ${openThreads} unresolved annotation${openThreads === 1 ? '' : 's'}` : ''}</span></div> : <div id={`${fileId(file.path)}-content`} className="sr-diff-content">{file.binary ? <div className="sr-binary"><FileImage size={28}/><strong>Binary file changed</strong><p>A text diff is unavailable for this file.</p></div> : !sections.length ? <div className="sr-file-empty"><ArrowDownUp size={20}/><p>{file.status === 'renamed' ? 'File renamed with no content changes.' : 'No text changes in this file.'}</p></div> : <div className={`sr-diff-code sr-diff-${mode}`}>
+    {collapsed ? <div className="sr-collapsed-summary">{reviewed ? <Check size={13}/> : <FileCode2 size={13}/>}<span>{reviewed ? 'Viewed' : 'Diff collapsed'}{openThreads > 0 ? ` · ${openThreads} unresolved annotation${openThreads === 1 ? '' : 's'}` : ''}</span></div> : <div id={`${fileId(file.path, props.idPrefix)}-content`} className="sr-diff-content">{file.binary ? <div className="sr-binary"><FileImage size={28}/><strong>Binary file changed</strong><p>A text diff is unavailable for this file.</p></div> : !sections.length ? <div className="sr-file-empty"><ArrowDownUp size={20}/><p>{file.status === 'renamed' ? 'File renamed with no content changes.' : 'No text changes in this file.'}</p></div> : <div className={`sr-diff-code sr-diff-${mode}`} onCopy={copyCodeSelection}>
       {mode === 'split' && <div className="sr-split-labels"><span>Before</span><span>Stashed changes</span></div>}
       {sections.map((section, sectionIndex) => <Fragment key={sectionIndex}>
         {!fullContext && (section.oldStart > (sectionIndex ? sections[sectionIndex - 1].oldStart + sections[sectionIndex - 1].oldCount : 1) || section.newStart > (sectionIndex ? sections[sectionIndex - 1].newStart + sections[sectionIndex - 1].newCount : 1)) && <button className="sr-context-gap" type="button" aria-label={`Show omitted context before hunk ${sectionIndex + 1} in ${file.path}`} onClick={props.onToggleFull} disabled={contextLoading}><UnfoldVertical size={14}/><span>Show omitted context</span></button>}
@@ -129,7 +162,7 @@ export function DiffView(props: DiffViewProps) {
             <span className="sr-line-sign" aria-hidden="true">{line.type === 'delete' ? '−' : line.type === 'add' ? '+' : line.type === 'info' ? '\\' : ' '}</span>
             <code className="sr-code" dangerouslySetInnerHTML={{__html: line.type === 'info' ? escapeHtml(line.text) : syntax(line, line.type === 'delete' ? 'old' : 'new') || ' '}}/>
           </div>{afterRow(line.oldLine, line.newLine)}
-        </Fragment>) : pairLines(section.lines).map((row, index) => <Fragment key={index}>{row.info ? <div className="sr-diff-info"><code>{row.info}</code></div> : <div className="sr-split-row">{splitCell(row.old, 'old')}{splitCell(row.next, 'new')}</div>}{afterRow(row.old?.oldLine, row.next?.newLine)}</Fragment>)}
+        </Fragment>) : pairedSections[sectionIndex].map((row, index) => <Fragment key={index}>{row.info ? <div className="sr-diff-info"><code>{row.info}</code></div> : <div className="sr-split-row">{splitCell(row.old, 'old')}{splitCell(row.next, 'new')}</div>}{afterRow(row.old?.oldLine, row.next?.newLine)}</Fragment>)}
       </Fragment>)}
       {!fullContext && <button className="sr-context-gap" type="button" aria-label={`Show remaining context for ${file.path}`} onClick={props.onToggleFull} disabled={contextLoading}><UnfoldVertical size={14}/><span>Show full file context</span></button>}
     </div>}</div>}

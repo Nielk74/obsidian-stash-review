@@ -19,6 +19,7 @@ async function repository(sha256 = false): Promise<string> {
   git(path, 'init', '--initial-branch=main', ...(sha256 ? ['--object-format=sha256'] : []));
   git(path, 'config', 'user.name', 'Stash Review Tests');
   git(path, 'config', 'user.email', 'tests@example.invalid');
+  git(path, 'config', 'core.autocrlf', 'false');
   await writeFile(join(path, 'example.ts'), 'const staged = 1;\nconst working = 1;\n');
   git(path, 'add', '--', 'example.ts');
   git(path, 'commit', '--quiet', '-m', 'Initial snapshot');
@@ -35,7 +36,7 @@ describe('GitService against real temporary repositories', () => {
     await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 1;\n');
     git(path, 'add', '--', 'example.ts');
     await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 3;\n');
-    const specialPath = 'café "ideas"\nnext.ts';
+    const specialPath = process.platform === 'win32' ? 'café ideas [next].ts' : 'café "ideas"\nnext.ts';
     await writeFile(join(path, specialPath), 'export const idea = true;\n');
     const repo = await service.resolveRepository(path);
     expect(repo).toMatchObject({ path: await realpath(path), branch: 'main', dirty: true });
@@ -73,16 +74,17 @@ describe('GitService against real temporary repositories', () => {
 
   it('reads renames, deleted files, binary data, and literal pathspec-like names', async () => {
     const path = await repository();
+    const literalPath = process.platform === 'win32' ? 'literal[glob].ts' : ':(glob)literal.ts';
     await writeFile(join(path, 'old name.txt'), 'a reusable name\n');
     await writeFile(join(path, 'deleted.txt'), 'deleted content\n');
     await writeFile(join(path, 'binary.dat'), Buffer.from([0, 1, 2]));
-    await writeFile(join(path, ':(glob)literal.ts'), 'const value = 1;\n');
+    await writeFile(join(path, literalPath), 'const value = 1;\n');
     git(path, 'add', '--all');
     git(path, 'commit', '--quiet', '-m', 'More files');
     await rename(join(path, 'old name.txt'), join(path, 'new name.txt'));
     await rm(join(path, 'deleted.txt'));
     await writeFile(join(path, 'binary.dat'), Buffer.from([0, 4, 5]));
-    await writeFile(join(path, ':(glob)literal.ts'), 'const value = 2;\n');
+    await writeFile(join(path, literalPath), 'const value = 2;\n');
     git(path, 'add', '--all');
     const repo = await service.resolveRepository(path);
     await service.createStash(repo, 'Paths and binary', false);
@@ -94,7 +96,7 @@ describe('GitService against real temporary repositories', () => {
     expect(binary).toMatchObject({ binary: true, hunks: [] });
     expect(await service.getFileContents(repo, stash, binary, 'all')).toEqual({ oldContent: '', newContent: '' });
     expect(await service.getFileContents(repo, stash, files.find(file => file.path === 'new name.txt')!, 'all')).toMatchObject({ oldContent: 'a reusable name\n', newContent: 'a reusable name\n' });
-    expect(await service.getFileContents(repo, stash, files.find(file => file.path === ':(glob)literal.ts')!, 'all')).toMatchObject({ oldContent: 'const value = 1;\n', newContent: 'const value = 2;\n' });
+    expect(await service.getFileContents(repo, stash, files.find(file => file.path === literalPath)!, 'all')).toMatchObject({ oldContent: 'const value = 1;\n', newContent: 'const value = 2;\n' });
   });
 
   it('removes a stash by stable hash after indices shift and restores its durable backup', async () => {

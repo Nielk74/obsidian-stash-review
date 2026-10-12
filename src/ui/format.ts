@@ -20,8 +20,8 @@ export function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function fileId(path: string): string {
-  return `sr-file-${Array.from(path).map(char => char.codePointAt(0)!.toString(16)).join('-')}`;
+export function fileId(path: string, prefix = ''): string {
+  return `${prefix}sr-file-${Array.from(path).map(char => char.codePointAt(0)!.toString(16)).join('-')}`;
 }
 
 const languageMap: Record<string, string> = {
@@ -38,13 +38,20 @@ export function escapeHtml(value: string): string {
 
 // Highlight the complete source, then carry open token spans across line boundaries.
 // Every HTML fragment originates from highlight.js or the escaping fallback.
+const syntaxCache = new Map<string, string[]>();
+let syntaxCacheSize = 0;
+const MAX_HIGHLIGHT_CHARS = 200_000;
+const MAX_CACHE_CHARS = 2_000_000;
 export function highlightedLines(source: string, path: string): string[] {
   source = source.replace(/\r\n/g, '\n');
   const extension = path.split('.').pop()?.toLowerCase() ?? '';
   const language = languageMap[extension];
+  const key = `${language ?? ''}\0${source}`;
+  const cached = syntaxCache.get(key);
+  if (cached) {syntaxCache.delete(key); syntaxCache.set(key, cached); return cached;}
   let html: string;
   try {
-    html = language && hljs.getLanguage(language)
+    html = source.length <= MAX_HIGHLIGHT_CHARS && language && hljs.getLanguage(language)
       ? hljs.highlight(source, {language, ignoreIllegals: true}).value
       : escapeHtml(source);
   } catch { html = escapeHtml(source); }
@@ -65,6 +72,15 @@ export function highlightedLines(source: string, path: string): string[] {
     } else line += piece;
   }
   result.push(line + '</span>'.repeat(stack.length));
+  const size = key.length + result.reduce((length, line) => length + line.length, 0);
+  if (size <= MAX_CACHE_CHARS) {
+    syntaxCache.set(key, result); syntaxCacheSize += size;
+    while (syntaxCacheSize > MAX_CACHE_CHARS || syntaxCache.size > 32) {
+      const [oldKey, oldLines] = syntaxCache.entries().next().value!;
+      syntaxCache.delete(oldKey);
+      syntaxCacheSize -= oldKey.length + oldLines.reduce((length, line) => length + line.length, 0);
+    }
+  }
   return result;
 }
 

@@ -17,6 +17,12 @@ export interface Stash {
 
 export type DiffLayer = 'all' | 'staged' | 'unstaged';
 export type DiffSide = 'old' | 'new';
+export interface ReviewTarget {
+  repositoryId: string;
+  stashHash: string;
+  layer?: DiffLayer;
+  file?: string;
+}
 export interface DiffLine {
   type: 'context' | 'add' | 'delete' | 'info';
   text: string;
@@ -95,6 +101,11 @@ export interface PluginData {
 
 export interface ReviewHost {
   settings: ReviewSettings;
+  vaultName?: string;
+  openReview?(target: ReviewTarget): Promise<void>;
+  subscribeMetadata?(listener: (repositoryId: string, hash: string) => void): () => void;
+  // Apply against shared in-memory metadata synchronously, then persist it.
+  updateMetadata?(repositoryId: string, hash: string, change: (previous: StashMetadata) => StashMetadata): {metadata: StashMetadata; saved: Promise<void>};
   listRepositories(): Promise<Repository[]>;
   addRepository(path: string): Promise<Repository>;
   listStashes(repository: Repository): Promise<Stash[]>;

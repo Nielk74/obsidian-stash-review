@@ -4,7 +4,7 @@ A pull request workspace for the changes you have parked in Git stashes. Open it
 
 ![Stash Review's dark workspace with a stash list, collapsible changed-file tree, and syntax-highlighted code diff](docs/images/stash-review-dark.png)
 
-The screenshots use the fictional browser Demo vault. [Light theme](docs/images/stash-review-light.png) · [Single file](docs/images/stash-review-focused.png) · [Split diff](docs/images/stash-review-split.png) · [Filtered tree](docs/images/stash-review-tree.png) · [Narrow workspace](docs/images/stash-review-narrow.png).
+The screenshots use the fictional browser Demo vault. [Laptop layout](docs/images/stash-review-laptop.png) · [Markdown embed](docs/images/stash-review-embed.png) · [Light theme](docs/images/stash-review-light.png) · [Single file](docs/images/stash-review-focused.png) · [Split diff](docs/images/stash-review-split.png) · [Filtered tree](docs/images/stash-review-tree.png) · [Narrow workspace](docs/images/stash-review-narrow.png).
 
 Stash Review runs on **Obsidian desktop 1.6 or later**, with Git installed on your computer. Your vault can be the repository, or you can review any other local Git repository from the same vault.
 
@@ -14,6 +14,7 @@ Stash Review runs on **Obsidian desktop 1.6 or later**, with Git installed on yo
 - Annotate a line or range, reply to a thread, resolve questions, and mark files reviewed.
 - Create a stash, apply a saved stash with an optional index restore, remove a stash with a recoverable backup, or export your review to a Markdown note.
 - Keep titles, tags, notes, and review progress across restarts and stash renumbering.
+- Link to an exact stash from an Obsidian note, or embed an interactive review directly in Markdown.
 
 ## Install
 
@@ -43,6 +44,18 @@ The **Files changed** sidebar shows changed paths in their actual folder hierarc
 Choose **All files** for a continuous review, or **Single file** to focus on the selected path. The file tree stays available in either mode, and the previous/next controls move between matching files. Collapse individual diffs or all files when you want to scan headers. Marking a file **Viewed** collapses its diff and updates progress in its parent folders. **Hide viewed files** filters the completed files while retaining your annotations and progress.
 
 Use a line's comment control to leave a note. Select a range with Shift when you want to discuss several lines. Threads belong to a specific file, line side, and diff layer. Selecting an annotation's location returns to its saved layer, reveals its file even when filtered or collapsed, and shows the original anchor. Expand file context to read surrounding saved code, then export the discussion into your vault when you want a standalone note.
+
+On a laptop or in a narrow Obsidian pane, the stash list and file tree open as drawers so code can use the available width. Close them with Escape or by clicking outside. Short panes collapse secondary stash details; **Show stash details** reveals the description, tags, and capture information. **Wrap code lines** avoids horizontal scrolling in a unified diff. Select code text normally to copy it without diff signs or line numbers; in split view, copying a vertical selection keeps the selected side. A file header's copy button copies the full saved file, or its original contents for a deleted file.
+
+## Link or embed a review in a note
+
+Open **More stash actions → Copy Markdown link**, then paste into any Obsidian note. Clicking the link opens the review tab at that exact repository, stash, and diff layer. In **Single file** mode the link also remembers the selected path. Links use the full stash commit hash, so creating or removing other stashes cannot redirect them to a different `stash@{n}`.
+
+Choose **Copy Markdown embed** to paste an interactive review inside the note instead. This copies a fenced `stash-review` block containing the same URL. The block renders in Reading view and rendered Live Preview blocks, with file navigation, diffs, annotations, and viewed-file controls. **Open full review** opens that snapshot in the plugin tab. Embeds and tabs share review metadata, including edits made while another view is saving.
+
+For a manually written block, use `repo: <repository ID>` and `stash: <full commit hash>` on separate lines. Optional fields are `layer: all`, `staged`, or `unstaged`, and `file: <path>`. Copying the link or embed is easier because it supplies the correct identifiers. An invalid definition displays an explanation; an unavailable stash or file never silently opens a different target.
+
+Links refer to configured local repositories in the named vault. After moving or cloning a repository to a different location, configure it and copy a fresh link. Exported review notes also include a link back to the live review.
 
 Within the file tree, use **↑/↓** to move, **→/←** to expand or collapse a folder and move between parents and children, **Home/End** to reach the first or last item, and **Enter/Space** to open a file. Stash shortcuts **j/k** continue to work in the stash list; file navigation and text fields keep their own keyboard behavior.
 
@@ -79,6 +92,8 @@ npm run test:e2e
 `npm run dev` rebuilds the desktop plugin while you work. Copy the built `main.js`, `manifest.json`, and `styles.css` into a test vault's plugin folder to load it in Obsidian.
 
 `npm run preview` serves the same React review workspace at `http://127.0.0.1:4173`. It uses a clearly marked **Demo vault** with fictional Git snapshots. Demo mutations and annotations persist in browser localStorage; the preview never reads or changes your local repositories. Clear that site's storage to reset it. Add `?theme=light` for a light theme, or `?state=empty`, `?state=error`, and `?state=diff-error` to inspect fallback screens.
+
+To preview a review embedded in a note, use `?embed=1&repo=demo-fieldbook&stash=8d7be6a901afe7794ed9a6f1a3cb0318409876da`; `embed=2` shows two instances sharing metadata. The optional `layer` and `file` parameters select a saved layer and path. The workspace caches syntax output within a bounded memory budget, skips highlighting collapsed files, and keeps very large generated files readable as plain code to avoid expensive tokenization.
 
 The test suite creates isolated temporary Git repositories to verify diff layers, stash identity, untracked files, mutation guards, and backup recovery. Browser tests exercise the review workflow and save screenshots as test artifacts. A package smoke test loads the compiled plugin against a minimal Obsidian API contract to check registration, persistence, and vault export. CI runs these checks before packaging a release. A native Obsidian GUI smoke test remains unverified on the headless development host.
 

@@ -1,25 +1,29 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {AlertCircle, Archive, ArrowDownToLine, ArrowUpRight, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, FileCode2, FolderGit2, FolderTree, GitBranch, GitCommitHorizontal, GitPullRequest, Layers, List, ListFilter, LoaderCircle, Menu, MessageSquare, MoreHorizontal, PanelLeftClose, PanelLeftOpen, Pin, Plus, RefreshCw, Search, Settings2, ShieldCheck, SplitSquareHorizontal, Trash2, Undo2, X} from 'lucide-react';
-import type {Annotation, DiffFile, DiffLayer, Repository, ReviewHost, Stash, StashMetadata} from '../types';
+import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react';
+import {AlertCircle, Archive, ArrowDownToLine, ArrowUpRight, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Code2, FileCode2, FolderGit2, FolderTree, GitBranch, GitCommitHorizontal, GitPullRequest, Layers, Link, List, ListFilter, LoaderCircle, Menu, MessageSquare, MoreHorizontal, PanelLeftClose, PanelLeftOpen, Pin, Plus, RefreshCw, Search, Settings2, ShieldCheck, SplitSquareHorizontal, Trash2, Undo2, WrapText, X} from 'lucide-react';
+import type {Annotation, DiffFile, DiffLayer, Repository, ReviewHost, ReviewTarget, Stash, StashMetadata} from '../types';
 import {emptyMetadata} from '../types';
 import {AnnotationThread} from './AnnotationThread';
 import {DiffView, type AnnotationSelection} from './DiffView';
 import {FileTree} from './FileTree';
 import {Modal} from './Modal';
 import {errorText, fileId, relativeDate, stashTitle, uniqueId} from './format';
+import {createReviewLink, markdownEmbed, markdownLink} from '../markdown';
 
 type Dialog = 'repository' | 'create' | 'apply' | 'drop' | 'details' | null;
 interface DroppedStash {repository: Repository; stash: Stash}
 
-export function ReviewApp({host}: {host: ReviewHost}) {
+export function ReviewApp({host, target, embedded = false}: {host: ReviewHost; target?: ReviewTarget; embedded?: boolean}) {
+  const idPrefix = useId().replace(/[^a-zA-Z0-9_-]/g, '') + '-';
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [repositoryKey, setRepositoryKey] = useState('');
   const [repositoriesLoading, setRepositoriesLoading] = useState(true);
+  const [resolvedRepositoryTarget, setResolvedRepositoryTarget] = useState('');
+  const [resolvedTarget, setResolvedTarget] = useState(target);
   const [repositoryError, setRepositoryError] = useState('');
   const [stashes, setStashes] = useState<Stash[]>([]);
   const [stashesLoading, setStashesLoading] = useState(false);
   const [stashError, setStashError] = useState('');
-  const [selectedHash, setSelectedHash] = useState('');
+  const [selectedHash, setSelectedHash] = useState(target?.stashHash ?? '');
   const [selectedStashRef, setSelectedStashRef] = useState('');
   const [search, setSearch] = useState('');
   const [pinnedOnly, setPinnedOnly] = useState(false);
@@ -29,13 +33,14 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   const [diffLoading, setDiffLoading] = useState(false);
   const [diffError, setDiffError] = useState('');
   const [loadedDiffKey, setLoadedDiffKey] = useState('');
-  const [layer, setLayer] = useState<DiffLayer>('all');
+  const [layer, setLayer] = useState<DiffLayer>(target?.layer ?? 'all');
   const [context, setContext] = useState(host.settings.contextLines);
   const [mode, setMode] = useState<'unified' | 'split'>(host.settings.defaultView);
-  const [activeFile, setActiveFile] = useState('');
+  const [activeFile, setActiveFile] = useState(target?.file ?? '');
+  const [requestedFile, setRequestedFile] = useState(target?.file ?? '');
   const [fileSearch, setFileSearch] = useState('');
   const [fileLayout, setFileLayout] = useState<'tree' | 'list'>('tree');
-  const [fileScope, setFileScope] = useState<'all' | 'single'>('all');
+  const [fileScope, setFileScope] = useState<'all' | 'single'>(target?.file || embedded ? 'single' : 'all');
   const [hideViewed, setHideViewed] = useState(false);
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
   const [fullFiles, setFullFiles] = useState<Set<string>>(new Set());
@@ -57,8 +62,13 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [fileNavigatorOpen, setFileNavigatorOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [compact, setCompact] = useState(embedded);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [wrapCode, setWrapCode] = useState(embedded);
+  const [metadataRevision, setMetadataRevision] = useState(0);
   const [reload, setReload] = useState(0);
   const stashRequest = useRef(0);
+  const repositoryRequest = useRef(0);
   const diffRequest = useRef(0);
   const pendingSaves = useRef(new Map<string, Promise<void>>());
   const metadataCache = useRef(new Map<string, StashMetadata>());
@@ -66,31 +76,71 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   const saveFailures = useRef(new Set<string>());
   const appRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const stashToggleRef = useRef<HTMLButtonElement>(null);
+  const fileToggleRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<Dialog>(null);
   const fileRequests = useRef(new Map<string, Promise<{oldContent: string; newContent: string; truncated?: boolean}>>());
   const [annotationTarget, setAnnotationTarget] = useState<Annotation | null>(null);
   const [dialogTarget, setDialogTarget] = useState<{repository: Repository; stash?: Stash; title: string} | null>(null);
   const metadataRef = useRef(metadata);
   const selectedRef = useRef('');
-  const repository = repositories.find(item => item.path === repositoryKey);
-  const stash = stashes.find(item => item.hash === selectedHash && item.ref === selectedStashRef) ?? stashes.find(item => item.hash === selectedHash);
+  const targetResolving = !!target && (resolvedRepositoryTarget !== target.repositoryId || resolvedTarget !== target);
+  const repository = targetResolving ? undefined : repositories.find(item => item.path === repositoryKey);
+  const stash = repository ? stashes.find(item => item.hash === selectedHash && item.ref === selectedStashRef) ?? stashes.find(item => item.hash === selectedHash) : undefined;
   const reviewKey = repository && stash ? `${repository.id}\0${stash.hash}` : '';
   selectedRef.current = reviewKey;
   dialogRef.current = dialog;
   metadataRef.current = metadata;
+  const detailsVisible = !compact || detailsExpanded;
+
+  useEffect(() => {
+    const element = appRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setCompact(embedded || entry.contentRect.height < 720 || entry.contentRect.width <= 900));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [embedded]);
+
+  useEffect(() => {
+    setResolvedTarget(target);
+    if (!target) return;
+    setSelectedHash(target.stashHash); setSelectedStashRef(''); setLayer(target.layer ?? 'all');
+    setActiveFile(target.file ?? ''); setRequestedFile(target.file ?? '');
+    if (target.file || embedded) setFileScope('single');
+    setSearch(''); setPinnedOnly(false); setSidebarOpen(false); setFileNavigatorOpen(false);
+  }, [target, embedded]);
+
+  useEffect(() => host.subscribeMetadata?.((repositoryId, hash) => {
+    const key = `${repositoryId}\0${hash}`;
+    if (pendingSaves.current.has(key) && !host.updateMetadata) return;
+    const updated = host.getMetadata(repositoryId, hash);
+    metadataCache.current.set(key, updated);
+    setMetadataRevision(value => value + 1);
+    if (selectedRef.current === key) {metadataRef.current = updated; setMetadata(updated);}
+  }), [host]);
+
+  const cachedMetadata = useCallback((repositoryId: string, hash: string) => {
+    const key = `${repositoryId}\0${hash}`;
+    let value = metadataCache.current.get(key);
+    if (!value) {value = host.getMetadata(repositoryId, hash); metadataCache.current.set(key, value);}
+    return value;
+  }, [host]);
 
   const announce = useCallback((message: string, error = false) => setNotice({message, error}), []);
   const loadRepositories = useCallback(async () => {
+    const request = ++repositoryRequest.current;
     setRepositoriesLoading(true); setRepositoryError('');
+    if (target) setRepositoryKey('');
     try {
       const result = await host.listRepositories();
+      if (request !== repositoryRequest.current) return;
       setRepositories(result);
-      setRepositoryKey(previous => result.some(item => item.path === previous) ? previous : result[0]?.path ?? '');
-    } catch (error) {setRepositoryError(errorText(error));}
-    finally {setRepositoriesLoading(false);}
-  }, [host]);
+      setRepositoryKey(previous => target ? result.find(item => item.id === target.repositoryId)?.path ?? '' : result.some(item => item.path === previous) ? previous : result[0]?.path ?? '');
+    } catch (error) {if (request === repositoryRequest.current) setRepositoryError(errorText(error));}
+    finally {if (request === repositoryRequest.current) {setResolvedRepositoryTarget(target?.repositoryId ?? ''); setRepositoriesLoading(false);}}
+  }, [host, target?.repositoryId]);
 
-  useEffect(() => {void loadRepositories();}, [loadRepositories]);
+  useEffect(() => {void loadRepositories(); return () => {repositoryRequest.current++;};}, [loadRepositories]);
 
   const loadStashes = useCallback(async (showLoading = true) => {
     if (!repository) return;
@@ -102,14 +152,14 @@ export function ReviewApp({host}: {host: ReviewHost}) {
       if (request !== stashRequest.current) return;
       if (dialogRef.current && !showLoading) return result;
       setStashes(result);
-      setSelectedHash(previous => result.some(item => item.hash === previous) ? previous : result[0]?.hash ?? '');
+      setSelectedHash(previous => result.some(item => item.hash === previous) ? previous : target?.repositoryId === repository.id ? target.stashHash : result[0]?.hash ?? '');
       return result;
     } catch (error) {if (request === stashRequest.current) setStashError(errorText(error));}
     finally {if (request === stashRequest.current) setStashesLoading(false);}
-  }, [host, repository?.id, repository?.path]);
+  }, [host, repository?.id, repository?.path, target?.repositoryId, target?.stashHash]);
 
   useEffect(() => {
-    setStashes([]); setSelectedHash(''); setSelectedStashRef(''); setSearch(''); setPinnedOnly(false); setStashError('');
+    setStashes([]); setSelectedHash(target?.repositoryId === repository?.id ? target?.stashHash ?? '' : ''); setSelectedStashRef(''); setSearch(''); setPinnedOnly(false); setStashError('');
     void loadStashes();
     return () => {stashRequest.current++;};
   }, [repositoryKey, loadStashes]);
@@ -123,7 +173,7 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   }, [host, repository?.id, repository?.path, loadStashes, busy]);
 
   useEffect(() => {
-    const value = repository && stash ? metadataCache.current.get(reviewKey) ?? host.getMetadata(repository.id, stash.hash) : emptyMetadata();
+    const value = repository && stash ? cachedMetadata(repository.id, stash.hash) : emptyMetadata();
     setMetadata(value); metadataRef.current = value; setSaveState(pendingSaves.current.has(reviewKey) ? 'saving' : saveFailures.current.has(reviewKey) ? 'failed' : 'saved');
     setSelection(null); setTab('files'); setFullFiles(new Set()); setCollapsedFiles(new Set(value.reviewedFiles)); setFileSearch(''); setHideViewed(false); setMoreOpen(false); setAnnotationTarget(null);
   }, [host, repository?.id, repository?.path, stash?.hash, reviewKey]);
@@ -148,17 +198,25 @@ export function ReviewApp({host}: {host: ReviewHost}) {
     if (!targetRepository || !targetStash) return Promise.resolve();
     const key = `${targetRepository.id}\0${targetStash.hash}`;
     const current = selectedRef.current === key ? metadataRef.current : metadataCache.current.get(key) ?? host.getMetadata(targetRepository.id, targetStash.hash);
-    const next = change(current);
+    let next: StashMetadata;
+    let saving: Promise<void>;
+    try {
+      if (host.updateMetadata) ({metadata: next, saved: saving} = host.updateMetadata(targetRepository.id, targetStash.hash, change));
+      else {next = change(current); saving = host.saveMetadata(targetRepository.id, targetStash.hash, next);}
+    } catch (error) {next = change(current); saving = Promise.reject(error);}
     metadataCache.current.set(key, next);
     if (selectedRef.current === key) {metadataRef.current = next; setMetadata(next); setSaveState('saving');}
     const version = (saveVersions.current.get(key) ?? 0) + 1;
     saveVersions.current.set(key, version); saveFailures.current.delete(key);
-    let saving: Promise<void>;
-    try {saving = host.saveMetadata(targetRepository.id, targetStash.hash, next);} catch (error) {saving = Promise.reject(error);}
     pendingSaves.current.set(key, saving);
     void saving.then(() => {
       if (saveVersions.current.get(key) !== version) return;
       pendingSaves.current.delete(key);
+      if (host.updateMetadata) {
+        const latest = host.getMetadata(targetRepository.id, targetStash.hash);
+        metadataCache.current.set(key, latest);
+        if (selectedRef.current === key) {metadataRef.current = latest; setMetadata(latest);}
+      }
       if (selectedRef.current === key) setSaveState('saved');
     }).catch(error => {
       if (saveVersions.current.get(key) === version) {
@@ -171,16 +229,16 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   }, [host, repository?.id, repository?.path, stash?.hash, announce]);
 
   const visibleStashes = useMemo(() => stashes.filter(item => {
-    const meta = item.hash === selectedHash ? metadata : metadataCache.current.get(`${repository?.id}\0${item.hash}`) ?? host.getMetadata(repository?.id ?? '', item.hash);
+    const meta = item.hash === selectedHash ? metadata : cachedMetadata(repository?.id ?? '', item.hash);
     const text = [meta.title, stashTitle(item), item.branch, item.ref, item.hash, meta.description, ...meta.tags].join(' ').toLowerCase();
     return (!pinnedOnly || meta.pinned) && text.includes(search.toLowerCase().trim());
-  }), [stashes, selectedHash, metadata, host, repositoryKey, pinnedOnly, search]);
+  }), [stashes, selectedHash, metadata, cachedMetadata, metadataRevision, repositoryKey, pinnedOnly, search]);
   const navigableFiles = useMemo(() => files.filter(file => !hideViewed || !metadata.reviewedFiles.includes(file.path)), [files, hideViewed, metadata.reviewedFiles]);
   const filteredFiles = useMemo(() => {
     const query = fileSearch.toLowerCase().trim();
     return navigableFiles.filter(file => file.path.toLowerCase().includes(query) || file.oldPath?.toLowerCase().includes(query));
   }, [navigableFiles, fileSearch]);
-  const focusedFile = filteredFiles.find(file => file.path === activeFile) ?? filteredFiles[0];
+  const focusedFile = requestedFile ? filteredFiles.find(file => file.path === requestedFile) : filteredFiles.find(file => file.path === activeFile) ?? filteredFiles[0];
   const displayedFiles = fileScope === 'single' ? focusedFile ? [focusedFile] : [] : filteredFiles;
   const focusedFileIndex = focusedFile ? filteredFiles.indexOf(focusedFile) : -1;
   const allCollapsed = displayedFiles.length > 0 && displayedFiles.every(file => collapsedFiles.has(file.path));
@@ -191,14 +249,22 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   const title = stash ? metadata.title || stashTitle(stash) : '';
   const diffIdentity = `${repository?.path}\0${stash?.hash}\0${layer}\0${context}\0${reload}`;
 
-  const chooseStash = useCallback((hash: string, ref?: string) => {if (dialogRef.current) return; setSelectedHash(hash); setSelectedStashRef(ref ?? ''); setSidebarOpen(false); setSelection(null);}, []);
+  const chooseStash = useCallback((hash: string, ref?: string) => {if (dialogRef.current) return; setSelectedHash(hash); setSelectedStashRef(ref ?? ''); setRequestedFile(''); setSidebarOpen(false); setSelection(null);}, []);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (!appRef.current?.contains(target) || dialog || event.ctrlKey || event.metaKey || event.altKey || target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (!appRef.current?.contains(target) || dialog) return;
+      if (event.key === 'Escape') {
+        if (sidebarOpen) {setSidebarOpen(false); stashToggleRef.current?.focus();}
+        else if (fileNavigatorOpen) {setFileNavigatorOpen(false); fileToggleRef.current?.focus();}
+        else if (moreOpen) setMoreOpen(false);
+        else return;
+        event.preventDefault(); event.stopPropagation(); return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey || target?.closest('input, textarea, select, [contenteditable="true"]') || !window.getSelection()?.isCollapsed) return;
       if (event.key === '/') {event.preventDefault(); setSidebarCollapsed(false); setSidebarOpen(true); window.setTimeout(() => searchRef.current?.focus(), 0); return;}
       if (!['j', 'k', 'ArrowDown', 'ArrowUp'].includes(event.key) || !visibleStashes.length) return;
-      if (target?.closest('.sr-file-tree') || target?.closest('.sr-diff-scroll, .sr-annotations-panel') && event.key.startsWith('Arrow')) return;
+      if (target?.closest('.sr-file-tree, .sr-diff-scroll, .sr-annotations-panel') || embedded) return;
       event.preventDefault();
       const current = visibleStashes.findIndex(item => item.hash === selectedHash && item.ref === stash?.ref);
       const step = event.key === 'j' || event.key === 'ArrowDown' ? 1 : -1;
@@ -207,7 +273,7 @@ export function ReviewApp({host}: {host: ReviewHost}) {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [dialog, visibleStashes, selectedHash, stash?.ref, chooseStash]);
+  }, [dialog, visibleStashes, selectedHash, stash?.ref, chooseStash, sidebarOpen, fileNavigatorOpen, moreOpen, embedded]);
 
   const refreshRepositoryStatus = async () => {
     try {setRepositories(await host.listRepositories());} catch (error) {announce(`Could not refresh repository status: ${errorText(error)}`, true);}
@@ -222,9 +288,9 @@ export function ReviewApp({host}: {host: ReviewHost}) {
     finally {setBusy(false);}
   };
   const jumpToFile = (path: string) => {
-    setActiveFile(path); setTab('files'); setSelection(null); setFileNavigatorOpen(false);
+    setActiveFile(path); setRequestedFile(''); setTab('files'); setSelection(null); setFileNavigatorOpen(false);
     setCollapsedFiles(previous => {const next = new Set(previous); next.delete(path); return next;});
-    window.setTimeout(() => appRef.current?.querySelector<HTMLElement>(`#${fileId(path)}`)?.scrollIntoView({behavior: 'smooth', block: 'start'}), 0);
+    window.setTimeout(() => appRef.current?.querySelector<HTMLElement>(`#${fileId(path, idPrefix)}`)?.scrollIntoView({behavior: 'smooth', block: 'start'}), 0);
   };
   const toggleFileCollapsed = (path: string) => {
     setCollapsedFiles(previous => {const next = new Set(previous); if (next.has(path)) next.delete(path); else next.add(path); return next;});
@@ -302,7 +368,7 @@ export function ReviewApp({host}: {host: ReviewHost}) {
         window.requestAnimationFrame(() => {
           if (cancelled) return;
           const thread = Array.from(appRef.current?.querySelectorAll<HTMLElement>('[data-annotation-id]') ?? []).find(element => element.dataset.annotationId === anchor.id);
-          (thread ?? appRef.current?.querySelector<HTMLElement>(`#${fileId(file.path)}`))?.scrollIntoView({behavior: 'smooth', block: 'center'});
+          (thread ?? appRef.current?.querySelector<HTMLElement>(`#${fileId(file.path, idPrefix)}`))?.scrollIntoView({behavior: 'smooth', block: 'center'});
           thread?.classList.add('sr-thread-highlight');
           window.setTimeout(() => thread?.classList.remove('sr-thread-highlight'), 1600);
           setAnnotationTarget(null);
@@ -335,6 +401,25 @@ export function ReviewApp({host}: {host: ReviewHost}) {
     try {await pending; const path = await host.exportReview(repository, stash, snapshot); announce(`Review exported to ${path}`); host.notify(`Review exported to ${path}`);}
     catch (error) {announce(`Could not export review: ${errorText(error)}`, true);}
   };
+  const currentTarget = (): ReviewTarget | undefined => repository && stash ? {repositoryId: repository.id, stashHash: stash.hash, layer, ...(fileScope === 'single' && focusedFile ? {file: focusedFile.path} : {})} : undefined;
+  const copyMarkdown = async (embed: boolean) => {
+    const destination = currentTarget();
+    if (!destination) return;
+    setMoreOpen(false);
+    try {
+      const link = createReviewLink(host.vaultName ?? '', destination);
+      await navigator.clipboard.writeText(embed ? markdownEmbed(link) : markdownLink(title, link));
+      announce(embed ? 'Markdown embed copied. Paste it into an Obsidian note.' : 'Markdown link copied. Paste it into an Obsidian note.');
+    } catch (error) {announce(`Could not copy Markdown: ${errorText(error)}`, true);}
+  };
+  const copySource = async (file: DiffFile) => {
+    try {
+      const contents = await getSource(file);
+      if (contents.truncated) throw new Error('This file exceeds the full-source size limit. Select the visible code to copy it.');
+      await navigator.clipboard.writeText(file.status === 'deleted' ? contents.oldContent : contents.newContent);
+      announce(`Copied ${file.status === 'deleted' ? 'original' : 'stashed'} code from ${file.path}.`);
+    } catch (error) {announce(`Could not copy code: ${errorText(error)}`, true);}
+  };
   const undoDrop = async () => {
     if (!dropped) return;
     setBusy(true);
@@ -346,8 +431,11 @@ export function ReviewApp({host}: {host: ReviewHost}) {
   const modalRepository = dialogTarget?.repository ?? repository;
   const modalStash = dialogTarget?.stash ?? stash;
   const modalTitle = dialogTarget?.title ?? title;
+  const linkedRepositoryMissing = !!target && !repositoriesLoading && !repositories.some(item => item.id === target.repositoryId);
+  const linkedStashMissing = !!target && !stashesLoading && !!repository && selectedHash === target.stashHash && !stash && !stashError;
 
-  return <div ref={appRef} className={`sr-app ${sidebarOpen ? 'sr-sidebar-open' : ''} ${sidebarCollapsed ? 'sr-sidebar-collapsed' : ''}`}>
+  return <div ref={appRef} className={`sr-app ${sidebarOpen ? 'sr-sidebar-open' : ''} ${sidebarCollapsed ? 'sr-sidebar-collapsed' : ''} ${compact ? 'sr-compact' : ''} ${!detailsVisible ? 'sr-details-hidden' : ''} ${wrapCode ? 'sr-wrap-code' : ''} ${embedded ? 'sr-embedded' : ''}`}>
+    {sidebarOpen && <button className="sr-drawer-scrim" type="button" aria-label="Dismiss stash sidebar" onClick={() => {setSidebarOpen(false); stashToggleRef.current?.focus();}}/>}
     <aside className="sr-sidebar" aria-label="Stash workspace">
       <div className="sr-brand"><GitPullRequest size={18}/><strong>Stash Review</strong><button className="sr-icon-button sr-mobile-close" aria-label="Close stash sidebar" type="button" onClick={() => setSidebarOpen(false)}><X size={16}/></button></div>
       <div className="sr-repository-picker"><FolderGit2 size={16}/><select aria-label="Repository" value={repositoryKey} onChange={event => setRepositoryKey(event.target.value)} disabled={repositoriesLoading || busy || !!dialog}><option value="" disabled>{repositoriesLoading ? 'Loading repositories…' : 'Choose a repository'}</option>{repositories.map(item => <option key={item.path} value={item.path}>{item.name}</option>)}</select><ChevronDown size={14}/><button type="button" className="sr-icon-button" aria-label="Add repository" title="Add repository" onClick={() => openDialog('repository')}><Plus size={16}/></button></div>
@@ -356,7 +444,7 @@ export function ReviewApp({host}: {host: ReviewHost}) {
       <div className="sr-search"><Search size={15}/><input ref={searchRef} type="search" aria-label="Search stashes" placeholder="Search stashes…" value={search} onChange={event => setSearch(event.target.value)}/><kbd>/</kbd></div>
       <div className="sr-stash-list" aria-label="Stashes">
         {repositoryError ? <div className="sr-sidebar-message sr-error"><AlertCircle size={20}/><strong>Cannot load repositories</strong><p>{repositoryError}</p><button className="sr-button sr-button-small" onClick={() => void loadRepositories()} type="button">Retry repositories</button></div> : stashError ? <div className="sr-sidebar-message sr-error"><AlertCircle size={20}/><strong>Cannot read stashes</strong><p>{stashError}</p><button className="sr-button sr-button-small" onClick={() => void loadStashes()} type="button">Retry stashes</button></div> : repositoriesLoading || (stashesLoading && !stashes.length) ? <div className="sr-sidebar-message"><LoaderCircle size={20} className="sr-spin"/><p>Finding your unfinished work…</p></div> : !visibleStashes.length ? <div className="sr-sidebar-message"><Archive size={26}/><strong>{!repository ? 'Connect a repository' : search || pinnedOnly ? 'No matching stashes' : 'A clean slate'}</strong><p>{!repository ? 'Choose a local Git repository to begin.' : search || pinnedOnly ? 'Try a different search or clear the pinned filter.' : 'Stash your working changes to give them a place to land.'}</p>{(search || pinnedOnly) && <button className="sr-text-button" type="button" onClick={() => {setSearch(''); setPinnedOnly(false);}}>Clear filters</button>}</div> : visibleStashes.map(item => {
-          const meta = item.hash === selectedHash ? metadata : metadataCache.current.get(`${repository?.id}\0${item.hash}`) ?? host.getMetadata(repository?.id ?? '', item.hash);
+          const meta = item.hash === selectedHash ? metadata : cachedMetadata(repository?.id ?? '', item.hash);
           const count = meta.annotations.filter(annotation => !annotation.resolved).length;
           return <button className={`sr-stash-card ${item.hash === selectedHash && stash?.ref === item.ref ? 'sr-selected' : ''}`} type="button" key={`${item.hash}-${item.ref}`} onClick={() => chooseStash(item.hash, item.ref)} disabled={!!dialog} aria-current={item.hash === selectedHash && stash?.ref === item.ref ? 'true' : undefined} aria-label={`Open stash ${meta.title || stashTitle(item)}`}>
             <div className="sr-stash-card-top"><code>{item.ref}</code><time title={new Date(item.createdAt).toLocaleString()}>{relativeDate(item.createdAt)}</time>{meta.pinned && <Pin size={12} className="sr-pinned-icon"/>}</div>
@@ -368,28 +456,28 @@ export function ReviewApp({host}: {host: ReviewHost}) {
       <div className="sr-sidebar-footer"><button type="button" className="sr-button sr-create-button" onClick={() => {setNewStashMessage(''); openDialog('create');}} disabled={!repository || busy}><Plus size={16}/>Create stash</button><div><span><kbd>j</kbd><kbd>k</kbd> to browse</span><button className="sr-icon-button" type="button" aria-label="Open Stash Review settings" title="Settings" onClick={() => host.openSettings()}><Settings2 size={15}/></button></div></div>
     </aside>
     <main className="sr-main">
-      <div className="sr-topbar"><div><button className="sr-icon-button sr-sidebar-toggle" type="button" aria-label={sidebarCollapsed ? 'Expand stash sidebar' : 'Collapse stash sidebar'} title={sidebarCollapsed ? 'Expand stash sidebar' : 'Collapse stash sidebar'} aria-expanded={!sidebarCollapsed} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>{sidebarCollapsed ? <PanelLeftOpen size={17}/> : <PanelLeftClose size={17}/>}</button><button className="sr-icon-button sr-mobile-menu" type="button" aria-label="Toggle stash sidebar" aria-expanded={sidebarOpen} onClick={() => setSidebarOpen(!sidebarOpen)}><Menu size={17}/></button><FolderGit2 size={15}/><span className="sr-topbar-project">{repository?.name || 'Workspace'}</span><span className="sr-breadcrumb-separator">/</span><span>Stashes</span>{stash && <><span className="sr-breadcrumb-separator">/</span><code>{stash.ref}</code></>}</div><span className="sr-local-badge"><span/>Local review</span></div>
+      <div className="sr-topbar"><div><button className="sr-icon-button sr-sidebar-toggle" type="button" aria-label={sidebarCollapsed ? 'Expand stash sidebar' : 'Collapse stash sidebar'} title={sidebarCollapsed ? 'Expand stash sidebar' : 'Collapse stash sidebar'} aria-expanded={!sidebarCollapsed} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>{sidebarCollapsed ? <PanelLeftOpen size={17}/> : <PanelLeftClose size={17}/>}</button><button ref={stashToggleRef} className="sr-icon-button sr-mobile-menu" type="button" aria-label="Toggle stash sidebar" aria-expanded={sidebarOpen} onClick={() => {setSidebarOpen(!sidebarOpen); setFileNavigatorOpen(false);}}><Menu size={17}/></button><FolderGit2 size={15}/><span className="sr-topbar-project">{repository?.name || 'Workspace'}</span><span className="sr-breadcrumb-separator">/</span><span>Stashes</span>{stash && <><span className="sr-breadcrumb-separator">/</span><code>{stash.ref}</code></>}</div><span className="sr-local-badge"><span/>Local review</span>{embedded && host.openReview && <button className="sr-text-button" type="button" onClick={() => {const destination = currentTarget(); if (destination) void host.openReview!(destination).catch(error => announce(errorText(error), true));}}><ArrowUpRight size={14}/>Open full review</button>}</div>
       {notice && <div className={`sr-notice ${notice.error ? 'sr-notice-error' : ''}`} role={notice.error ? 'alert' : 'status'}>{notice.error ? <AlertCircle size={15}/> : <CheckCircle2 size={15}/>}<span>{notice.message}</span><button className="sr-icon-button" aria-label="Dismiss notification" type="button" onClick={() => setNotice(null)}><X size={14}/></button></div>}
       {dropped && <div className="sr-undo-notice" role="status"><ShieldCheck size={16}/><span>“{stashTitle(dropped.stash)}” was removed from the stash list. Its backup is preserved.</span><button type="button" className="sr-text-button" onClick={() => void undoDrop()} disabled={busy}><Undo2 size={14}/>Undo drop</button><button className="sr-icon-button" type="button" aria-label="Dismiss undo notification" onClick={() => setDropped(null)}><X size={14}/></button></div>}
-      {!stash ? <div className="sr-workspace-empty"><Archive size={36}/><h1>{repository ? 'No stash selected' : 'Connect a Git repository'}</h1><p>Review stashed changes, browse files, and leave notes on the code.</p><button className="sr-button sr-button-primary" type="button" onClick={() => openDialog(repository ? 'create' : 'repository')}><Plus size={16}/>{repository ? 'Create your first stash' : 'Connect a repository'}</button></div> : <>
+      {!stash ? <div className="sr-workspace-empty">{repositoriesLoading || stashesLoading || targetResolving ? <><LoaderCircle size={28} className="sr-spin"/><h1>Loading stash review…</h1></> : <><Archive size={36}/><h1>{linkedRepositoryMissing ? 'Linked repository unavailable' : linkedStashMissing ? 'Linked stash unavailable' : repository ? 'No stash selected' : 'Connect a Git repository'}</h1><p>{linkedRepositoryMissing ? 'Configure the original repository in Stash Review settings, then retry.' : linkedStashMissing ? 'The linked stash was removed or is unavailable in this repository. Its saved review notes are preserved.' : 'Review stashed changes, browse files, and leave notes on the code.'}</p>{linkedRepositoryMissing || linkedStashMissing ? <button className="sr-button" type="button" onClick={() => void (linkedRepositoryMissing ? loadRepositories() : refresh())}>Retry linked review</button> : <button className="sr-button sr-button-primary" type="button" onClick={() => openDialog(repository ? 'create' : 'repository')}><Plus size={16}/>{repository ? 'Create your first stash' : 'Connect a repository'}</button>}</>}</div> : <>
         <header className="sr-review-header"><div className="sr-review-kicker"><span className="sr-stash-pill"><Archive size={12}/>Saved stash</span><span>Created {relativeDate(stash.createdAt)}</span><span className={`sr-save-status sr-save-${saveState}`}>{saveState === 'saving' ? <LoaderCircle size={12} className="sr-spin"/> : saveState === 'failed' ? <AlertCircle size={12}/> : <Check size={12}/>} {saveState === 'saving' ? 'Saving review…' : saveState === 'failed' ? 'Review not saved' : 'Review saved'}</span>{saveState === 'failed' && <button className="sr-text-button" type="button" onClick={() => void persist(previous => previous)}>Retry save</button>}</div>
-          <div className="sr-review-title-row"><h1 title={title}>{title}<span className="sr-title-ref" aria-hidden="true">{stash.ref}</span></h1><div className="sr-review-actions"><button className={`sr-icon-button sr-pin-button ${metadata.pinned ? 'sr-active' : ''}`} type="button" aria-label={metadata.pinned ? 'Unpin stash' : 'Pin stash'} title={metadata.pinned ? 'Unpin stash' : 'Pin stash'} onClick={() => void persist(previous => ({...previous, pinned: !previous.pinned}))}><Pin size={16}/></button><button className="sr-button sr-button-primary" type="button" onClick={() => {setRestoreIndex(false); openDialog('apply');}} disabled={busy}><ArrowDownToLine size={15}/>Apply stash</button><div className="sr-more-wrap"><button className="sr-icon-button" type="button" aria-label="More stash actions" aria-expanded={moreOpen} onClick={() => setMoreOpen(!moreOpen)}><MoreHorizontal size={18}/></button>{moreOpen && <div className="sr-menu sr-stash-menu"><button type="button" onClick={editDetails}><Settings2 size={14}/>Edit stash details</button><button type="button" onClick={() => void exportReview()}><ArrowUpRight size={14}/>Export review</button><button type="button" className="sr-danger-text" onClick={() => openDialog('drop')}><Trash2 size={14}/>Drop stash</button></div>}</div></div></div>
+          <div className="sr-review-title-row"><h1 title={title}>{title}<span className="sr-title-ref" aria-hidden="true">{stash.ref}</span></h1><div className="sr-review-actions"><button className={`sr-icon-button sr-pin-button ${metadata.pinned ? 'sr-active' : ''}`} type="button" aria-label={metadata.pinned ? 'Unpin stash' : 'Pin stash'} title={metadata.pinned ? 'Unpin stash' : 'Pin stash'} onClick={() => void persist(previous => ({...previous, pinned: !previous.pinned}))}><Pin size={16}/></button><button className="sr-button sr-button-primary" type="button" onClick={() => {setRestoreIndex(false); openDialog('apply');}} disabled={busy}><ArrowDownToLine size={15}/>Apply stash</button><div className="sr-more-wrap"><button className="sr-icon-button" type="button" aria-label="More stash actions" aria-expanded={moreOpen} onClick={() => setMoreOpen(!moreOpen)}><MoreHorizontal size={18}/></button>{moreOpen && <div className="sr-menu sr-stash-menu"><button type="button" onClick={editDetails}><Settings2 size={14}/>Edit stash details</button><button type="button" onClick={() => void copyMarkdown(false)}><Link size={14}/>Copy Markdown link</button><button type="button" onClick={() => void copyMarkdown(true)}><Code2 size={14}/>Copy Markdown embed</button><button type="button" onClick={() => void exportReview()}><ArrowUpRight size={14}/>Export review</button><button type="button" className="sr-danger-text" onClick={() => openDialog('drop')}><Trash2 size={14}/>Drop stash</button></div>}</div></div></div>
           <div className="sr-review-meta"><span><GitBranch size={13}/>{stash.branch || 'Unknown branch'}</span><span><GitCommitHorizontal size={15}/><code title={stash.hash}>{stash.hash.slice(0, 8)}</code></span><span title={`Base commit ${stash.baseHash}`}>on <code>{stash.baseHash.slice(0, 8)}</code></span><button className="sr-text-button" type="button" onClick={editDetails}>Edit details</button>{metadata.tags.map(tag => <span className="sr-tag" key={tag}>{tag}</span>)}</div>
           {metadata.description && <p className="sr-review-description">{metadata.description}</p>}
-          <div className="sr-review-summary"><div className="sr-summary-changes"><strong>{files.length}</strong> changed file{files.length === 1 ? '' : 's'}<span className="sr-additions">+{totals.additions}</span><span className="sr-deletions">−{totals.deletions}</span><span className="sr-change-bar" aria-hidden="true">{Array.from({length: 10}, (_, index) => <i key={index} className={index < Math.round(totals.additions / Math.max(1, totals.additions + totals.deletions) * 10) ? 'sr-change-add' : 'sr-change-delete'}/>)}</span></div><div className="sr-review-progress"><div><i style={{width: `${files.length ? reviewedCount / files.length * 100 : 0}%`}}/></div><span>{reviewedCount}/{files.length} viewed</span>{files.length > 0 && reviewedCount === files.length && <CheckCircle2 size={14}/>}</div></div>
+          <div className="sr-review-summary">{compact && <button className="sr-text-button sr-details-toggle" type="button" aria-expanded={detailsVisible} onClick={() => setDetailsExpanded(!detailsExpanded)}>{detailsVisible ? <ChevronDown size={14}/> : <ChevronRight size={14}/>} {detailsVisible ? 'Hide stash details' : 'Show stash details'}</button>}<div className="sr-summary-changes"><strong>{files.length}</strong> changed file{files.length === 1 ? '' : 's'}<span className="sr-additions">+{totals.additions}</span><span className="sr-deletions">−{totals.deletions}</span><span className="sr-change-bar" aria-hidden="true">{Array.from({length: 10}, (_, index) => <i key={index} className={index < Math.round(totals.additions / Math.max(1, totals.additions + totals.deletions) * 10) ? 'sr-change-add' : 'sr-change-delete'}/>)}</span></div><div className="sr-review-progress"><div><i style={{width: `${files.length ? reviewedCount / files.length * 100 : 0}%`}}/></div><span>{reviewedCount}/{files.length} viewed</span>{files.length > 0 && reviewedCount === files.length && <CheckCircle2 size={14}/>}</div></div>
         </header>
         <div className="sr-review-tabs"><div role="tablist" aria-label="Review sections"><button type="button" role="tab" aria-selected={tab === 'files'} className={tab === 'files' ? 'sr-active-tab' : ''} onClick={() => setTab('files')}><FileCode2 size={15}/>Files changed<span>{files.length}</span></button><button type="button" role="tab" aria-selected={tab === 'annotations'} className={tab === 'annotations' ? 'sr-active-tab' : ''} onClick={() => setTab('annotations')}><MessageSquare size={15}/>Annotations<span>{metadata.annotations.length}</span>{openAnnotations > 0 && <i className="sr-open-dot"/>}</button></div><span className="sr-review-tip">{reviewedCount} of {files.length} files viewed</span></div>
-        {tab === 'annotations' ? <section className="sr-annotations-panel" aria-label="Stash annotations"><div className="sr-annotations-heading"><div><h2>Annotations</h2><p>{openAnnotations} open · {metadata.annotations.filter(annotation => annotation.resolved).length} resolved</p></div><select aria-label="Filter annotations" value={annotationFilter} onChange={event => setAnnotationFilter(event.target.value as 'all' | 'open' | 'resolved')}><option value="all">All annotations</option><option value="open">Open threads</option><option value="resolved">Resolved threads</option></select></div>{!visibleAnnotations.length ? <div className="sr-panel-empty"><MessageSquare size={30}/><h3>{metadata.annotations.length ? 'No matching threads' : 'Leave a note for your future self.'}</h3><p>{metadata.annotations.length ? 'Choose another filter to see your annotations.' : 'Hover a code line and click + to annotate it. Shift-click to select a range.'}</p><button className="sr-button" type="button" onClick={() => setTab('files')}>Review files</button></div> : <div className="sr-annotation-list">{visibleAnnotations.map(annotation => <AnnotationThread key={annotation.id} annotation={annotation} onUpdate={updateAnnotation} onDelete={deleteAnnotation} showLocation onLocation={() => {setAnnotationTarget(annotation); setLayer(annotation.layer); setFileSearch(''); setHideViewed(false); setCollapsedFiles(previous => {const next = new Set(previous); next.delete(annotation.path); return next;}); setActiveFile(annotation.path); setTab('files');}}/>)}</div>}</section> : <>
+        {tab === 'annotations' ? <section className="sr-annotations-panel" aria-label="Stash annotations"><div className="sr-annotations-heading"><div><h2>Annotations</h2><p>{openAnnotations} open · {metadata.annotations.filter(annotation => annotation.resolved).length} resolved</p></div><select aria-label="Filter annotations" value={annotationFilter} onChange={event => setAnnotationFilter(event.target.value as 'all' | 'open' | 'resolved')}><option value="all">All annotations</option><option value="open">Open threads</option><option value="resolved">Resolved threads</option></select></div>{!visibleAnnotations.length ? <div className="sr-panel-empty"><MessageSquare size={30}/><h3>{metadata.annotations.length ? 'No matching threads' : 'Leave a note for your future self.'}</h3><p>{metadata.annotations.length ? 'Choose another filter to see your annotations.' : 'Hover a code line and click + to annotate it. Shift-click to select a range.'}</p><button className="sr-button" type="button" onClick={() => setTab('files')}>Review files</button></div> : <div className="sr-annotation-list">{visibleAnnotations.map(annotation => <AnnotationThread key={annotation.id} annotation={annotation} onUpdate={updateAnnotation} onDelete={deleteAnnotation} showLocation onLocation={() => {setAnnotationTarget(annotation); setLayer(annotation.layer); setFileSearch(''); setHideViewed(false); setCollapsedFiles(previous => {const next = new Set(previous); next.delete(annotation.path); return next;}); setActiveFile(annotation.path); setRequestedFile(''); setTab('files');}}/>)}</div>}</section> : <>
           <div className="sr-diff-toolbar">
             <div className="sr-diff-toolbar-primary">
-              <button className="sr-icon-button sr-file-nav-toggle" type="button" aria-label="Toggle file navigator" aria-expanded={fileNavigatorOpen} onClick={() => setFileNavigatorOpen(!fileNavigatorOpen)}><FolderTree size={17}/></button>
+              <button ref={fileToggleRef} className="sr-icon-button sr-file-nav-toggle" type="button" aria-label="Toggle file navigator" aria-expanded={fileNavigatorOpen} onClick={() => setFileNavigatorOpen(!fileNavigatorOpen)}><FolderTree size={17}/></button>
               <div className="sr-layer-control" role="group" aria-label="Change layer">{(['all', 'staged', 'unstaged'] as DiffLayer[]).map(value => <button type="button" key={value} className={layer === value ? 'sr-active' : ''} aria-pressed={layer === value} onClick={() => setLayer(value)}>{value === 'all' && <Layers size={13}/>} {value === 'all' ? 'All changes' : value === 'staged' ? 'Staged' : 'Unstaged'}</button>)}</div>
-              <div className="sr-file-scope-control" role="group" aria-label="File review mode"><button type="button" aria-pressed={fileScope === 'all'} className={fileScope === 'all' ? 'sr-active' : ''} onClick={() => setFileScope('all')}>All files</button><button type="button" aria-pressed={fileScope === 'single'} className={fileScope === 'single' ? 'sr-active' : ''} onClick={() => setFileScope('single')}>Single file</button></div>
+              <div className="sr-file-scope-control" role="group" aria-label="File review mode"><button type="button" aria-pressed={fileScope === 'all'} className={fileScope === 'all' ? 'sr-active' : ''} onClick={() => {setRequestedFile(''); setFileScope('all');}}>All files</button><button type="button" aria-pressed={fileScope === 'single'} className={fileScope === 'single' ? 'sr-active' : ''} onClick={() => setFileScope('single')}>Single file</button></div>
             </div>
-            <div className="sr-diff-options"><label>Context<select aria-label="Diff context lines" value={context} onChange={event => setContext(Number(event.target.value))}>{Array.from(new Set([3, 5, 10, 20, host.settings.contextLines])).sort((a, b) => a - b).map(value => <option key={value} value={value}>{value} lines</option>)}</select></label><div className="sr-view-control" role="group" aria-label="Diff view"><button className={mode === 'unified' ? 'sr-active' : ''} type="button" aria-label="Unified diff" aria-pressed={mode === 'unified'} onClick={() => setMode('unified')}><ListFilter size={14}/><span>Unified</span></button><button className={mode === 'split' ? 'sr-active' : ''} type="button" aria-label="Split diff" aria-pressed={mode === 'split'} onClick={() => setMode('split')}><SplitSquareHorizontal size={14}/><span>Split</span></button></div><button className="sr-icon-button" type="button" aria-label={allCollapsed ? 'Expand all files' : 'Collapse all files'} title={allCollapsed ? 'Expand all files' : 'Collapse all files'} disabled={!displayedFiles.length} onClick={toggleAllCollapsed}>{allCollapsed ? <ChevronRight size={16}/> : <ChevronDown size={16}/>}</button></div>
+            <div className="sr-diff-options"><button className={`sr-icon-button ${wrapCode ? 'sr-active' : ''}`} type="button" aria-label="Wrap code lines" title="Wrap code lines" aria-pressed={wrapCode} onClick={() => setWrapCode(!wrapCode)}><WrapText size={16}/></button><label>Context<select aria-label="Diff context lines" value={context} onChange={event => setContext(Number(event.target.value))}>{Array.from(new Set([3, 5, 10, 20, host.settings.contextLines])).sort((a, b) => a - b).map(value => <option key={value} value={value}>{value} lines</option>)}</select></label><div className="sr-view-control" role="group" aria-label="Diff view"><button className={mode === 'unified' ? 'sr-active' : ''} type="button" aria-label="Unified diff" aria-pressed={mode === 'unified'} onClick={() => setMode('unified')}><ListFilter size={14}/><span>Unified</span></button><button className={mode === 'split' ? 'sr-active' : ''} type="button" aria-label="Split diff" aria-pressed={mode === 'split'} onClick={() => setMode('split')}><SplitSquareHorizontal size={14}/><span>Split</span></button></div><button className="sr-icon-button" type="button" aria-label={allCollapsed ? 'Expand all files' : 'Collapse all files'} title={allCollapsed ? 'Expand all files' : 'Collapse all files'} disabled={!displayedFiles.length} onClick={toggleAllCollapsed}>{allCollapsed ? <ChevronRight size={16}/> : <ChevronDown size={16}/>}</button></div>
           </div>
           <div className={`sr-review-body ${fileNavigatorOpen ? 'sr-file-navigator-open' : ''}`}>
-            <nav className="sr-file-navigator" aria-label="Changed files">
+            <>{fileNavigatorOpen && <button className="sr-drawer-scrim sr-file-scrim" type="button" aria-label="Dismiss file navigator" onClick={() => {setFileNavigatorOpen(false); fileToggleRef.current?.focus();}}/>}</><nav className="sr-file-navigator" aria-label="Changed files">
               <div className="sr-files-heading"><strong>Changed files <span>{filteredFiles.length}</span></strong><div className="sr-file-layout-control" role="group" aria-label="File navigator layout"><button className={`sr-icon-button ${fileLayout === 'tree' ? 'sr-active' : ''}`} type="button" aria-label="Show file tree" title="Tree view" aria-pressed={fileLayout === 'tree'} onClick={() => setFileLayout('tree')}><FolderTree size={15}/></button><button className={`sr-icon-button ${fileLayout === 'list' ? 'sr-active' : ''}`} type="button" aria-label="Show flat file list" title="List view" aria-pressed={fileLayout === 'list'} onClick={() => setFileLayout('list')}><List size={15}/></button></div><button className="sr-icon-button sr-file-nav-close" type="button" aria-label="Close file navigator" onClick={() => setFileNavigatorOpen(false)}><X size={15}/></button></div>
               <div className="sr-file-search"><Search size={14}/><input aria-label="Filter changed files" type="search" placeholder="Filter files…" value={fileSearch} onChange={event => setFileSearch(event.target.value)}/>{fileSearch && <button className="sr-icon-button" type="button" aria-label="Clear changed file search" onClick={() => setFileSearch('')}><X size={13}/></button>}</div>
               <label className="sr-hide-viewed"><input type="checkbox" aria-label="Hide viewed files" checked={hideViewed} onChange={event => setHideViewed(event.target.checked)}/><span>Hide viewed files</span></label>
@@ -397,8 +485,8 @@ export function ReviewApp({host}: {host: ReviewHost}) {
               <div className="sr-file-nav-footer"><span>{reviewedCount}/{files.length} viewed</span><span className="sr-additions">+{totals.additions}</span><span className="sr-deletions">−{totals.deletions}</span></div>
             </nav>
             <div className="sr-diff-workspace">
-              {fileScope === 'single' && filteredFiles.length > 0 && <div className="sr-file-stepper"><span title={focusedFile?.path}>{focusedFile?.path}</span><div><span>{focusedFileIndex + 1} / {filteredFiles.length}</span><button className="sr-icon-button" type="button" aria-label="Previous changed file" title="Previous file" disabled={focusedFileIndex <= 0} onClick={() => jumpToFile(filteredFiles[focusedFileIndex - 1].path)}><ChevronLeft size={16}/></button><button className="sr-icon-button" type="button" aria-label="Next changed file" title="Next file" disabled={focusedFileIndex >= filteredFiles.length - 1} onClick={() => jumpToFile(filteredFiles[focusedFileIndex + 1].path)}><ChevronRight size={16}/></button></div></div>}
-              <section className="sr-diff-scroll" aria-label="Code diff" tabIndex={0}>{diffLoading ? <div className="sr-panel-empty"><LoaderCircle size={26} className="sr-spin"/><h3>Reading the changes…</h3><p>Loading stashed files.</p></div> : diffError ? <div className="sr-panel-empty sr-error"><AlertCircle size={28}/><h3>Could not load this diff</h3><p>{diffError}</p><button className="sr-button" type="button" onClick={() => setReload(value => value + 1)}>Retry diff</button></div> : !filteredFiles.length ? <div className="sr-panel-empty"><CheckCircle2 size={28}/><h3>{fileSearch ? 'No matching files' : hideViewed && files.length ? 'All files viewed' : `No ${layer === 'all' ? '' : `${layer} `}changes`}</h3><p>{fileSearch ? 'Try another file name or clear the filter.' : hideViewed && files.length ? 'Show viewed files to continue reviewing this stash.' : layer === 'staged' ? 'This stash has no changes saved in the index.' : layer === 'unstaged' ? 'All saved changes were staged.' : 'This stash does not contain a text change in this view.'}</p>{fileSearch && <button className="sr-button" type="button" onClick={() => setFileSearch('')}>Clear file filter</button>}{hideViewed && <button className="sr-button" type="button" onClick={() => setHideViewed(false)}>Show viewed files</button>}</div> : displayedFiles.map(file => <DiffView key={`${stash.hash}-${layer}-${file.path}`} file={file} mode={mode} layer={layer} fullContext={fullFiles.has(file.path)} contextLoading={contextLoading.has(file.path)} reviewed={metadata.reviewedFiles.includes(file.path)} collapsed={collapsedFiles.has(file.path)} onToggleCollapsed={() => toggleFileCollapsed(file.path)} annotations={metadata.annotations} selection={selection} onToggleFull={() => void loadFullContext(file)} onReviewed={() => {const reviewed = metadata.reviewedFiles.includes(file.path); setCollapsedFiles(previous => {const next = new Set(previous); if (reviewed) next.delete(file.path); else next.add(file.path); return next;}); void persist(previous => ({...previous, reviewedFiles: previous.reviewedFiles.includes(file.path) ? previous.reviewedFiles.filter(path => path !== file.path) : [...previous.reviewedFiles, file.path]}));}} onSelectLine={(side, line, extend) => selectLine(file, side, line, extend)} onSaveAnnotation={saveAnnotation} onCancelAnnotation={() => setSelection(null)} onUpdateAnnotation={updateAnnotation} onDeleteAnnotation={deleteAnnotation}/>)}</section>
+              {fileScope === 'single' && focusedFile && filteredFiles.length > 0 && <div className="sr-file-stepper"><span title={focusedFile?.path}>{focusedFile?.path}</span><div><span>{focusedFileIndex + 1} / {filteredFiles.length}</span><button className="sr-icon-button" type="button" aria-label="Previous changed file" title="Previous file" disabled={focusedFileIndex <= 0} onClick={() => jumpToFile(filteredFiles[focusedFileIndex - 1].path)}><ChevronLeft size={16}/></button><button className="sr-icon-button" type="button" aria-label="Next changed file" title="Next file" disabled={focusedFileIndex >= filteredFiles.length - 1} onClick={() => jumpToFile(filteredFiles[focusedFileIndex + 1].path)}><ChevronRight size={16}/></button></div></div>}
+              <section className="sr-diff-scroll" aria-label="Code diff" tabIndex={0}>{diffLoading ? <div className="sr-panel-empty"><LoaderCircle size={26} className="sr-spin"/><h3>Reading the changes…</h3><p>Loading stashed files.</p></div> : diffError ? <div className="sr-panel-empty sr-error"><AlertCircle size={28}/><h3>Could not load this diff</h3><p>{diffError}</p><button className="sr-button" type="button" onClick={() => setReload(value => value + 1)}>Retry diff</button></div> : !displayedFiles.length ? <div className="sr-panel-empty"><CheckCircle2 size={28}/><h3>{requestedFile && !fileSearch && !hideViewed ? 'Linked file unavailable' : fileSearch ? 'No matching files' : hideViewed && files.length ? 'All files viewed' : `No ${layer === 'all' ? '' : `${layer} `}changes`}</h3><p>{requestedFile && !fileSearch && !hideViewed ? 'This path is not present in the selected diff layer. Choose another file or show all files.' : fileSearch ? 'Try another file name or clear the filter.' : hideViewed && files.length ? 'Show viewed files to continue reviewing this stash.' : layer === 'staged' ? 'This stash has no changes saved in the index.' : layer === 'unstaged' ? 'All saved changes were staged.' : 'This stash does not contain a text change in this view.'}</p>{fileSearch && <button className="sr-button" type="button" onClick={() => setFileSearch('')}>Clear file filter</button>}{hideViewed && <button className="sr-button" type="button" onClick={() => setHideViewed(false)}>Show viewed files</button>}</div> : displayedFiles.map(file => <DiffView key={`${stash.hash}-${layer}-${file.path}`} file={file} idPrefix={idPrefix} mode={mode} layer={layer} fullContext={fullFiles.has(file.path)} contextLoading={contextLoading.has(file.path)} reviewed={metadata.reviewedFiles.includes(file.path)} collapsed={collapsedFiles.has(file.path)} onToggleCollapsed={() => toggleFileCollapsed(file.path)} annotations={metadata.annotations} selection={selection} onToggleFull={() => void loadFullContext(file)} onCopySource={() => void copySource(file)} onReviewed={() => {const reviewed = metadata.reviewedFiles.includes(file.path); setCollapsedFiles(previous => {const next = new Set(previous); if (reviewed) next.delete(file.path); else next.add(file.path); return next;}); void persist(previous => ({...previous, reviewedFiles: previous.reviewedFiles.includes(file.path) ? previous.reviewedFiles.filter(path => path !== file.path) : [...previous.reviewedFiles, file.path]}));}} onSelectLine={(side, line, extend) => selectLine(file, side, line, extend)} onSaveAnnotation={saveAnnotation} onCancelAnnotation={() => setSelection(null)} onUpdateAnnotation={updateAnnotation} onDeleteAnnotation={deleteAnnotation}/>)}</section>
             </div>
           </div>
         </>}
