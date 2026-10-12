@@ -1,0 +1,381 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "81f6ebd4b0bd61e21c4827e2ba73f3d021acb3fd",
+    "workingTree": true,
+    "computeBundleSha256": "0c50f40de86ec85b9b9f8291bb70cbcfa839b6e2b84e7a66e6ac1497dc7796a7"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true
+  },
+  "methodology": {
+    "samples": 5,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames and wait for deferred content intersecting the visible scroll viewport; background prefetch outside it is excluded."
+  },
+  "startedAt": "2026-10-12T14:23:00.990Z",
+  "metrics": [
+    {
+      "name": "git.resolve.120-files",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 257.062,
+      "p95Ms": 262.333,
+      "minMs": 254.498,
+      "maxMs": 262.333,
+      "rawMs": [
+        260.44,
+        257.062,
+        256.127,
+        262.333,
+        254.498
+      ],
+      "targetMs": 500,
+      "files": 120,
+      "withinTarget": true
+    },
+    {
+      "name": "git.list.2-stashes",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 85.753,
+      "p95Ms": 93.896,
+      "minMs": 83.971,
+      "maxMs": 93.896,
+      "rawMs": [
+        86.43,
+        93.896,
+        83.971,
+        85.586,
+        85.753
+      ],
+      "targetMs": 200,
+      "withinTarget": true
+    },
+    {
+      "name": "git.diff.all.120-files",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 444.774,
+      "p95Ms": 472.145,
+      "minMs": 407.49,
+      "maxMs": 472.145,
+      "rawMs": [
+        452.748,
+        433.765,
+        407.49,
+        444.774,
+        472.145
+      ],
+      "targetMs": 500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.diff.staged.120-files",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 205.645,
+      "p95Ms": 206.79,
+      "minMs": 195.772,
+      "maxMs": 206.79,
+      "rawMs": [
+        195.772,
+        206.249,
+        205.645,
+        201.479,
+        206.79
+      ],
+      "targetMs": 500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.diff.unstaged.120-files",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 414.098,
+      "p95Ms": 435.694,
+      "minMs": 392.138,
+      "maxMs": 435.694,
+      "rawMs": [
+        435.694,
+        407.606,
+        414.098,
+        421.43,
+        392.138
+      ],
+      "targetMs": 500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.source.saved-file",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 302.503,
+      "p95Ms": 325.583,
+      "minMs": 279.468,
+      "maxMs": 325.583,
+      "rawMs": [
+        302.503,
+        325.583,
+        279.468,
+        282.121,
+        305.344
+      ],
+      "targetMs": 500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.mutation.create",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 162.085,
+      "p95Ms": 198.368,
+      "minMs": 158.058,
+      "maxMs": 198.368,
+      "rawMs": [
+        162.085,
+        158.058,
+        164.371,
+        158.744,
+        198.368
+      ],
+      "targetMs": 1500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.mutation.apply-index",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 395.149,
+      "p95Ms": 422.771,
+      "minMs": 380.55,
+      "maxMs": 422.771,
+      "rawMs": [
+        422.771,
+        395.149,
+        380.55,
+        382.918,
+        416.822
+      ],
+      "targetMs": 1500,
+      "includes": "hard reset before and after apply, confined to the disposable fixture repository",
+      "withinTarget": true
+    },
+    {
+      "name": "git.mutation.drop-and-undo",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 851.017,
+      "p95Ms": 865.788,
+      "minMs": 824.792,
+      "maxMs": 865.788,
+      "rawMs": [
+        865.788,
+        861.313,
+        851.017,
+        824.792,
+        833.832
+      ],
+      "targetMs": 2500,
+      "withinTarget": true
+    },
+    {
+      "name": "git.list.1000-reflog-entries",
+      "group": "git",
+      "samples": 5,
+      "medianMs": 90.744,
+      "p95Ms": 102.639,
+      "minMs": 90.547,
+      "maxMs": 102.639,
+      "rawMs": [
+        90.572,
+        90.547,
+        90.744,
+        98.816,
+        102.639
+      ],
+      "targetMs": 200,
+      "entries": 1007,
+      "distinctSnapshots": 2,
+      "note": "UI 1000-stash workload uses distinct hashes; Git load here measures reflog volume.",
+      "withinTarget": true
+    },
+    {
+      "name": "plugin.bundle.evaluate",
+      "group": "native-host",
+      "samples": 1,
+      "medianMs": 49.047,
+      "p95Ms": 49.047,
+      "minMs": 49.047,
+      "maxMs": 49.047,
+      "rawMs": [
+        49.047
+      ],
+      "targetMs": 100,
+      "bytes": 1053768,
+      "withinTarget": true
+    },
+    {
+      "name": "host.six-identical-reads.repositories",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 273.085,
+      "p95Ms": 276.65,
+      "minMs": 254.891,
+      "maxMs": 276.65,
+      "rawMs": [
+        260.952,
+        254.891,
+        273.553,
+        273.085,
+        276.65
+      ],
+      "targetMs": 600,
+      "cache": "Retained host results cleared before each sample; simultaneous readers share a cold request.",
+      "withinTarget": true,
+      "gitCommands": 20
+    },
+    {
+      "name": "host.six-identical-reads.stashes",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 107.566,
+      "p95Ms": 121.013,
+      "minMs": 103.376,
+      "maxMs": 121.013,
+      "rawMs": [
+        107.566,
+        106.21,
+        116.263,
+        121.013,
+        103.376
+      ],
+      "targetMs": 600,
+      "cache": "Retained host results cleared before each sample; simultaneous readers share a cold request.",
+      "withinTarget": true,
+      "gitCommands": 5
+    },
+    {
+      "name": "host.six-identical-reads.diff",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 441.992,
+      "p95Ms": 574.713,
+      "minMs": 428.41,
+      "maxMs": 574.713,
+      "rawMs": [
+        574.713,
+        428.41,
+        443.118,
+        431.273,
+        441.992
+      ],
+      "targetMs": 600,
+      "cache": "Retained host results cleared before each sample; simultaneous readers share a cold request.",
+      "withinTarget": true,
+      "gitCommands": 32
+    },
+    {
+      "name": "host.repeated-read.diff",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.001,
+      "minMs": 0.001,
+      "maxMs": 0.001,
+      "rawMs": [
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "host.six-identical-reads.source",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 320.839,
+      "p95Ms": 343.525,
+      "minMs": 301.24,
+      "maxMs": 343.525,
+      "rawMs": [
+        320.839,
+        319.437,
+        343.525,
+        321.666,
+        301.24
+      ],
+      "targetMs": 600,
+      "cache": "Retained host results cleared before each sample; simultaneous readers share a cold request.",
+      "withinTarget": true,
+      "gitCommands": 35
+    },
+    {
+      "name": "host.repeated-read.source",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.001,
+      "minMs": 0.001,
+      "maxMs": 0.001,
+      "rawMs": [
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "host.persist.1000-reviews",
+      "group": "native-host",
+      "samples": 5,
+      "medianMs": 27.67,
+      "p95Ms": 28.825,
+      "minMs": 27.139,
+      "maxMs": 28.825,
+      "rawMs": [
+        27.67,
+        27.302,
+        27.139,
+        28.825,
+        28.529
+      ],
+      "targetMs": 100,
+      "jsonBytes": 9679108,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Real Windows Git: repository resolve/status, stash list up to 1000 entries, all/staged/unstaged diffs, full source, create/apply/drop/undo, duplicate reads across six embeds, native metadata writes."
+  ],
+  "memory": [],
+  "gitCommands": {
+    "rev-parse": 17,
+    "symbolic-ref": 6,
+    "status": 11,
+    "stash": 58,
+    "rev-list": 41,
+    "diff": 64,
+    "hash-object": 13,
+    "ls-tree": 14,
+    "cat-file": 28,
+    "update-ref": 5
+  },
+  "completedAt": "2026-10-12T14:23:29.782Z"
+}

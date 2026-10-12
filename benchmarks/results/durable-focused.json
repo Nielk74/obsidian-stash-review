@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "source": {
-    "commit": "8d79fac855ff2f718124022ccd41b4d6da1f4895",
-    "computeBundleSha256": "5bbc872942c2a7b7f27b4d18562d855b57fe521ac1554a0dcaad05eda0ab5a9e"
+    "commit": "81f6ebd4b0bd61e21c4827e2ba73f3d021acb3fd",
+    "computeBundleSha256": "a1c51d35fc31d32f8f0a856eb7be7735367fa1677302a64a2cc8ffd6e83e7a2a"
   },
   "environment": {
     "node": "v24.5.0",
@@ -21,14 +21,14 @@
     {
       "name": "search.index.1000",
       "samples": 5,
-      "medianMs": 0.718,
-      "p95Ms": 1.075,
+      "medianMs": 0.745,
+      "p95Ms": 1.082,
       "rawMs": [
-        1.075,
-        0.718,
-        0.615,
-        0.94,
-        0.403
+        1.082,
+        0.745,
+        0.58,
+        0.829,
+        0.42
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -36,14 +36,14 @@
     {
       "name": "search.literal.1000",
       "samples": 5,
-      "medianMs": 0.258,
+      "medianMs": 0.252,
       "p95Ms": 0.403,
       "rawMs": [
         0.403,
-        0.258,
-        0.359,
-        0.183,
-        0.18
+        0.252,
+        0.352,
+        0.18,
+        0.176
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -51,14 +51,14 @@
     {
       "name": "noise.presentation.1000",
       "samples": 5,
-      "medianMs": 1.346,
-      "p95Ms": 1.63,
+      "medianMs": 1.31,
+      "p95Ms": 1.546,
       "rawMs": [
-        1.63,
-        1.346,
-        1.428,
-        1.279,
-        1.308
+        1.546,
+        1.429,
+        1.307,
+        1.255,
+        1.31
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -66,14 +66,14 @@
     {
       "name": "search.index.5000",
       "samples": 5,
-      "medianMs": 3.86,
-      "p95Ms": 4.876,
+      "medianMs": 4.374,
+      "p95Ms": 5.65,
       "rawMs": [
-        4.178,
-        2.854,
-        3.86,
-        2.082,
-        4.876
+        4.457,
+        3.311,
+        4.374,
+        2.349,
+        5.65
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -81,14 +81,14 @@
     {
       "name": "search.literal.5000",
       "samples": 5,
-      "medianMs": 0.938,
-      "p95Ms": 1.107,
+      "medianMs": 0.988,
+      "p95Ms": 1.101,
       "rawMs": [
-        1.014,
-        0.938,
-        1.107,
-        0.924,
-        0.915
+        0.988,
+        0.955,
+        1.101,
+        0.966,
+        1.012
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -96,14 +96,14 @@
     {
       "name": "noise.presentation.5000",
       "samples": 5,
-      "medianMs": 6.906,
-      "p95Ms": 7.247,
+      "medianMs": 6.545,
+      "p95Ms": 6.793,
       "rawMs": [
-        6.906,
-        7.247,
-        6.675,
-        6.984,
-        6.856
+        6.793,
+        6.531,
+        6.556,
+        6.521,
+        6.545
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -111,14 +111,14 @@
     {
       "name": "progress.layer-lookup.1000",
       "samples": 5,
-      "medianMs": 0.017,
-      "p95Ms": 0.03,
+      "medianMs": 0.01,
+      "p95Ms": 0.022,
       "rawMs": [
-        0.03,
-        0.017,
-        0.017,
-        0.013,
-        0.008
+        0.022,
+        0.01,
+        0.01,
+        0.01,
+        0.01
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -126,14 +126,14 @@
     {
       "name": "library.six-identical-reads",
       "samples": 5,
-      "medianMs": 0.435,
-      "p95Ms": 0.557,
+      "medianMs": 0.292,
+      "p95Ms": 0.391,
       "rawMs": [
-        0.557,
-        0.442,
-        0.435,
-        0.33,
-        0.285
+        0.337,
+        0.391,
+        0.275,
+        0.292,
+        0.274
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -141,14 +141,14 @@
     {
       "name": "archive.descriptors.1000",
       "samples": 5,
-      "medianMs": 0.372,
-      "p95Ms": 0.55,
+      "medianMs": 0.348,
+      "p95Ms": 0.47,
       "rawMs": [
-        0.493,
-        0.372,
-        0.351,
-        0.34,
-        0.55
+        0.47,
+        0.374,
+        0.348,
+        0.338,
+        0.335
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -156,14 +156,14 @@
     {
       "name": "archive.summaries.1000",
       "samples": 5,
-      "medianMs": 0.214,
-      "p95Ms": 0.229,
+      "medianMs": 0.177,
+      "p95Ms": 0.239,
       "rawMs": [
-        0.229,
-        0.214,
-        0.2,
-        0.168,
-        0.214
+        0.205,
+        0.172,
+        0.177,
+        0.174,
+        0.239
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -172,13 +172,13 @@
       "name": "repository.relocation",
       "samples": 5,
       "medianMs": 0.061,
-      "p95Ms": 0.091,
+      "p95Ms": 0.088,
       "rawMs": [
+        0.085,
         0.088,
-        0.091,
         0.061,
         0.049,
-        0.048
+        0.049
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -186,14 +186,14 @@
     {
       "name": "revision.continuation.1000-files",
       "samples": 5,
-      "medianMs": 92.08,
-      "p95Ms": 93.417,
+      "medianMs": 89.208,
+      "p95Ms": 90.335,
       "rawMs": [
-        92.629,
-        93.417,
-        90.599,
-        85.363,
-        92.08
+        90.335,
+        86.781,
+        89.208,
+        89.727,
+        87.876
       ],
       "targetMs": 1000,
       "withinTarget": true
@@ -201,14 +201,14 @@
     {
       "name": "portable.parse.typical",
       "samples": 5,
-      "medianMs": 0.312,
-      "p95Ms": 0.393,
+      "medianMs": 0.288,
+      "p95Ms": 0.354,
       "rawMs": [
-        0.393,
-        0.336,
-        0.291,
-        0.312,
-        0.305
+        0.354,
+        0.302,
+        0.281,
+        0.288,
+        0.276
       ],
       "targetMs": 30,
       "withinTarget": true
@@ -216,14 +216,14 @@
     {
       "name": "portable.export-import.typical",
       "samples": 5,
-      "medianMs": 2.855,
-      "p95Ms": 3.315,
+      "medianMs": 1.91,
+      "p95Ms": 1.966,
       "rawMs": [
-        2.855,
-        2.07,
-        3.315,
-        3.167,
-        2.756
+        1.966,
+        1.91,
+        1.904,
+        1.941,
+        1.891
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -231,14 +231,14 @@
     {
       "name": "portable.parse.near-limit",
       "samples": 5,
-      "medianMs": 38.335,
-      "p95Ms": 46.458,
+      "medianMs": 40.179,
+      "p95Ms": 44.555,
       "rawMs": [
-        38.335,
-        41.653,
-        35.92,
-        46.458,
-        36.584
+        40.179,
+        42.937,
+        40.027,
+        44.555,
+        39.338
       ],
       "targetMs": 1000,
       "withinTarget": true,
@@ -247,14 +247,14 @@
     {
       "name": "ui.typical.initial-paint",
       "samples": 5,
-      "medianMs": 98,
-      "p95Ms": 170.7,
+      "medianMs": 83.4,
+      "p95Ms": 177.6,
       "rawMs": [
-        170.7,
-        98,
-        98.9,
-        81.8,
-        82.2
+        177.6,
+        97.6,
+        81.7,
+        83.4,
+        81.4
       ],
       "targetMs": 500,
       "withinTarget": true
@@ -262,14 +262,14 @@
     {
       "name": "ui.typical.search-total",
       "samples": 5,
-      "medianMs": 132.1,
-      "p95Ms": 132.7,
+      "medianMs": 131.6,
+      "p95Ms": 133.6,
       "rawMs": [
-        131.9,
-        132.7,
-        132.1,
-        130.5,
-        132.7
+        131.4,
+        131.6,
+        132.9,
+        133.6,
+        131.1
       ],
       "targetMs": 210,
       "deliberateDebounceMs": 100,
@@ -279,14 +279,14 @@
     {
       "name": "ui.typical.search-excluding-debounce",
       "samples": 5,
-      "medianMs": 32.1,
-      "p95Ms": 32.7,
+      "medianMs": 31.6,
+      "p95Ms": 33.6,
       "rawMs": [
-        31.9,
-        32.7,
-        32.1,
-        30.5,
-        32.7
+        31.4,
+        31.6,
+        32.9,
+        33.6,
+        31.1
       ],
       "targetMs": 100,
       "excludedDebounceMs": 100,
@@ -296,14 +296,14 @@
     {
       "name": "ui.typical.noise-toggle",
       "samples": 5,
-      "medianMs": 32.1,
-      "p95Ms": 33.6,
+      "medianMs": 31.9,
+      "p95Ms": 32.4,
       "rawMs": [
-        30.4,
-        32,
-        33.6,
-        32.3,
-        32.1
+        32.4,
+        31.8,
+        32.2,
+        31.9,
+        31.9
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -311,14 +311,14 @@
     {
       "name": "ui.typical.layer-switch",
       "samples": 5,
-      "medianMs": 32.7,
-      "p95Ms": 33,
+      "medianMs": 32.3,
+      "p95Ms": 32.8,
       "rawMs": [
-        32.7,
-        32.5,
-        32.9,
-        33,
-        32.7
+        31.2,
+        32.2,
+        32.4,
+        32.8,
+        32.3
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -326,14 +326,14 @@
     {
       "name": "ui.typical.archive-paging",
       "samples": 5,
-      "medianMs": 31.5,
-      "p95Ms": 33.3,
+      "medianMs": 32,
+      "p95Ms": 34.3,
       "rawMs": [
-        22.8,
-        31.3,
-        33.3,
-        31.5,
-        32.8
+        22.5,
+        32.4,
+        34.3,
+        31.4,
+        32
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -346,14 +346,14 @@
     {
       "name": "ui.many-files.initial-paint",
       "samples": 5,
-      "medianMs": 165.7,
-      "p95Ms": 221,
+      "medianMs": 99.3,
+      "p95Ms": 172.1,
       "rawMs": [
-        221,
-        165.6,
-        164.7,
-        165.7,
-        184.9
+        172.1,
+        97.8,
+        99.3,
+        97.7,
+        116.3
       ],
       "targetMs": 2000,
       "withinTarget": true
@@ -361,14 +361,14 @@
     {
       "name": "ui.many-files.search-total",
       "samples": 5,
-      "medianMs": 129.2,
-      "p95Ms": 144.8,
+      "medianMs": 129.3,
+      "p95Ms": 129.6,
       "rawMs": [
-        141.8,
-        129.2,
-        128.4,
-        144.8,
-        128.5
+        128,
+        129.3,
+        129.6,
+        129.4,
+        129.3
       ],
       "targetMs": 210,
       "deliberateDebounceMs": 100,
@@ -378,14 +378,14 @@
     {
       "name": "ui.many-files.search-excluding-debounce",
       "samples": 5,
-      "medianMs": 29.2,
-      "p95Ms": 44.8,
+      "medianMs": 29.3,
+      "p95Ms": 29.6,
       "rawMs": [
-        41.8,
-        29.2,
-        28.4,
-        44.8,
-        28.5
+        28,
+        29.3,
+        29.6,
+        29.4,
+        29.3
       ],
       "targetMs": 100,
       "excludedDebounceMs": 100,
@@ -395,14 +395,14 @@
     {
       "name": "ui.many-files.noise-toggle",
       "samples": 5,
-      "medianMs": 31.8,
-      "p95Ms": 32.3,
+      "medianMs": 32.1,
+      "p95Ms": 32.4,
       "rawMs": [
-        31.6,
-        31.6,
-        31.8,
-        32.3,
-        31.9
+        32.4,
+        32.1,
+        32.1,
+        32.2,
+        31.7
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -410,14 +410,14 @@
     {
       "name": "ui.many-files.layer-switch",
       "samples": 5,
-      "medianMs": 32.4,
-      "p95Ms": 32.9,
+      "medianMs": 33.2,
+      "p95Ms": 33.3,
       "rawMs": [
-        32.8,
-        32.1,
-        32.3,
-        32.4,
-        32.9
+        33.3,
+        33.2,
+        33.2,
+        32.2,
+        33.1
       ],
       "targetMs": 100,
       "withinTarget": true
@@ -425,41 +425,41 @@
     {
       "name": "ui.many-files.archive-paging",
       "samples": 5,
-      "medianMs": 31.4,
-      "p95Ms": 32.8,
+      "medianMs": 31.2,
+      "p95Ms": 32.6,
       "rawMs": [
-        23.6,
-        30.1,
-        32.8,
-        31.4,
-        31.9
+        17.8,
+        28.5,
+        32.6,
+        31.3,
+        31.2
       ],
       "targetMs": 100,
       "withinTarget": true
     },
     {
       "name": "ui.many-files.long-tasks",
-      "count": 3,
-      "totalDurationMs": 199
+      "count": 0,
+      "totalDurationMs": 0
     }
   ],
   "browserErrors": [],
   "memory": [
     {
       "name": "node.after-compute-gc",
-      "heapMiB": 107.47
+      "heapMiB": 107.54
     },
     {
       "name": "browser.typical.five-mount-unmount-gc",
-      "mountedHeapMiB": 6.6,
-      "unmountedHeapMiB": 5.34,
-      "deltaMiB": -1.26
+      "mountedHeapMiB": 6.67,
+      "unmountedHeapMiB": 5.36,
+      "deltaMiB": -1.31
     },
     {
       "name": "browser.many-files.five-mount-unmount-gc",
-      "mountedHeapMiB": 21.1,
+      "mountedHeapMiB": 16.19,
       "unmountedHeapMiB": 7.79,
-      "deltaMiB": -13.31
+      "deltaMiB": -8.4
     }
   ],
   "assertions": [
@@ -470,8 +470,8 @@
     "Production browser completed without uncaught errors."
   ],
   "browserBundle": {
-    "sha256": "f292bf19abcfd35454ca48b77d21911308c1b6558b65809289b83f733c2ccf45",
-    "bytes": 502455,
-    "gzipBytes": 157283
+    "sha256": "d1bc4f7f7e5e9b9ae83cd37f11ff8178b4b24cefb970a684c8a6417f11a680d3",
+    "bytes": 504305,
+    "gzipBytes": 157903
   }
 }
