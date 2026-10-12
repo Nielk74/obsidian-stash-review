@@ -2,6 +2,14 @@ import {describe, expect, it} from 'vitest';
 import {ReadCache} from '../src/read-cache';
 
 describe('shared immutable reads', () => {
+  it('invalidates one enriched snapshot without discarding other cached reads', async () => {
+    const cache = new ReadCache(100, 4);
+    await cache.read('snapshot', async () => 'old', value => value.length);
+    await cache.read('other', async () => 'retained', value => value.length);
+    cache.invalidate('snapshot');
+    expect(await cache.read('snapshot', async () => 'enriched', value => value.length)).toBe('enriched');
+    expect(await cache.read('other', async () => 'wrong', value => value.length)).toBe('retained');
+  });
   it('runs one provider for concurrent readers and retains a successful immutable snapshot', async () => {
     const cache = new ReadCache(100, 4);
     let reads = 0, finish!: (value: string) => void;

@@ -1,16 +1,52 @@
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { realpath } from 'node:fs/promises';
-import { isAbsolute, join, relative, sep } from 'node:path';
+import { mkdir, readFile, realpath, rename, stat, unlink, writeFile } from 'node:fs/promises';
+import { dirname, isAbsolute, join, relative, sep } from 'node:path';
+import {createHash, randomUUID} from 'node:crypto';
+import {gzip, gunzip} from 'node:zlib';
+import {promisify} from 'node:util';
 import { FileSystemAdapter, ItemView, MarkdownRenderChild, Notice, Plugin, PluginSettingTab, Setting, type App, type ViewStateResult, type WorkspaceLeaf } from 'obsidian';
 import { GitService } from './git';
 import { loadPluginData, readMetadata, reviewMarkdown } from './review-store';
 import { ReviewApp } from './ui/ReviewApp';
 import {parseReviewBlock, parseReviewParameters} from './markdown';
 import {ReadCache} from './read-cache';
+import {MAX_PACKAGE_BYTES, parseSavedLayer, validRepositoryId} from './review-portability';
+import type {SnapshotStorage} from './review-library';
 import { type DiffFile, type PluginData, type Repository, type ReviewHost, type ReviewTarget } from './types';
 
 const VIEW_TYPE = 'stash-review';
+const compressSnapshot = promisify(gzip), decompressSnapshot = promisify(gunzip);
+
+export function createSnapshotStorage(directory: string): SnapshotStorage {
+  const filename = (id: string, hash: string, layer: string): string => {
+    if (!validRepositoryId(id) || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(hash) || !['all','staged','unstaged'].includes(layer)) throw new Error('Invalid review repository or stash identity.');
+    return join(directory,createHash('sha256').update(id).digest('hex'),hash,`${layer}.json.gz`);
+  };
+  return {
+    async read(id,hash,layer) {
+      const path = filename(id,hash,layer);
+      try {
+        if ((await stat(path)).size > MAX_PACKAGE_BYTES + 1024 * 1024) throw new Error('Saved review snapshot exceeds the size limit.');
+        const source = await decompressSnapshot(await readFile(path),{maxOutputLength:MAX_PACKAGE_BYTES});
+        return parseSavedLayer(JSON.parse(source.toString('utf8')));
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined;
+        throw new Error(`The saved review snapshot could not be read: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    },
+    async write(id,hash,layer,snapshot) {
+      const path = filename(id,hash,layer);
+      const source = Buffer.from(JSON.stringify(parseSavedLayer(snapshot)),'utf8');
+      if (source.length > MAX_PACKAGE_BYTES) throw new Error('The saved review snapshot exceeds the 32 MiB size limit.');
+      const compressed = await compressSnapshot(source);
+      await mkdir(dirname(path),{recursive:true});
+      const temporary = `${path}.${randomUUID()}.tmp`;
+      try {await writeFile(temporary,compressed); await rename(temporary,path);}
+      finally {await unlink(temporary).catch(() => {});}
+    }
+  };
+}
 
 function freezeDiff(files: DiffFile[]): DiffFile[] {
   for (const file of files) {
@@ -96,7 +132,7 @@ export default class StashReviewPlugin extends Plugin {
     if (isAbsolute(path) || path === '..' || path.startsWith(`..${sep}`)) return [];
     // Keep the running plugin and local review data available when stashing the vault.
     // If this plugin's own source folder is the repository, protect only runtime files.
-    return path ? [path.split(sep).join('/')] : ['main.js', 'manifest.json', 'styles.css', 'data.json'];
+    return path ? [path.split(sep).join('/')] : ['main.js', 'manifest.json', 'styles.css', 'data.json', 'reviews'];
   }
 
   createHost(): ReviewHost {

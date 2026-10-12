@@ -32,4 +32,10 @@ export class ReadCache {
   }
 
   clear(): void {this.pending.clear(); this.retained.clear(); this.bytes = 0;}
+
+  invalidate(key: string): void {
+    this.pending.delete(key);
+    const saved = this.retained.get(key);
+    if (saved) {this.bytes -= saved.bytes; this.retained.delete(key);}
+  }
 }

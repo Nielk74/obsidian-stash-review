@@ -37,6 +37,18 @@ wrapper(mod.exports, name => name === 'obsidian' ? obsidian : require(name), mod
 assert.equal(typeof mod.exports.default, 'function', 'Release bundle must export a default plugin class');
 const sandbox = await realpath(await mkdtemp(join(tmpdir(), 'stash-review-package-')));
 try {
+  assert.equal(typeof mod.exports.createSnapshotStorage, 'function', 'Native snapshot storage must be available');
+  const snapshotStorage = mod.exports.createSnapshotStorage(join(sandbox, 'reviews'));
+  const snapshotHash = 'a'.repeat(40);
+  const nativeSnapshot = {context: 5, files: [{path: 'src/é [1].ts', status: 'added', additions: 1, deletions: 0, binary: false, untracked: false,
+    oldContent: '', newContent: 'saved source\n', oldMode: '000000', newMode: '100644', oldBlob: '0'.repeat(40), newBlob: 'c'.repeat(40),
+    fingerprint: JSON.stringify(['000000','0'.repeat(40),'100644','c'.repeat(40),'src/é [1].ts','src/é [1].ts',false]),
+    hunks: [{header: '@@ -0,0 +1 @@', oldStart: 0, oldCount: 0, newStart: 1, newCount: 1, lines: [{type: 'add',newLine: 1,text: 'saved source'}]}]}]};
+  await snapshotStorage.write('repoA', snapshotHash, 'all', nativeSnapshot);
+  assert.deepEqual(await snapshotStorage.read('repoA', snapshotHash, 'all'), nativeSnapshot, 'Compressed native snapshots must preserve code and original coordinates');
+  assert.equal(await snapshotStorage.read('repoA', snapshotHash, 'staged'), undefined, 'An uncaptured layer stays absent');
+  await assert.rejects(snapshotStorage.write('../escape', snapshotHash, 'all', nativeSnapshot), /identity|repository/i);
+  await assert.rejects(snapshotStorage.write('repoA', '../escape', 'all', nativeSnapshot), /identity|hash/i);
   const notes = new Map();
   const app = {
     vault: {
