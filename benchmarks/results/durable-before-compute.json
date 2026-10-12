@@ -1,0 +1,747 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "a30ede487a96d2433f09d44a2e736cde6d96cc0f",
+    "workingTree": false,
+    "computeBundleSha256": "6b8a0299760b23f5331a0d3b44a557a56ad81236d7f2e5bf55cb71deb4e93953"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true
+  },
+  "methodology": {
+    "samples": 5,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames and wait for deferred content intersecting the visible scroll viewport; background prefetch outside it is excluded."
+  },
+  "startedAt": "2026-10-12T12:04:09.315Z",
+  "metrics": [
+    {
+      "name": "tree.build.12",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.022,
+      "p95Ms": 0.023,
+      "minMs": 0.02,
+      "maxMs": 0.023,
+      "rawMs": [
+        0.023,
+        0.021,
+        0.02,
+        0.022,
+        0.022
+      ],
+      "targetMs": 5,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.filter.12",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.003,
+      "p95Ms": 0.005,
+      "minMs": 0.002,
+      "maxMs": 0.005,
+      "rawMs": [
+        0.005,
+        0.002,
+        0.003,
+        0.003,
+        0.003
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.flatten.12",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.002,
+      "minMs": 0.001,
+      "maxMs": 0.002,
+      "rawMs": [
+        0.002,
+        0.002,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "patch.parse.12",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.033,
+      "p95Ms": 0.037,
+      "minMs": 0.031,
+      "maxMs": 0.037,
+      "rawMs": [
+        0.037,
+        0.036,
+        0.033,
+        0.031,
+        0.031
+      ],
+      "targetMs": 5,
+      "patchBytes": 5645,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.build.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.545,
+      "p95Ms": 1.549,
+      "minMs": 0.513,
+      "maxMs": 1.549,
+      "rawMs": [
+        0.71,
+        1.549,
+        0.538,
+        0.513,
+        0.545
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.filter.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.046,
+      "p95Ms": 0.059,
+      "minMs": 0.038,
+      "maxMs": 0.059,
+      "rawMs": [
+        0.047,
+        0.039,
+        0.038,
+        0.046,
+        0.059
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.flatten.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.019,
+      "p95Ms": 0.02,
+      "minMs": 0.014,
+      "maxMs": 0.02,
+      "rawMs": [
+        0.017,
+        0.014,
+        0.019,
+        0.02,
+        0.019
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "patch.parse.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 1.352,
+      "p95Ms": 1.806,
+      "minMs": 1.026,
+      "maxMs": 1.806,
+      "rawMs": [
+        1.806,
+        1.152,
+        1.352,
+        1.354,
+        1.026
+      ],
+      "targetMs": 50,
+      "patchBytes": 489009,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.build.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 2.49,
+      "p95Ms": 2.983,
+      "minMs": 2.249,
+      "maxMs": 2.983,
+      "rawMs": [
+        2.983,
+        2.49,
+        2.459,
+        2.249,
+        2.845
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.filter.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.244,
+      "p95Ms": 0.246,
+      "minMs": 0.211,
+      "maxMs": 0.246,
+      "rawMs": [
+        0.211,
+        0.246,
+        0.239,
+        0.244,
+        0.244
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "tree.flatten.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.05,
+      "p95Ms": 0.057,
+      "minMs": 0.046,
+      "maxMs": 0.057,
+      "rawMs": [
+        0.055,
+        0.05,
+        0.046,
+        0.046,
+        0.057
+      ],
+      "targetMs": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "patch.parse.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 6.339,
+      "p95Ms": 8.51,
+      "minMs": 4.012,
+      "maxMs": 8.51,
+      "rawMs": [
+        8.51,
+        5.056,
+        4.012,
+        8.233,
+        6.339
+      ],
+      "targetMs": 50,
+      "patchBytes": 2499009,
+      "withinTarget": true
+    },
+    {
+      "name": "syntax.cold.12000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 3.204,
+      "p95Ms": 9.997,
+      "minMs": 2.841,
+      "maxMs": 9.997,
+      "rawMs": [
+        9.997,
+        4.186,
+        3.204,
+        2.841,
+        3.081
+      ],
+      "targetMs": 50,
+      "withinTarget": true
+    },
+    {
+      "name": "syntax.warm.12000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.014,
+      "p95Ms": 0.016,
+      "minMs": 0.014,
+      "maxMs": 0.016,
+      "rawMs": [
+        0.014,
+        0.014,
+        0.016,
+        0.014,
+        0.014
+      ],
+      "targetMs": 5,
+      "withinTarget": true
+    },
+    {
+      "name": "syntax.cold.180000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 46.351,
+      "p95Ms": 54.091,
+      "minMs": 43.93,
+      "maxMs": 54.091,
+      "rawMs": [
+        43.93,
+        46.351,
+        44.032,
+        51.082,
+        54.091
+      ],
+      "targetMs": 50,
+      "withinTarget": false
+    },
+    {
+      "name": "syntax.warm.180000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.048,
+      "p95Ms": 0.109,
+      "minMs": 0.046,
+      "maxMs": 0.109,
+      "rawMs": [
+        0.051,
+        0.048,
+        0.047,
+        0.109,
+        0.046
+      ],
+      "targetMs": 5,
+      "withinTarget": true
+    },
+    {
+      "name": "syntax.cold.900000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 5.183,
+      "p95Ms": 10.209,
+      "minMs": 4.853,
+      "maxMs": 10.209,
+      "rawMs": [
+        5.183,
+        5.489,
+        4.853,
+        4.891,
+        10.209
+      ],
+      "targetMs": 50,
+      "withinTarget": true
+    },
+    {
+      "name": "syntax.warm.900000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 5.165,
+      "p95Ms": 5.619,
+      "minMs": 4.982,
+      "maxMs": 5.619,
+      "rawMs": [
+        5.619,
+        5.565,
+        5.165,
+        5.145,
+        4.982
+      ],
+      "targetMs": 5,
+      "withinTarget": false
+    },
+    {
+      "name": "syntax.cache-churn.64-files",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 11.405,
+      "p95Ms": 13.08,
+      "minMs": 9.991,
+      "maxMs": 13.08,
+      "rawMs": [
+        11.405,
+        12.891,
+        10.149,
+        9.991,
+        13.08
+      ],
+      "targetMs": 50,
+      "withinTarget": true
+    },
+    {
+      "name": "context.expand.80",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.005,
+      "p95Ms": 0.007,
+      "minMs": 0.004,
+      "maxMs": 0.007,
+      "rawMs": [
+        0.007,
+        0.005,
+        0.004,
+        0.005,
+        0.005
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "context.expand.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.144,
+      "p95Ms": 0.192,
+      "minMs": 0.136,
+      "maxMs": 0.192,
+      "rawMs": [
+        0.192,
+        0.136,
+        0.138,
+        0.158,
+        0.144
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "context.expand.20000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.688,
+      "p95Ms": 1.072,
+      "minMs": 0.607,
+      "maxMs": 1.072,
+      "rawMs": [
+        0.634,
+        1.072,
+        0.607,
+        0.688,
+        0.698
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "inline.range.80",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.01,
+      "p95Ms": 0.015,
+      "minMs": 0.01,
+      "maxMs": 0.015,
+      "rawMs": [
+        0.015,
+        0.01,
+        0.011,
+        0.01,
+        0.01
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "inline.mark.80",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.003,
+      "minMs": 0,
+      "maxMs": 0.003,
+      "rawMs": [
+        0.003,
+        0.001,
+        0.001,
+        0,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "inline.range.20000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.795,
+      "p95Ms": 1.024,
+      "minMs": 0.728,
+      "maxMs": 1.024,
+      "rawMs": [
+        1.024,
+        0.75,
+        0.858,
+        0.795,
+        0.728
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "inline.mark.20000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.005,
+      "p95Ms": 0.005,
+      "minMs": 0.005,
+      "maxMs": 0.005,
+      "rawMs": [
+        0.005,
+        0.005,
+        0.005,
+        0.005,
+        0.005
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.load.10",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.005,
+      "minMs": 0.001,
+      "maxMs": 0.005,
+      "rawMs": [
+        0.005,
+        0.001,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.clone.10",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.022,
+      "p95Ms": 0.024,
+      "minMs": 0.015,
+      "maxMs": 0.024,
+      "rawMs": [
+        0.023,
+        0.024,
+        0.022,
+        0.016,
+        0.015
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.serialize.10",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.004,
+      "p95Ms": 0.004,
+      "minMs": 0.004,
+      "maxMs": 0.004,
+      "rawMs": [
+        0.004,
+        0.004,
+        0.004,
+        0.004,
+        0.004
+      ],
+      "targetMs": 30,
+      "jsonBytes": 5088,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.export.10",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.012,
+      "p95Ms": 0.027,
+      "minMs": 0.008,
+      "maxMs": 0.027,
+      "rawMs": [
+        0.027,
+        0.015,
+        0.008,
+        0.008,
+        0.012
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.load.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.001,
+      "minMs": 0.001,
+      "maxMs": 0.001,
+      "rawMs": [
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.clone.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 1.327,
+      "p95Ms": 1.454,
+      "minMs": 1.192,
+      "maxMs": 1.454,
+      "rawMs": [
+        1.192,
+        1.203,
+        1.454,
+        1.403,
+        1.327
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.serialize.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.355,
+      "p95Ms": 0.395,
+      "minMs": 0.349,
+      "maxMs": 0.395,
+      "rawMs": [
+        0.355,
+        0.357,
+        0.354,
+        0.395,
+        0.349
+      ],
+      "targetMs": 30,
+      "jsonBytes": 474911,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.export.1000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.321,
+      "p95Ms": 0.55,
+      "minMs": 0.309,
+      "maxMs": 0.55,
+      "rawMs": [
+        0.418,
+        0.309,
+        0.321,
+        0.316,
+        0.55
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.load.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.001,
+      "p95Ms": 0.001,
+      "minMs": 0.001,
+      "maxMs": 0.001,
+      "rawMs": [
+        0.001,
+        0.001,
+        0.001,
+        0.001,
+        0.001
+      ],
+      "targetMs": 10,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.clone.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 8.072,
+      "p95Ms": 8.148,
+      "minMs": 8.046,
+      "maxMs": 8.148,
+      "rawMs": [
+        8.046,
+        8.072,
+        8.148,
+        8.063,
+        8.114
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.serialize.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 2.413,
+      "p95Ms": 2.445,
+      "minMs": 2.363,
+      "maxMs": 2.445,
+      "rawMs": [
+        2.444,
+        2.413,
+        2.445,
+        2.378,
+        2.363
+      ],
+      "targetMs": 30,
+      "jsonBytes": 2381911,
+      "withinTarget": true
+    },
+    {
+      "name": "metadata.export.5000",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 1.856,
+      "p95Ms": 2.51,
+      "minMs": 1.747,
+      "maxMs": 2.51,
+      "rawMs": [
+        1.755,
+        1.856,
+        1.747,
+        2.51,
+        2.115
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "markdown.link-and-parse",
+      "group": "compute",
+      "samples": 5,
+      "medianMs": 0.009,
+      "p95Ms": 0.01,
+      "minMs": 0.007,
+      "maxMs": 0.01,
+      "rawMs": [
+        0.01,
+        0.007,
+        0.008,
+        0.009,
+        0.009
+      ],
+      "targetMs": 2,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Patch parsing, tree build/filter/flatten, full context, syntax cold/warm/cache churn/large fallback, inline diff, metadata load/clone/serialize/export, Markdown targets."
+  ],
+  "memory": [
+    {
+      "name": "node.compute.after-gc",
+      "heapMiB": 65.43
+    }
+  ],
+  "completedAt": "2026-10-12T12:04:13.184Z"
+}

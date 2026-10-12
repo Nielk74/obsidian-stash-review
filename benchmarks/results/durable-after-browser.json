@@ -1,0 +1,2965 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "66175281d1258008865224baa04b12ca005d36e4",
+    "workingTree": true,
+    "computeBundleSha256": "4d5c52b797dca5bbe2960bd1cdda4fb53ce692d2a32033aea3bd20647e219db1"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true,
+    "chromium": "156.0.8078.4"
+  },
+  "methodology": {
+    "samples": 5,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames and wait for deferred content intersecting the visible scroll viewport; background prefetch outside it is excluded."
+  },
+  "startedAt": "2026-10-12T13:31:01.473Z",
+  "metrics": [
+    {
+      "name": "ui.typical.1x.initial-paint",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 81.8,
+      "p95Ms": 164.5,
+      "minMs": 81.4,
+      "maxMs": 164.5,
+      "rawMs": [
+        164.5,
+        81.4,
+        81.8,
+        82.8,
+        81.7
+      ],
+      "targetMs": 500,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.wrap",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 29.1,
+      "p95Ms": 31.5,
+      "minMs": 26.8,
+      "maxMs": 31.5,
+      "rawMs": [
+        31.5,
+        28,
+        29.1,
+        26.8,
+        30.2
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.layer-staged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.4,
+      "minMs": 30.8,
+      "maxMs": 33.4,
+      "rawMs": [
+        31.5,
+        32.1,
+        30.8,
+        32.5,
+        33.4
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.layer-unstaged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 35.9,
+      "minMs": 31.7,
+      "maxMs": 35.9,
+      "rawMs": [
+        32.3,
+        32.3,
+        31.7,
+        32.6,
+        35.9
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.layer-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.4,
+      "p95Ms": 35.5,
+      "minMs": 32.1,
+      "maxMs": 35.5,
+      "rawMs": [
+        32.2,
+        32.5,
+        32.4,
+        35.5,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.context-lines",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 33,
+      "minMs": 30.9,
+      "maxMs": 33,
+      "rawMs": [
+        30.9,
+        32.2,
+        33,
+        31.8,
+        32.5
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.refresh-stashes",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.5,
+      "p95Ms": 32.6,
+      "minMs": 31.3,
+      "maxMs": 32.6,
+      "rawMs": [
+        31.5,
+        32.5,
+        32.5,
+        31.3,
+        32.6
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.single-file",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 32.4,
+      "minMs": 31.6,
+      "maxMs": 32.4,
+      "rawMs": [
+        31.7,
+        32.3,
+        32.3,
+        32.4,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.split",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.3,
+      "p95Ms": 32.9,
+      "minMs": 30.7,
+      "maxMs": 32.9,
+      "rawMs": [
+        31.3,
+        32.9,
+        30.7,
+        31.2,
+        32.4
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.unified",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.7,
+      "p95Ms": 32.6,
+      "minMs": 31.4,
+      "maxMs": 32.6,
+      "rawMs": [
+        32.6,
+        31.7,
+        31.4,
+        32.6,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.stash-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.9,
+      "p95Ms": 32.9,
+      "minMs": 32.3,
+      "maxMs": 32.9,
+      "rawMs": [
+        32.9,
+        32.7,
+        32.3,
+        32.9,
+        32.9
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.stash-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.9,
+      "minMs": 32,
+      "maxMs": 33.9,
+      "rawMs": [
+        33.9,
+        32,
+        32,
+        32.7,
+        33.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.stash-switch",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 32.2,
+      "minMs": 31.7,
+      "maxMs": 32.2,
+      "rawMs": [
+        32,
+        32.2,
+        31.8,
+        31.7,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.file-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.3,
+      "minMs": 30.9,
+      "maxMs": 33.3,
+      "rawMs": [
+        33.3,
+        30.9,
+        32.4,
+        31.5,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.file-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.5,
+      "p95Ms": 32.7,
+      "minMs": 30.9,
+      "maxMs": 32.7,
+      "rawMs": [
+        32.6,
+        32.7,
+        30.9,
+        32.2,
+        32.5
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.file-tree-end-key",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 33.7,
+      "minMs": 31.1,
+      "maxMs": 33.7,
+      "rawMs": [
+        31.8,
+        31.1,
+        33.7,
+        31.3,
+        32.4
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.annotations-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.5,
+      "p95Ms": 33.1,
+      "minMs": 32.1,
+      "maxMs": 33.1,
+      "rawMs": [
+        32.5,
+        33.1,
+        32.5,
+        32.4,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.files-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 32.8,
+      "minMs": 31.8,
+      "maxMs": 32.8,
+      "rawMs": [
+        31.9,
+        32.8,
+        31.8,
+        32.2,
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.collapse-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 26.6,
+      "p95Ms": 31.1,
+      "minMs": 24.6,
+      "maxMs": 31.1,
+      "rawMs": [
+        31.1,
+        25.8,
+        28.8,
+        26.6,
+        24.6
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.expand-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.5,
+      "p95Ms": 35.4,
+      "minMs": 28.7,
+      "maxMs": 35.4,
+      "rawMs": [
+        28.7,
+        32.5,
+        35.4,
+        32.5,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 30.6,
+      "p95Ms": 30.6,
+      "minMs": 30.6,
+      "maxMs": 30.6,
+      "rawMs": [
+        30.6
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.annotation-open",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 32.6,
+      "minMs": 31.8,
+      "maxMs": 32.6,
+      "rawMs": [
+        31.8,
+        32.6,
+        32.1,
+        32.6,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 32.2,
+      "p95Ms": 32.2,
+      "minMs": 32.2,
+      "maxMs": 32.2,
+      "rawMs": [
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.9,
+      "p95Ms": 31.9,
+      "minMs": 31.9,
+      "maxMs": 31.9,
+      "rawMs": [
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.viewed-toggle",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 32.4,
+      "minMs": 30.7,
+      "maxMs": 32.4,
+      "rawMs": [
+        31.3,
+        31.9,
+        32.1,
+        32.4,
+        30.7
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.copy-source",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33,
+      "minMs": 31.2,
+      "maxMs": 33,
+      "rawMs": [
+        31.4,
+        32.2,
+        32.1,
+        33,
+        31.2
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.copy-markdown-link",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.8,
+      "minMs": 31.7,
+      "maxMs": 33.8,
+      "rawMs": [
+        32.7,
+        31.7,
+        32,
+        32.9,
+        33.8
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 33.2,
+      "minMs": 31.2,
+      "maxMs": 33.2,
+      "rawMs": [
+        31.9,
+        31.7,
+        33.1,
+        31.2,
+        33.2
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.export-review",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.9,
+      "minMs": 31.8,
+      "maxMs": 33.9,
+      "rawMs": [
+        32.7,
+        33.4,
+        31.8,
+        32.3,
+        33.9
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.1x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 32.9,
+      "minMs": 31.2,
+      "maxMs": 32.9,
+      "rawMs": [
+        31.7,
+        31.2,
+        32.9,
+        32.2,
+        32.1
+      ],
+      "targetMs": 100,
+      "scenario": "typical",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 197.5,
+      "p95Ms": 244.8,
+      "minMs": 156.8,
+      "maxMs": 244.8,
+      "rawMs": [
+        244.8,
+        197.5,
+        156.8
+      ],
+      "targetMs": 2000,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "workload": {
+        "files": 1000,
+        "lines": 20,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.wrap",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 28.3,
+      "p95Ms": 48.4,
+      "minMs": 22.2,
+      "maxMs": 48.4,
+      "rawMs": [
+        22.2,
+        48.4,
+        28.3,
+        32,
+        26.9
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.layer-staged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 48.8,
+      "p95Ms": 49.7,
+      "minMs": 47,
+      "maxMs": 49.7,
+      "rawMs": [
+        49.7,
+        49,
+        47,
+        48.8,
+        47.1
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.layer-unstaged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 47.5,
+      "p95Ms": 50.3,
+      "minMs": 46.4,
+      "maxMs": 50.3,
+      "rawMs": [
+        46.4,
+        48.5,
+        46.8,
+        50.3,
+        47.5
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.layer-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 47.8,
+      "p95Ms": 48.5,
+      "minMs": 46.3,
+      "maxMs": 48.5,
+      "rawMs": [
+        47.8,
+        46.3,
+        47.9,
+        47.8,
+        48.5
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.context-lines",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.1,
+      "minMs": 28.2,
+      "maxMs": 33.1,
+      "rawMs": [
+        28.2,
+        33.1,
+        32.7,
+        30.6,
+        32.7
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.refresh-stashes",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.7,
+      "p95Ms": 33.5,
+      "minMs": 31.5,
+      "maxMs": 33.5,
+      "rawMs": [
+        31.7,
+        33.5,
+        31.5,
+        32.7,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.single-file",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 26.4,
+      "p95Ms": 31.1,
+      "minMs": 25.8,
+      "maxMs": 31.1,
+      "rawMs": [
+        31.1,
+        27.5,
+        26.3,
+        26.4,
+        25.8
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.split",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.3,
+      "minMs": 31.4,
+      "maxMs": 33.3,
+      "rawMs": [
+        32.3,
+        32.9,
+        33.3,
+        31.4,
+        32.7
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.unified",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.6,
+      "p95Ms": 32.8,
+      "minMs": 31,
+      "maxMs": 32.8,
+      "rawMs": [
+        32.8,
+        32.4,
+        31.4,
+        31,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.stash-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33.1,
+      "minMs": 32,
+      "maxMs": 33.1,
+      "rawMs": [
+        32.7,
+        33.1,
+        32.7,
+        32.7,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.stash-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.5,
+      "p95Ms": 33.5,
+      "minMs": 30.9,
+      "maxMs": 33.5,
+      "rawMs": [
+        33.4,
+        33.5,
+        31,
+        30.9,
+        31.5
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.stash-switch",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 33.6,
+      "p95Ms": 45.1,
+      "minMs": 30.5,
+      "maxMs": 45.1,
+      "rawMs": [
+        45.1,
+        33.2,
+        33.6,
+        30.5,
+        35.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.file-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 26.2,
+      "p95Ms": 31.7,
+      "minMs": 14.2,
+      "maxMs": 31.7,
+      "rawMs": [
+        31.5,
+        31.7,
+        20.8,
+        14.2,
+        26.2
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.file-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 73,
+      "p95Ms": 73.2,
+      "minMs": 68.2,
+      "maxMs": 73.2,
+      "rawMs": [
+        73,
+        69,
+        68.2,
+        73.2,
+        73.1
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.file-tree-end-key",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.6,
+      "p95Ms": 32.8,
+      "minMs": 22.5,
+      "maxMs": 32.8,
+      "rawMs": [
+        22.5,
+        31.3,
+        31.6,
+        32.7,
+        32.8
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.annotations-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 25.3,
+      "p95Ms": 32.9,
+      "minMs": 17.3,
+      "maxMs": 32.9,
+      "rawMs": [
+        32.9,
+        24.2,
+        17.3,
+        25.6,
+        25.3
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.files-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 70.3,
+      "p95Ms": 76.6,
+      "minMs": 64.3,
+      "maxMs": 76.6,
+      "rawMs": [
+        67.7,
+        76.5,
+        64.3,
+        70.3,
+        76.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.collapse-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 36.7,
+      "minMs": 28.5,
+      "maxMs": 36.7,
+      "rawMs": [
+        34.1,
+        28.5,
+        36.7,
+        32.7,
+        31.4
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.expand-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 62.2,
+      "p95Ms": 71.9,
+      "minMs": 48.5,
+      "maxMs": 71.9,
+      "rawMs": [
+        48.5,
+        62.2,
+        57.8,
+        71.9,
+        65.9
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 30.5,
+      "p95Ms": 30.5,
+      "minMs": 30.5,
+      "maxMs": 30.5,
+      "rawMs": [
+        30.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "lines": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.annotation-open",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 29.5,
+      "p95Ms": 30.3,
+      "minMs": 28.2,
+      "maxMs": 30.3,
+      "rawMs": [
+        28.6,
+        30.1,
+        30.3,
+        29.5,
+        28.2
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 29.6,
+      "p95Ms": 29.6,
+      "minMs": 29.6,
+      "maxMs": 29.6,
+      "rawMs": [
+        29.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.4,
+      "p95Ms": 31.4,
+      "minMs": 31.4,
+      "maxMs": 31.4,
+      "rawMs": [
+        31.4
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.viewed-toggle",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.2,
+      "p95Ms": 31.7,
+      "minMs": 29.5,
+      "maxMs": 31.7,
+      "rawMs": [
+        30.2,
+        29.5,
+        29.9,
+        31.7,
+        30.6
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.copy-source",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.7,
+      "p95Ms": 33.7,
+      "minMs": 29.8,
+      "maxMs": 33.7,
+      "rawMs": [
+        29.8,
+        31.7,
+        31.4,
+        33.7,
+        32.8
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.copy-markdown-link",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.8,
+      "p95Ms": 33.7,
+      "minMs": 30.6,
+      "maxMs": 33.7,
+      "rawMs": [
+        32.8,
+        33.7,
+        30.6,
+        32.8,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.1,
+      "minMs": 31.2,
+      "maxMs": 33.1,
+      "rawMs": [
+        33.1,
+        31.2,
+        32.1,
+        31.9,
+        32.8
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.export-review",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 32.8,
+      "minMs": 31.7,
+      "maxMs": 32.8,
+      "rawMs": [
+        32.2,
+        32.8,
+        31.9,
+        32.7,
+        31.7
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.1x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 33.3,
+      "minMs": 30.8,
+      "maxMs": 33.3,
+      "rawMs": [
+        30.8,
+        32.5,
+        32.2,
+        33.3,
+        31.2
+      ],
+      "targetMs": 100,
+      "scenario": "many-files",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 216.3,
+      "p95Ms": 313.4,
+      "minMs": 214.4,
+      "maxMs": 313.4,
+      "rawMs": [
+        313.4,
+        214.4,
+        216.3
+      ],
+      "targetMs": 2000,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "workload": {
+        "files": 1,
+        "lines": 5000,
+        "changed": 5000,
+        "stashes": 20,
+        "notes": 0
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.wrap",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 46,
+      "p95Ms": 48.6,
+      "minMs": 27.4,
+      "maxMs": 48.6,
+      "rawMs": [
+        27.4,
+        46,
+        48.6,
+        48.3,
+        37.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.layer-staged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 90,
+      "p95Ms": 159.7,
+      "minMs": 84.8,
+      "maxMs": 159.7,
+      "rawMs": [
+        159.7,
+        90,
+        87.1,
+        90,
+        84.8
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.1x.layer-unstaged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 98.1,
+      "p95Ms": 124.9,
+      "minMs": 84.1,
+      "maxMs": 124.9,
+      "rawMs": [
+        124.9,
+        95.5,
+        100.6,
+        98.1,
+        84.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.1x.layer-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 92.9,
+      "p95Ms": 104.6,
+      "minMs": 82.9,
+      "maxMs": 104.6,
+      "rawMs": [
+        95.1,
+        82.9,
+        104.6,
+        91.6,
+        92.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.1x.context-lines",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 70.9,
+      "p95Ms": 75,
+      "minMs": 65.8,
+      "maxMs": 75,
+      "rawMs": [
+        72.5,
+        70.9,
+        75,
+        70,
+        65.8
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.refresh-stashes",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 66.3,
+      "p95Ms": 69.8,
+      "minMs": 65.6,
+      "maxMs": 69.8,
+      "rawMs": [
+        66.3,
+        66.1,
+        65.6,
+        69.8,
+        67.5
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.single-file",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 33.2,
+      "minMs": 24.2,
+      "maxMs": 33.2,
+      "rawMs": [
+        24.2,
+        32.9,
+        31.7,
+        33.2,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.split",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 38.3,
+      "p95Ms": 49.6,
+      "minMs": 37.1,
+      "maxMs": 49.6,
+      "rawMs": [
+        49.6,
+        39.1,
+        37.1,
+        38.3,
+        37.3
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.unified",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 20.1,
+      "p95Ms": 32.4,
+      "minMs": 17.1,
+      "maxMs": 32.4,
+      "rawMs": [
+        32.4,
+        17.4,
+        30.7,
+        20.1,
+        17.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.stash-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 32.7,
+      "minMs": 29.1,
+      "maxMs": 32.7,
+      "rawMs": [
+        32.1,
+        32.7,
+        32.1,
+        29.1,
+        32.3
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.stash-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 33,
+      "p95Ms": 33.4,
+      "minMs": 31.8,
+      "maxMs": 33.4,
+      "rawMs": [
+        31.8,
+        33.4,
+        32.2,
+        33,
+        33.2
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.stash-switch",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 91.4,
+      "p95Ms": 169.3,
+      "minMs": 89.1,
+      "maxMs": 169.3,
+      "rawMs": [
+        169.3,
+        91.6,
+        91.4,
+        90.2,
+        89.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.1x.annotations-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 19.5,
+      "p95Ms": 31.8,
+      "minMs": 19.1,
+      "maxMs": 31.8,
+      "rawMs": [
+        31.8,
+        19.1,
+        19.5,
+        19.7,
+        19.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.files-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 41.1,
+      "p95Ms": 42,
+      "minMs": 40.6,
+      "maxMs": 42,
+      "rawMs": [
+        42,
+        40.6,
+        41.3,
+        40.7,
+        41.1
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.collapse-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 18.9,
+      "p95Ms": 30.6,
+      "minMs": 14.7,
+      "maxMs": 30.6,
+      "rawMs": [
+        30.6,
+        18.9,
+        14.7,
+        17.6,
+        21.2
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.expand-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 41.6,
+      "p95Ms": 44.6,
+      "minMs": 38.4,
+      "maxMs": 44.6,
+      "rawMs": [
+        38.4,
+        44.6,
+        40.5,
+        42.2,
+        41.6
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 34.6,
+      "p95Ms": 34.6,
+      "minMs": 34.6,
+      "maxMs": 34.6,
+      "rawMs": [
+        34.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "lines": 5000,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.annotation-open",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.6,
+      "minMs": 31.8,
+      "maxMs": 33.6,
+      "rawMs": [
+        31.8,
+        32,
+        32.1,
+        33.6,
+        32.6
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.7,
+      "p95Ms": 31.7,
+      "minMs": 31.7,
+      "maxMs": 31.7,
+      "rawMs": [
+        31.7
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.9,
+      "p95Ms": 31.9,
+      "minMs": 31.9,
+      "maxMs": 31.9,
+      "rawMs": [
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.viewed-toggle",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.1,
+      "p95Ms": 42.6,
+      "minMs": 17.3,
+      "maxMs": 42.6,
+      "rawMs": [
+        31.1,
+        42.5,
+        17.3,
+        42.6,
+        17.7
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.copy-source",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.6,
+      "p95Ms": 32.9,
+      "minMs": 31.7,
+      "maxMs": 32.9,
+      "rawMs": [
+        32.6,
+        31.7,
+        32.9,
+        32.8,
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.copy-markdown-link",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.8,
+      "p95Ms": 32.9,
+      "minMs": 32.4,
+      "maxMs": 32.9,
+      "rawMs": [
+        32.9,
+        32.7,
+        32.4,
+        32.8,
+        32.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 34.4,
+      "minMs": 32.3,
+      "maxMs": 34.4,
+      "rawMs": [
+        32.7,
+        33,
+        32.5,
+        32.3,
+        34.4
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.export-review",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.5,
+      "p95Ms": 33.6,
+      "minMs": 32.4,
+      "maxMs": 33.6,
+      "rawMs": [
+        32.4,
+        32.5,
+        33.6,
+        32.5,
+        32.4
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.3,
+      "p95Ms": 33,
+      "minMs": 19.8,
+      "maxMs": 33,
+      "rawMs": [
+        29,
+        30.3,
+        19.8,
+        30.8,
+        33
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.scroll-every-row-group",
+      "group": "browser",
+      "samples": 48,
+      "medianMs": 37.3,
+      "p95Ms": 58.2,
+      "minMs": 24.4,
+      "maxMs": 66.4,
+      "rawMs": [
+        27,
+        41.9,
+        31.7,
+        24.6,
+        39.5,
+        40.2,
+        37.9,
+        36.7,
+        37.8,
+        40.4,
+        29.8,
+        36.1,
+        31.6,
+        30.3,
+        32.9,
+        39.5,
+        43.1,
+        29.1,
+        31.4,
+        37.2,
+        26.6,
+        33.4,
+        35.6,
+        24.4,
+        26.9,
+        36.8,
+        27.3,
+        37.4,
+        35.6,
+        33.6,
+        33.4,
+        35.4,
+        66.4,
+        33,
+        50.1,
+        56.5,
+        59.5,
+        48.2,
+        46,
+        41.4,
+        45.2,
+        42,
+        52.8,
+        43.6,
+        50.2,
+        49.5,
+        58.2,
+        50.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.1x.wrap-after-full-scroll",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 1347.9,
+      "p95Ms": 1681.2,
+      "minMs": 1130,
+      "maxMs": 1681.2,
+      "rawMs": [
+        1130,
+        1646.8,
+        1236.7,
+        1681.2,
+        1347.9
+      ],
+      "targetMs": 100,
+      "scenario": "dense-large-file",
+      "cpuRate": 1,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.multi-embed.1x.initial-paint",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 99,
+      "p95Ms": 155.2,
+      "minMs": 98.1,
+      "maxMs": 155.2,
+      "rawMs": [
+        155.2,
+        99,
+        98.8,
+        98.1,
+        99.4
+      ],
+      "targetMs": 2000,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.wrap",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 32.9,
+      "minMs": 29.9,
+      "maxMs": 32.9,
+      "rawMs": [
+        29.9,
+        32.9,
+        31.1,
+        32,
+        32.4
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-staged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 33.1,
+      "minMs": 30.8,
+      "maxMs": 33.1,
+      "rawMs": [
+        33.1,
+        31.7,
+        31.8,
+        30.8,
+        31.8
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-unstaged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 33,
+      "minMs": 30.2,
+      "maxMs": 33,
+      "rawMs": [
+        32,
+        33,
+        31.9,
+        30.2,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 33,
+      "minMs": 31.7,
+      "maxMs": 33,
+      "rawMs": [
+        32.1,
+        31.7,
+        33,
+        31.7,
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.context-lines",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 33.4,
+      "minMs": 31.6,
+      "maxMs": 33.4,
+      "rawMs": [
+        31.6,
+        32.1,
+        33,
+        32.3,
+        33.4
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.refresh-stashes",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 33.3,
+      "p95Ms": 33.4,
+      "minMs": 31.3,
+      "maxMs": 33.4,
+      "rawMs": [
+        33.4,
+        33.3,
+        31.3,
+        32.4,
+        33.4
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.single-file",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.2,
+      "p95Ms": 32.7,
+      "minMs": 30.6,
+      "maxMs": 32.7,
+      "rawMs": [
+        31.2,
+        31.2,
+        32.7,
+        30.6,
+        31.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.split",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 32.9,
+      "minMs": 30.8,
+      "maxMs": 32.9,
+      "rawMs": [
+        32.5,
+        31.8,
+        31.9,
+        30.8,
+        32.9
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.unified",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 32.4,
+      "minMs": 31.3,
+      "maxMs": 32.4,
+      "rawMs": [
+        32.3,
+        31.5,
+        32.4,
+        31.8,
+        31.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.4,
+      "p95Ms": 31.6,
+      "minMs": 30.8,
+      "maxMs": 31.6,
+      "rawMs": [
+        31.4,
+        30.8,
+        31.6,
+        31.1,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 32.6,
+      "minMs": 31.2,
+      "maxMs": 32.6,
+      "rawMs": [
+        32.4,
+        32.6,
+        31.2,
+        31.2,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-tree-end-key",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.1,
+      "minMs": 30.5,
+      "maxMs": 33.1,
+      "rawMs": [
+        30.5,
+        32.9,
+        31.9,
+        32.1,
+        33.1
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotations-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 32.7,
+      "minMs": 31.1,
+      "maxMs": 32.7,
+      "rawMs": [
+        32.4,
+        31.1,
+        32.7,
+        31.4,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.files-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.7,
+      "p95Ms": 32.6,
+      "minMs": 31,
+      "maxMs": 32.6,
+      "rawMs": [
+        32.3,
+        31,
+        31.7,
+        31.4,
+        32.6
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.collapse-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.4,
+      "p95Ms": 33.2,
+      "minMs": 31.9,
+      "maxMs": 33.2,
+      "rawMs": [
+        33,
+        32.4,
+        31.9,
+        32.1,
+        33.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.expand-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.6,
+      "p95Ms": 32.9,
+      "minMs": 30.9,
+      "maxMs": 32.9,
+      "rawMs": [
+        30.9,
+        32,
+        32.9,
+        32.9,
+        32.6
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.6,
+      "p95Ms": 31.6,
+      "minMs": 31.6,
+      "maxMs": 31.6,
+      "rawMs": [
+        31.6
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-open",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.3,
+      "p95Ms": 32.2,
+      "minMs": 30.9,
+      "maxMs": 32.2,
+      "rawMs": [
+        31.4,
+        32.2,
+        30.9,
+        31.3,
+        31.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.2,
+      "p95Ms": 31.2,
+      "minMs": 31.2,
+      "maxMs": 31.2,
+      "rawMs": [
+        31.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 32,
+      "p95Ms": 32,
+      "minMs": 32,
+      "maxMs": 32,
+      "rawMs": [
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.viewed-toggle",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.6,
+      "p95Ms": 31.6,
+      "minMs": 29.3,
+      "maxMs": 31.6,
+      "rawMs": [
+        31.6,
+        29.3,
+        30.6,
+        30.2,
+        30.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-source",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 33.2,
+      "minMs": 30.2,
+      "maxMs": 33.2,
+      "rawMs": [
+        30.2,
+        31.6,
+        32.2,
+        32.2,
+        33.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-markdown-link",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 33.1,
+      "p95Ms": 34.3,
+      "minMs": 32.2,
+      "maxMs": 34.3,
+      "rawMs": [
+        33.3,
+        32.5,
+        34.3,
+        33.1,
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.4,
+      "p95Ms": 33.4,
+      "minMs": 32.2,
+      "maxMs": 33.4,
+      "rawMs": [
+        32.2,
+        32.2,
+        33.4,
+        33.2,
+        32.4
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.export-review",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 34.2,
+      "minMs": 32.2,
+      "maxMs": 34.2,
+      "rawMs": [
+        32.3,
+        34.2,
+        32.3,
+        32.3,
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 33.3,
+      "minMs": 27.9,
+      "maxMs": 33.3,
+      "rawMs": [
+        27.9,
+        32.3,
+        32.1,
+        32.3,
+        33.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Production browser: initial paint, layer/layout/scope switching, stash/file search, navigation, full context, collapse, annotation save/resolve, viewed progress, clipboard/Markdown/export, six embeds, repeated mount/unmount and heap, 1x/4x CPU."
+  ],
+  "memory": [
+    {
+      "name": "ui.typical.1x.end",
+      "heapMiB": 5.61,
+      "domNodes": 969,
+      "codeRows": 9,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 6,
+        "stashes": 6,
+        "diff": 51,
+        "source": 52,
+        "saves": 8,
+        "exports": 5,
+        "mutations": 0
+      },
+      "longTasks": []
+    },
+    {
+      "name": "ui.many-files.1x.end",
+      "heapMiB": 17.46,
+      "domNodes": 13215,
+      "codeRows": 9,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 6,
+        "stashes": 6,
+        "diff": 51,
+        "source": 52,
+        "saves": 8,
+        "exports": 5,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 70.30000000074506,
+          "duration": 50
+        },
+        {
+          "start": 4487.300000000745,
+          "duration": 56
+        },
+        {
+          "start": 4600.200000001118,
+          "duration": 54
+        },
+        {
+          "start": 4791.300000000745,
+          "duration": 53
+        },
+        {
+          "start": 4930.9000000003725,
+          "duration": 53
+        },
+        {
+          "start": 5331.200000001118,
+          "duration": 53
+        },
+        {
+          "start": 5639,
+          "duration": 59
+        },
+        {
+          "start": 6187.9000000003725,
+          "duration": 51
+        },
+        {
+          "start": 6486.9000000003725,
+          "duration": 51
+        }
+      ]
+    },
+    {
+      "name": "ui.dense-large-file.1x.end",
+      "heapMiB": 47.33,
+      "domNodes": 140742,
+      "codeRows": 10000,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 6,
+        "stashes": 6,
+        "diff": 51,
+        "source": 51,
+        "saves": 8,
+        "exports": 5,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 26.5,
+          "duration": 79
+        },
+        {
+          "start": 113.5,
+          "duration": 77
+        },
+        {
+          "start": 473.80000000074506,
+          "duration": 67
+        },
+        {
+          "start": 544.0999999996275,
+          "duration": 73
+        },
+        {
+          "start": 637.5999999996275,
+          "duration": 62
+        },
+        {
+          "start": 702.5999999996275,
+          "duration": 70
+        },
+        {
+          "start": 796,
+          "duration": 67
+        },
+        {
+          "start": 885.8000000007451,
+          "duration": 66
+        },
+        {
+          "start": 959.1999999992549,
+          "duration": 62
+        },
+        {
+          "start": 1044.4000000003725,
+          "duration": 66
+        },
+        {
+          "start": 1119,
+          "duration": 62
+        },
+        {
+          "start": 1205.0999999996275,
+          "duration": 67
+        },
+        {
+          "start": 1281.4000000003725,
+          "duration": 79
+        },
+        {
+          "start": 1384.0999999996275,
+          "duration": 69
+        },
+        {
+          "start": 1461.300000000745,
+          "duration": 65
+        },
+        {
+          "start": 1549.199999999255,
+          "duration": 72
+        },
+        {
+          "start": 1630.199999999255,
+          "duration": 79
+        },
+        {
+          "start": 1734.9000000003725,
+          "duration": 70
+        },
+        {
+          "start": 1811.800000000745,
+          "duration": 65
+        },
+        {
+          "start": 1896.5,
+          "duration": 67
+        },
+        {
+          "start": 1971.9000000003725,
+          "duration": 63
+        },
+        {
+          "start": 2058.199999999255,
+          "duration": 80
+        },
+        {
+          "start": 2149.5,
+          "duration": 92
+        },
+        {
+          "start": 2270,
+          "duration": 77
+        },
+        {
+          "start": 2355.699999999255,
+          "duration": 76
+        },
+        {
+          "start": 2453.800000000745,
+          "duration": 78
+        },
+        {
+          "start": 2540.4000000003725,
+          "duration": 71
+        },
+        {
+          "start": 2634.300000000745,
+          "duration": 83
+        },
+        {
+          "start": 2727.199999999255,
+          "duration": 71
+        },
+        {
+          "start": 2823,
+          "duration": 92
+        },
+        {
+          "start": 2924.5999999996275,
+          "duration": 73
+        },
+        {
+          "start": 3023.0999999996275,
+          "duration": 71
+        },
+        {
+          "start": 3102.0999999996275,
+          "duration": 64
+        },
+        {
+          "start": 3184.0999999996275,
+          "duration": 71
+        },
+        {
+          "start": 3263.9000000003725,
+          "duration": 76
+        },
+        {
+          "start": 3361.5999999996275,
+          "duration": 69
+        },
+        {
+          "start": 3439.5999999996275,
+          "duration": 70
+        },
+        {
+          "start": 3529.699999999255,
+          "duration": 65
+        },
+        {
+          "start": 3602,
+          "duration": 63
+        },
+        {
+          "start": 3685.5,
+          "duration": 78
+        },
+        {
+          "start": 3777.9000000003725,
+          "duration": 69
+        },
+        {
+          "start": 3865.800000000745,
+          "duration": 65
+        },
+        {
+          "start": 3938.5,
+          "duration": 65
+        },
+        {
+          "start": 4033.4000000003725,
+          "duration": 70
+        },
+        {
+          "start": 4111.699999999255,
+          "duration": 62
+        },
+        {
+          "start": 4192.5999999996275,
+          "duration": 67
+        },
+        {
+          "start": 4267.4000000003725,
+          "duration": 62
+        },
+        {
+          "start": 4348.800000000745,
+          "duration": 65
+        },
+        {
+          "start": 4421.0999999996275,
+          "duration": 68
+        },
+        {
+          "start": 4508,
+          "duration": 67
+        },
+        {
+          "start": 4582.4000000003725,
+          "duration": 80
+        },
+        {
+          "start": 4686.199999999255,
+          "duration": 70
+        },
+        {
+          "start": 4763.800000000745,
+          "duration": 65
+        },
+        {
+          "start": 4852,
+          "duration": 68
+        },
+        {
+          "start": 4928.5999999996275,
+          "duration": 64
+        },
+        {
+          "start": 5019.199999999255,
+          "duration": 103
+        },
+        {
+          "start": 5130.4000000003725,
+          "duration": 72
+        },
+        {
+          "start": 5205.5,
+          "duration": 83
+        },
+        {
+          "start": 5314.300000000745,
+          "duration": 70
+        },
+        {
+          "start": 5406.4000000003725,
+          "duration": 89
+        },
+        {
+          "start": 5499.199999999255,
+          "duration": 68
+        },
+        {
+          "start": 5574.699999999255,
+          "duration": 72
+        },
+        {
+          "start": 5648.4000000003725,
+          "duration": 67
+        },
+        {
+          "start": 5718.699999999255,
+          "duration": 79
+        },
+        {
+          "start": 5798.699999999255,
+          "duration": 71
+        },
+        {
+          "start": 5873.0999999996275,
+          "duration": 72
+        },
+        {
+          "start": 5946.199999999255,
+          "duration": 67
+        },
+        {
+          "start": 6015.5999999996275,
+          "duration": 69
+        },
+        {
+          "start": 6085.699999999255,
+          "duration": 63
+        },
+        {
+          "start": 6151.0999999996275,
+          "duration": 92
+        },
+        {
+          "start": 6244.0999999996275,
+          "duration": 70
+        },
+        {
+          "start": 6317.5999999996275,
+          "duration": 64
+        },
+        {
+          "start": 6384.300000000745,
+          "duration": 64
+        },
+        {
+          "start": 6449.199999999255,
+          "duration": 64
+        },
+        {
+          "start": 6515.4000000003725,
+          "duration": 63
+        },
+        {
+          "start": 6579.9000000003725,
+          "duration": 64
+        },
+        {
+          "start": 6645.9000000003725,
+          "duration": 63
+        },
+        {
+          "start": 6710.4000000003725,
+          "duration": 65
+        },
+        {
+          "start": 6777.699999999255,
+          "duration": 67
+        },
+        {
+          "start": 6846.199999999255,
+          "duration": 64
+        },
+        {
+          "start": 6912,
+          "duration": 65
+        },
+        {
+          "start": 6978.5,
+          "duration": 67
+        },
+        {
+          "start": 8821.800000000745,
+          "duration": 81
+        },
+        {
+          "start": 8906.199999999255,
+          "duration": 69
+        },
+        {
+          "start": 8998,
+          "duration": 64
+        },
+        {
+          "start": 9082.800000000745,
+          "duration": 67
+        },
+        {
+          "start": 9158.900000000373,
+          "duration": 63
+        },
+        {
+          "start": 9247,
+          "duration": 63
+        },
+        {
+          "start": 9318.300000000745,
+          "duration": 66
+        },
+        {
+          "start": 9413.099999999627,
+          "duration": 84
+        },
+        {
+          "start": 9506.099999999627,
+          "duration": 63
+        },
+        {
+          "start": 9594.300000000745,
+          "duration": 64
+        },
+        {
+          "start": 9666.699999999255,
+          "duration": 64
+        },
+        {
+          "start": 9752.900000000373,
+          "duration": 65
+        },
+        {
+          "start": 9825.900000000373,
+          "duration": 67
+        },
+        {
+          "start": 9914.400000000373,
+          "duration": 67
+        },
+        {
+          "start": 9991.599999999627,
+          "duration": 77
+        },
+        {
+          "start": 10091.599999999627,
+          "duration": 63
+        },
+        {
+          "start": 10163,
+          "duration": 63
+        },
+        {
+          "start": 10249.900000000373,
+          "duration": 69
+        },
+        {
+          "start": 10328,
+          "duration": 64
+        },
+        {
+          "start": 10413.800000000745,
+          "duration": 69
+        },
+        {
+          "start": 17192.5,
+          "duration": 1104
+        },
+        {
+          "start": 18321.300000000745,
+          "duration": 1614
+        },
+        {
+          "start": 19964.300000000745,
+          "duration": 549
+        },
+        {
+          "start": 20520.400000000373,
+          "duration": 1218
+        },
+        {
+          "start": 21751.800000000745,
+          "duration": 300
+        },
+        {
+          "start": 22064.400000000373,
+          "duration": 1655
+        },
+        {
+          "start": 23734.699999999255,
+          "duration": 470
+        },
+        {
+          "start": 24214.5,
+          "duration": 1326
+        }
+      ]
+    },
+    {
+      "name": "ui.multi-embed.1x.end",
+      "heapMiB": 8.87,
+      "domNodes": 5812,
+      "codeRows": 54,
+      "listeners": 6,
+      "hostReads": {
+        "repositories": 11,
+        "stashes": 11,
+        "diff": 46,
+        "source": 47,
+        "saves": 8,
+        "exports": 5,
+        "mutations": 0
+      },
+      "longTasks": []
+    },
+    {
+      "name": "ui.multi-embed.unmounted-cycles",
+      "heapMiB": [
+        4.9,
+        5.86,
+        6.78,
+        7.7,
+        8.64,
+        9.56,
+        10.47,
+        11.39,
+        12.32,
+        13.24,
+        14.16,
+        15.07
+      ],
+      "growthMiB": 10.17
+    }
+  ],
+  "browserBundle": {
+    "sha256": "fb240624bcb09a66bbf96bc467ae7fe61059094f9a3a53a6b61385f7129891cd",
+    "bytes": 501016,
+    "gzipBytes": 156700,
+    "brotliBytes": 127318
+  },
+  "completedAt": "2026-10-12T13:31:57.543Z"
+}

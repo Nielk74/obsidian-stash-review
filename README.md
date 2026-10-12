@@ -15,6 +15,9 @@ Stash Review runs on **Obsidian desktop 1.6 or later**, with Git installed on yo
 - Create a stash, apply a saved stash with an optional index restore, remove a stash with a recoverable backup, or export your review to a Markdown note.
 - Keep titles, tags, notes, and review progress across restarts and stash renumbering.
 - Link to an exact stash from an Obsidian note, or embed an interactive review directly in Markdown.
+- Reopen archived reviews and recover dropped stashes after restarting Obsidian.
+- Track Viewed progress separately in All changes, Staged, and Unstaged; search saved diff text and hide whitespace noise.
+- Relocate repositories without changing review links, or import/export portable review packages for offline reading.
 
 ## Install
 
@@ -29,7 +32,7 @@ YOUR_VAULT/.obsidian/plugins/stash-review/
 
 In Obsidian, open **Settings → Community plugins**, enable community plugins if needed, and enable **Stash Review**. Use the Git pull request ribbon icon or run **Stash Review: Open stash review** from the command palette.
 
-To update an existing installation, replace only `main.js`, `manifest.json`, and `styles.css`, then disable and enable Stash Review. Keep `data.json` in place to preserve your annotations, titles, tags, and review progress.
+To update an existing installation, replace only `main.js`, `manifest.json`, and `styles.css`, then disable and enable Stash Review. Keep `data.json` and the `reviews/` directory in place to preserve your annotations, titles, tags, progress, and captured code.
 
 You can also install through [BRAT](https://github.com/TfTHacker/obsidian42-brat): add `Nielk74/obsidian-stash-review` as a beta plugin. This plugin is distributed through GitHub releases; it is not yet listed in Obsidian's community plugin directory. Release assets include the individual plugin files and `SHA256SUMS` for checksum verification.
 
@@ -43,6 +46,12 @@ The **Files changed** sidebar shows changed paths in their actual folder hierarc
 
 Choose **All files** for a continuous review, or **Single file** to focus on the selected path. The file tree stays available in either mode, and the previous/next controls move between matching files. Collapse individual diffs or all files when you want to scan headers. Marking a file **Viewed** collapses its diff and updates progress in its parent folders. **Hide viewed files** filters the completed files while retaining your annotations and progress.
 
+Viewed flags belong to the selected diff layer. Reviewing a file in **Staged** does not mark its **Unstaged** or **All changes** version reviewed. Existing progress from earlier plugin versions becomes All changes progress; existing comments retain their original layer.
+
+**Find in changes** searches the selected layer's captured diff text, including its displayed context, with literal case-insensitive matching. It does not read every full file or run Git as you type. Enter moves to the next result, Shift+Enter to the previous, and Escape clears the query. The first 200 matches are highlighted; navigation reaches later results directly. The annotation panel also searches comment bodies, replies, and paths. Search waits 100 ms after typing and reuses its index.
+
+**Ignore whitespace** hides equivalent whitespace changes in the displayed diff. Saved code, line numbers, annotations, totals, and Viewed flags retain their original meaning. Navigating to a search result or an annotation restores the unfiltered presentation so its original code remains visible. Save or cancel a new annotation before navigating search results or changing whitespace presentation.
+
 Use a line's comment control to leave a note. Select a range with Shift when you want to discuss several lines. Threads belong to a specific file, line side, and diff layer. Selecting an annotation's location returns to its saved layer, reveals its file even when filtered or collapsed, and shows the original anchor. Expand file context to read surrounding saved code, then export the discussion into your vault when you want a standalone note.
 
 On a laptop or in a narrow Obsidian pane, the stash list and file tree open as drawers so code can use the available width. Close them with Escape or by clicking outside. Short panes collapse secondary stash details; **Show stash details** reveals the description, tags, and capture information. **Wrap code lines** avoids horizontal scrolling in a unified diff. Select code text normally to copy it without diff signs or line numbers; in split view, copying a vertical selection keeps the selected side. A file header's copy button copies the full saved file, or its original contents for a deleted file.
@@ -55,7 +64,9 @@ Choose **Copy Markdown embed** to paste an interactive review inside the note in
 
 For a manually written block, use `repo: <repository ID>` and `stash: <full commit hash>` on separate lines. Optional fields are `layer: all`, `staged`, or `unstaged`, and `file: <path>`. Copying the link or embed is easier because it supplies the correct identifiers. An invalid definition displays an explanation; an unavailable stash or file never silently opens a different target.
 
-Links refer to configured local repositories in the named vault. After moving or cloning a repository to a different location, configure it and copy a fresh link. Exported review notes also include a link back to the live review.
+Links refer to a stable review repository ID and the full stash hash in the named vault. **Relocate** in the sidebar, or **Settings → Stash Review → Relocate**, binds that ID to a new local folder after a move or clone. Existing links and notes keep their identity. Archived links reopen their exact saved review; unavailable code is explained without selecting a different stash.
+
+Descriptions, annotation bodies, and replies support Obsidian Markdown, wiki links, lists, and fenced code. Rendered threads release their Obsidian components when closed. Markdown exports include provenance, progress for each layer, and original annotated code excerpts where available. A missing excerpt is stated beside its discussion.
 
 Within the file tree, use **↑/↓** to move, **→/←** to expand or collapse a folder and move between parents and children, **Home/End** to reach the first or last item, and **Enter/Space** to open a file. Stash shortcuts **j/k** continue to work in the stash list; file navigation and text fields keep their own keyboard behavior.
 
@@ -65,14 +76,21 @@ Applying requires a clean working tree and preserves the saved stash. You can ch
 
 When your vault is the repository, the running plugin's installation folder and review data stay in place. Creating a stash excludes that folder. If protected plugin files are staged, creation and application stop before changing the repository and ask you to unstage them. Applying ignores unstaged and untracked changes within that protected folder when checking for a clean tree, and refuses a stash that contains changes to those plugin files. All other local changes still block application. Adding `.obsidian/plugins/stash-review/` to your vault repository's `.gitignore` keeps generated plugin files and review data out of future commits; use your configured vault folder name if it differs from `.obsidian`.
 
-Removing a stash asks for confirmation. Before removal, the plugin creates a Git reference at **`refs/stash-review/backups/<stash-hash>`** so Git retains the object. The workspace offers Undo. These backup references remain in your repository until you remove them yourself. To find retained backups and recover one manually:
+Removing a stash asks for confirmation. Before removal, the plugin creates a Git reference at **`refs/stash-review/backups/<stash-hash>`** so Git retains the object. Opening a review also retains its original stash at **`refs/stash-review/reviews/<stash-hash>`**. These references remain until you remove them yourself. The workspace offers Undo, and **Archived reviews → More stash actions → Restore stash** recovers a retained stash after restarting. To find retained objects and recover one manually:
 
 ```sh
 git for-each-ref refs/stash-review/backups/
+git for-each-ref refs/stash-review/reviews/
 git stash store -m "Recovered stash" refs/stash-review/backups/STASH_HASH
 ```
 
-The plugin identifies reviews by the repository's common Git directory and immutable stash object hash, so notes survive changes to `stash@{n}` and remain consistent across linked worktrees. Plugin settings and review metadata are stored in your vault's **`.obsidian/plugins/stash-review/data.json`**, or the corresponding path under a custom vault configuration folder. They may be included in any sync or backup system that copies this file. The plugin does not send repository contents or annotations to a server. Git operations are local and use the configured Git executable.
+Use **Archive review** to remove a review from Active without dropping its Git stash, and **Restore to Active** to reverse that choice. The archive browser also discovers retained drops, missing stashes with saved notes, and legacy backup references. It shows 50 entries per page and loads code only for the selected review. Missing layers or uncaptured full source remain explicitly unavailable while notes remain editable.
+
+If you replace a stash with revised contents, its new hash starts a separate review. Open **More stash actions → Continue from previous review** and choose the original archived review explicitly. Notes and Viewed flags transfer only for exact path, blob, mode, and rename matches in their own layer, verified against Git. Changed or unverifiable files keep their discussions on the original snapshot. The new review links back to that original. Reused `stash@{n}` values and similar messages never trigger an automatic transfer.
+
+**Export review data** downloads a versioned JSON package with notes and all three captured diff layers. **Import review data** accepts that package into the saved library or an explicitly selected local repository. Import validates paths, identities, coordinates, source consistency, and a 32 MiB uncompressed package limit before committing metadata. Identical imports are deduplicated; different local notes cause a conflict instead of being overwritten. Import does not create, apply, or drop Git stashes. Offline reviews support reading and annotation; Git mutations require the local repository and appropriate retained objects. Full-file context is included only when it was captured; diff hunks remain available independently.
+
+The initial repository ID comes from its common Git directory and is saved as a stable binding, so notes survive stash renumbering and remain consistent across linked worktrees and explicit relocation. Settings, bindings, and review metadata live in **`.obsidian/plugins/stash-review/data.json`**. Captured layers live as atomically written compressed JSON under **`.obsidian/plugins/stash-review/reviews/`**, with a 32 MiB uncompressed limit per layer. Use the corresponding path under a custom vault configuration folder. Back up both locations. Vault sync can copy saved code from external repositories as well as notes. The plugin itself sends no repository contents or annotations to a server; Git operations use the configured local executable.
 
 Git operations from plugin tabs are serialized across linked worktrees. Other Git programs can still change the stash list. The plugin rechecks stash identity before removal and verifies the result afterward; if it detects an unexpected removal, it preserves a backup reference and reports the concurrent change. Refresh the list before continuing.
 
@@ -110,6 +128,15 @@ The audit measures production UI rendering and interactions, real Git reads and 
 Browser timings use a deterministic in-memory host to isolate rendering; real Git and the native plugin host are measured separately. CPU throttling approximates a slower machine, fresh pages/services retain operating-system disk caches, and single-sample actions do not establish a meaningful p95. These measurements do not replace testing inside Obsidian on the target laptop.
 
 Large diffs mount nearby files and row groups first, retaining them once visited to preserve selections and edits. Clipboard selection reconstructs intervening unloaded code from the snapshot. Identical reads across embeds share pending requests; immutable diff/source results use a bounded 16 MiB cache, while repository and stash lists remain fresh on refresh.
+
+Durable reviews use a 32-entry shared cache and 200-row rendering chunks. Search builds its index only when a query exists; source hydration and whitespace toggles reuse the canonical snapshot. Archive summaries avoid copying all annotation bodies. Run the additional audit with:
+
+```sh
+node --expose-gc scripts/benchmark-durable-reviews.mjs --samples 5
+node --expose-gc scripts/benchmark-durable-reviews.mjs --compare-existing --section browser --samples 5 --cpu 1 --workloads typical,many-files,dense-large-file,multi-embed --output benchmarks/results/comparison.json
+```
+
+The comparison mode runs the supplied audit with five samples for its otherwise capped heavy workloads, leaving the original script unchanged. Focused reports cover archive paging, layer progress, search, whitespace, relocation, portable round trips, continuation, read coalescing, and repeated Markdown/UI mount cleanup. See [durable review performance](benchmarks/durable-reviews-performance.md) for measurements and their limits.
 
 For a release, update `package.json`, `manifest.json`, and `versions.json`, then push an annotated version tag such as `0.2.0`. The release workflow builds, tests, packages the plugin folder, and publishes assets using the GitHub CLI. Obsidian version tags have no `v` prefix.
 

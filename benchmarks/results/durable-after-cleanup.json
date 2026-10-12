@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "8d79fac855ff2f718124022ccd41b4d6da1f4895",
+    "workingTree": true,
+    "computeBundleSha256": "4d5c52b797dca5bbe2960bd1cdda4fb53ce692d2a32033aea3bd20647e219db1"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true,
+    "chromium": "156.0.8078.4"
+  },
+  "methodology": {
+    "samples": 5,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames and wait for deferred content intersecting the visible scroll viewport; background prefetch outside it is excluded."
+  },
+  "startedAt": "2026-10-12T13:44:22.657Z",
+  "metrics": [
+    {
+      "name": "ui.multi-embed.1x.initial-paint",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 99.5,
+      "p95Ms": 180.8,
+      "minMs": 97.4,
+      "maxMs": 180.8,
+      "rawMs": [
+        180.8,
+        99.5,
+        97.4,
+        98.5,
+        101.8
+      ],
+      "targetMs": 2000,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.wrap",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 32.7,
+      "minMs": 27.2,
+      "maxMs": 32.7,
+      "rawMs": [
+        27.2,
+        31.8,
+        31.4,
+        32.7,
+        32
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-staged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 33.1,
+      "minMs": 31.6,
+      "maxMs": 33.1,
+      "rawMs": [
+        32.6,
+        31.7,
+        33.1,
+        31.6,
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-unstaged",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 32.7,
+      "minMs": 30.2,
+      "maxMs": 32.7,
+      "rawMs": [
+        32.1,
+        31.7,
+        32.3,
+        30.2,
+        32.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.layer-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 32.9,
+      "minMs": 31.2,
+      "maxMs": 32.9,
+      "rawMs": [
+        32,
+        31.2,
+        32.9,
+        31.8,
+        31.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.context-lines",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 32.8,
+      "minMs": 31.2,
+      "maxMs": 32.8,
+      "rawMs": [
+        31.2,
+        31.7,
+        32.8,
+        32.1,
+        31.8
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.refresh-stashes",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.3,
+      "p95Ms": 32.6,
+      "minMs": 31.1,
+      "maxMs": 32.6,
+      "rawMs": [
+        32.6,
+        31.1,
+        31.4,
+        32.4,
+        32.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.single-file",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.6,
+      "p95Ms": 33.1,
+      "minMs": 31,
+      "maxMs": 33.1,
+      "rawMs": [
+        31,
+        32.2,
+        31,
+        33.1,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.split",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.9,
+      "p95Ms": 32.2,
+      "minMs": 30.3,
+      "maxMs": 32.2,
+      "rawMs": [
+        30.3,
+        30.3,
+        31.2,
+        30.9,
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.unified",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.1,
+      "p95Ms": 30.8,
+      "minMs": 29.7,
+      "maxMs": 30.8,
+      "rawMs": [
+        30.5,
+        29.7,
+        30.1,
+        30.8,
+        29.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-filter",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 29.9,
+      "p95Ms": 32.1,
+      "minMs": 29.3,
+      "maxMs": 32.1,
+      "rawMs": [
+        32.1,
+        30.9,
+        29.7,
+        29.9,
+        29.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-filter-clear",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.3,
+      "p95Ms": 32.7,
+      "minMs": 30.7,
+      "maxMs": 32.7,
+      "rawMs": [
+        32.7,
+        31.3,
+        30.9,
+        31.7,
+        30.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.file-tree-end-key",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32.2,
+      "p95Ms": 32.5,
+      "minMs": 30.4,
+      "maxMs": 32.5,
+      "rawMs": [
+        32.2,
+        30.4,
+        32.5,
+        32.2,
+        31.6
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotations-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 32,
+      "p95Ms": 32.6,
+      "minMs": 30.8,
+      "maxMs": 32.6,
+      "rawMs": [
+        32.6,
+        32,
+        30.8,
+        32,
+        31.5
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.files-tab",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 32.1,
+      "minMs": 29.4,
+      "maxMs": 32.1,
+      "rawMs": [
+        31.9,
+        32.1,
+        32,
+        29.4,
+        31.1
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.collapse-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.3,
+      "p95Ms": 30.7,
+      "minMs": 27.1,
+      "maxMs": 30.7,
+      "rawMs": [
+        30.5,
+        27.7,
+        30.7,
+        27.1,
+        30.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.expand-all",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 33.1,
+      "p95Ms": 35.8,
+      "minMs": 31,
+      "maxMs": 35.8,
+      "rawMs": [
+        31,
+        34.1,
+        33.1,
+        31.2,
+        35.8
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.2,
+      "p95Ms": 31.2,
+      "minMs": 31.2,
+      "maxMs": 31.2,
+      "rawMs": [
+        31.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-open",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 30.8,
+      "p95Ms": 31.9,
+      "minMs": 29.3,
+      "maxMs": 31.9,
+      "rawMs": [
+        31.3,
+        30.6,
+        30.8,
+        31.9,
+        29.3
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31,
+      "p95Ms": 31,
+      "minMs": 31,
+      "maxMs": 31,
+      "rawMs": [
+        31
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 29.9,
+      "p95Ms": 29.9,
+      "minMs": 29.9,
+      "maxMs": 29.9,
+      "rawMs": [
+        29.9
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.viewed-toggle",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 29.9,
+      "p95Ms": 31.5,
+      "minMs": 27.7,
+      "maxMs": 31.5,
+      "rawMs": [
+        31.5,
+        28.5,
+        27.7,
+        29.9,
+        30
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-source",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.6,
+      "p95Ms": 33,
+      "minMs": 28.8,
+      "maxMs": 33,
+      "rawMs": [
+        28.8,
+        30.6,
+        33,
+        31.6,
+        31.9
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-markdown-link",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.7,
+      "p95Ms": 32.5,
+      "minMs": 31.2,
+      "maxMs": 32.5,
+      "rawMs": [
+        31.8,
+        31.2,
+        32.5,
+        31.7,
+        31.7
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 33.1,
+      "minMs": 31.3,
+      "maxMs": 33.1,
+      "rawMs": [
+        33.1,
+        31.9,
+        31.3,
+        32.7,
+        31.8
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.export-review",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.9,
+      "p95Ms": 32.5,
+      "minMs": 30.4,
+      "maxMs": 32.5,
+      "rawMs": [
+        32.5,
+        31.9,
+        30.7,
+        30.4,
+        32.2
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.1x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 33,
+      "minMs": 29.1,
+      "maxMs": 33,
+      "rawMs": [
+        29.1,
+        31.8,
+        31.8,
+        30.7,
+        33
+      ],
+      "targetMs": 100,
+      "scenario": "multi-embed",
+      "cpuRate": 1,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Production browser: initial paint, layer/layout/scope switching, stash/file search, navigation, full context, collapse, annotation save/resolve, viewed progress, clipboard/Markdown/export, six embeds, repeated mount/unmount and heap, 1x/4x CPU."
+  ],
+  "memory": [
+    {
+      "name": "ui.multi-embed.1x.end",
+      "heapMiB": 8.75,
+      "domNodes": 5812,
+      "codeRows": 54,
+      "listeners": 6,
+      "hostReads": {
+        "repositories": 11,
+        "stashes": 11,
+        "diff": 46,
+        "source": 47,
+        "saves": 8,
+        "exports": 5,
+        "mutations": 0
+      },
+      "longTasks": []
+    },
+    {
+      "name": "ui.multi-embed.unmounted-cycles",
+      "heapMiB": [
+        4.9,
+        4.93,
+        4.95,
+        4.96,
+        4.98,
+        4.98,
+        4.98,
+        4.99,
+        5,
+        5.01,
+        5.01,
+        5.02
+      ],
+      "growthMiB": 0.12
+    }
+  ],
+  "browserBundle": {
+    "sha256": "a81ba100f168c937dd81eb904fe067e6464d0df11c6af04727c15cbe5288fa2c",
+    "bytes": 501086,
+    "gzipBytes": 156747,
+    "brotliBytes": 127537
+  },
+  "completedAt": "2026-10-12T13:44:32.266Z"
+}

@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "8d79fac855ff2f718124022ccd41b4d6da1f4895",
+    "computeBundleSha256": "5bbc872942c2a7b7f27b4d18562d855b57fe521ac1554a0dcaad05eda0ab5a9e"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "explicitGC": true,
+    "chromium": "156.0.8078.4"
+  },
+  "methodology": {
+    "samples": 5,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "browser": "Production React, synthetic host, two animation frames. Search separately reports total latency and latency excluding its deliberate 100 ms debounce.",
+    "native": "Library workloads use in-memory snapshot storage; real Git, compression and disk writes are measured by the supplied benchmark runner."
+  },
+  "metrics": [
+    {
+      "name": "search.index.1000",
+      "samples": 5,
+      "medianMs": 0.718,
+      "p95Ms": 1.075,
+      "rawMs": [
+        1.075,
+        0.718,
+        0.615,
+        0.94,
+        0.403
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "search.literal.1000",
+      "samples": 5,
+      "medianMs": 0.258,
+      "p95Ms": 0.403,
+      "rawMs": [
+        0.403,
+        0.258,
+        0.359,
+        0.183,
+        0.18
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "noise.presentation.1000",
+      "samples": 5,
+      "medianMs": 1.346,
+      "p95Ms": 1.63,
+      "rawMs": [
+        1.63,
+        1.346,
+        1.428,
+        1.279,
+        1.308
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "search.index.5000",
+      "samples": 5,
+      "medianMs": 3.86,
+      "p95Ms": 4.876,
+      "rawMs": [
+        4.178,
+        2.854,
+        3.86,
+        2.082,
+        4.876
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "search.literal.5000",
+      "samples": 5,
+      "medianMs": 0.938,
+      "p95Ms": 1.107,
+      "rawMs": [
+        1.014,
+        0.938,
+        1.107,
+        0.924,
+        0.915
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "noise.presentation.5000",
+      "samples": 5,
+      "medianMs": 6.906,
+      "p95Ms": 7.247,
+      "rawMs": [
+        6.906,
+        7.247,
+        6.675,
+        6.984,
+        6.856
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "progress.layer-lookup.1000",
+      "samples": 5,
+      "medianMs": 0.017,
+      "p95Ms": 0.03,
+      "rawMs": [
+        0.03,
+        0.017,
+        0.017,
+        0.013,
+        0.008
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "library.six-identical-reads",
+      "samples": 5,
+      "medianMs": 0.435,
+      "p95Ms": 0.557,
+      "rawMs": [
+        0.557,
+        0.442,
+        0.435,
+        0.33,
+        0.285
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "archive.descriptors.1000",
+      "samples": 5,
+      "medianMs": 0.372,
+      "p95Ms": 0.55,
+      "rawMs": [
+        0.493,
+        0.372,
+        0.351,
+        0.34,
+        0.55
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "archive.summaries.1000",
+      "samples": 5,
+      "medianMs": 0.214,
+      "p95Ms": 0.229,
+      "rawMs": [
+        0.229,
+        0.214,
+        0.2,
+        0.168,
+        0.214
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "repository.relocation",
+      "samples": 5,
+      "medianMs": 0.061,
+      "p95Ms": 0.091,
+      "rawMs": [
+        0.088,
+        0.091,
+        0.061,
+        0.049,
+        0.048
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "revision.continuation.1000-files",
+      "samples": 5,
+      "medianMs": 92.08,
+      "p95Ms": 93.417,
+      "rawMs": [
+        92.629,
+        93.417,
+        90.599,
+        85.363,
+        92.08
+      ],
+      "targetMs": 1000,
+      "withinTarget": true
+    },
+    {
+      "name": "portable.parse.typical",
+      "samples": 5,
+      "medianMs": 0.312,
+      "p95Ms": 0.393,
+      "rawMs": [
+        0.393,
+        0.336,
+        0.291,
+        0.312,
+        0.305
+      ],
+      "targetMs": 30,
+      "withinTarget": true
+    },
+    {
+      "name": "portable.export-import.typical",
+      "samples": 5,
+      "medianMs": 2.855,
+      "p95Ms": 3.315,
+      "rawMs": [
+        2.855,
+        2.07,
+        3.315,
+        3.167,
+        2.756
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "portable.parse.near-limit",
+      "samples": 5,
+      "medianMs": 38.335,
+      "p95Ms": 46.458,
+      "rawMs": [
+        38.335,
+        41.653,
+        35.92,
+        46.458,
+        36.584
+      ],
+      "targetMs": 1000,
+      "withinTarget": true,
+      "packageBytes": 30302002
+    },
+    {
+      "name": "ui.typical.initial-paint",
+      "samples": 5,
+      "medianMs": 98,
+      "p95Ms": 170.7,
+      "rawMs": [
+        170.7,
+        98,
+        98.9,
+        81.8,
+        82.2
+      ],
+      "targetMs": 500,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.search-total",
+      "samples": 5,
+      "medianMs": 132.1,
+      "p95Ms": 132.7,
+      "rawMs": [
+        131.9,
+        132.7,
+        132.1,
+        130.5,
+        132.7
+      ],
+      "targetMs": 210,
+      "deliberateDebounceMs": 100,
+      "measurementWaitMs": 110,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.search-excluding-debounce",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 32.7,
+      "rawMs": [
+        31.9,
+        32.7,
+        32.1,
+        30.5,
+        32.7
+      ],
+      "targetMs": 100,
+      "excludedDebounceMs": 100,
+      "measurementWaitMs": 110,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.noise-toggle",
+      "samples": 5,
+      "medianMs": 32.1,
+      "p95Ms": 33.6,
+      "rawMs": [
+        30.4,
+        32,
+        33.6,
+        32.3,
+        32.1
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.layer-switch",
+      "samples": 5,
+      "medianMs": 32.7,
+      "p95Ms": 33,
+      "rawMs": [
+        32.7,
+        32.5,
+        32.9,
+        33,
+        32.7
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.archive-paging",
+      "samples": 5,
+      "medianMs": 31.5,
+      "p95Ms": 33.3,
+      "rawMs": [
+        22.8,
+        31.3,
+        33.3,
+        31.5,
+        32.8
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.long-tasks",
+      "count": 0,
+      "totalDurationMs": 0
+    },
+    {
+      "name": "ui.many-files.initial-paint",
+      "samples": 5,
+      "medianMs": 165.7,
+      "p95Ms": 221,
+      "rawMs": [
+        221,
+        165.6,
+        164.7,
+        165.7,
+        184.9
+      ],
+      "targetMs": 2000,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.search-total",
+      "samples": 5,
+      "medianMs": 129.2,
+      "p95Ms": 144.8,
+      "rawMs": [
+        141.8,
+        129.2,
+        128.4,
+        144.8,
+        128.5
+      ],
+      "targetMs": 210,
+      "deliberateDebounceMs": 100,
+      "measurementWaitMs": 110,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.search-excluding-debounce",
+      "samples": 5,
+      "medianMs": 29.2,
+      "p95Ms": 44.8,
+      "rawMs": [
+        41.8,
+        29.2,
+        28.4,
+        44.8,
+        28.5
+      ],
+      "targetMs": 100,
+      "excludedDebounceMs": 100,
+      "measurementWaitMs": 110,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.noise-toggle",
+      "samples": 5,
+      "medianMs": 31.8,
+      "p95Ms": 32.3,
+      "rawMs": [
+        31.6,
+        31.6,
+        31.8,
+        32.3,
+        31.9
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.layer-switch",
+      "samples": 5,
+      "medianMs": 32.4,
+      "p95Ms": 32.9,
+      "rawMs": [
+        32.8,
+        32.1,
+        32.3,
+        32.4,
+        32.9
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.archive-paging",
+      "samples": 5,
+      "medianMs": 31.4,
+      "p95Ms": 32.8,
+      "rawMs": [
+        23.6,
+        30.1,
+        32.8,
+        31.4,
+        31.9
+      ],
+      "targetMs": 100,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.long-tasks",
+      "count": 3,
+      "totalDurationMs": 199
+    }
+  ],
+  "browserErrors": [],
+  "memory": [
+    {
+      "name": "node.after-compute-gc",
+      "heapMiB": 107.47
+    },
+    {
+      "name": "browser.typical.five-mount-unmount-gc",
+      "mountedHeapMiB": 6.6,
+      "unmountedHeapMiB": 5.34,
+      "deltaMiB": -1.26
+    },
+    {
+      "name": "browser.many-files.five-mount-unmount-gc",
+      "mountedHeapMiB": 21.1,
+      "unmountedHeapMiB": 7.79,
+      "deltaMiB": -13.31
+    }
+  ],
+  "assertions": [
+    "Six identical immutable readers perform one diff read and one snapshot write.",
+    "Archive descriptor and summary browsing reads no snapshot contents.",
+    "typical: search, whitespace and archive paging issue no diff reads; archive pages render 50 entries.",
+    "many-files: search, whitespace and archive paging issue no diff reads; archive pages render 50 entries.",
+    "Production browser completed without uncaught errors."
+  ],
+  "browserBundle": {
+    "sha256": "f292bf19abcfd35454ca48b77d21911308c1b6558b65809289b83f733c2ccf45",
+    "bytes": 502455,
+    "gzipBytes": 157283
+  }
+}
