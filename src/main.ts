@@ -33,7 +33,7 @@ export default class StashReviewPlugin extends Plugin {
   git!: GitService;
   private pendingSave: Promise<void> = Promise.resolve();
   private host?: ReviewHost;
-  private reads = new ReadCache();
+  private reads = new ReadCache(16 * 1024 * 1024, 32);
   private metadataListeners = new Set<(repositoryId: string, hash: string) => void>();
   readonly embeds = new Set<StashReviewEmbed>();
 

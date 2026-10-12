@@ -31,6 +31,72 @@ afterEach(async () => {
 });
 
 describe('GitService against real temporary repositories', () => {
+  it('keeps an opened stash readable and recoverable after an external drop', async () => {
+    const path = await repository();
+    const repo = await service.resolveRepository(path);
+    await writeFile(join(path, 'example.ts'), 'Keep opened work\n', 'utf8');
+    await service.createStash(repo, 'Opened review', false);
+    const [stash] = await service.listStashes(repo);
+    await service.retainStash(repo, stash);
+    git(path, 'stash', 'drop', 'stash@{0}');
+    const retained = await service.listRetainedStashes(repo);
+    expect(retained).toHaveLength(1);
+    expect(retained[0]).toMatchObject({hash: stash.hash, message: 'Opened review', baseHash: stash.baseHash});
+    expect((await service.getDiff(repo, stash, 'all', 5))[0].hunks[0].lines.some(line => line.text === 'Keep opened work')).toBe(true);
+    await service.restoreDroppedStash(repo, stash);
+    await service.restoreDroppedStash(repo, stash);
+    expect((await service.listStashes(repo)).map(item => item.hash)).toEqual([stash.hash]);
+  });
+  it('discovers legacy drop backups and deduplicates objects retained in both namespaces', async () => {
+    const path = await repository();
+    const repo = await service.resolveRepository(path);
+    await writeFile(join(path, 'example.ts'), 'Backup work\n', 'utf8');
+    await service.createStash(repo, 'Legacy backup', false);
+    const [stash] = await service.listStashes(repo);
+    await service.dropStash(repo, stash);
+    expect((await service.listRetainedStashes(repo))[0].hash).toBe(stash.hash);
+    await service.retainStash(repo, stash);
+    expect((await service.listRetainedStashes(repo)).map(item => item.hash)).toEqual([stash.hash]);
+  });
+  it('fingerprints exact layer blobs rather than reflog positions or diff context', async () => {
+    const path = await repository();
+    const repo = await service.resolveRepository(path);
+    await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 1;\n', 'utf8');
+    git(path, 'add', '--', 'example.ts');
+    await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 3;\n', 'utf8');
+    await service.createStash(repo, 'First revision', false);
+    const [first] = await service.listStashes(repo);
+    const firstAll = (await service.getDiff(repo, first, 'all', 3))[0];
+    const firstStaged = (await service.getDiff(repo, first, 'staged', 3))[0];
+    const firstUnstaged = (await service.getDiff(repo, first, 'unstaged', 3))[0];
+    expect(firstAll.fingerprint).toBeTruthy();
+    expect(firstAll.newBlob).toBe(git(path, 'rev-parse', `${first.hash}:example.ts`).trim());
+    expect(firstAll.oldMode).toBe('100644');
+    expect((await service.getDiff(repo, first, 'all', 20))[0].fingerprint).toBe(firstAll.fingerprint);
+    await writeFile(join(path, 'example.ts'), 'const staged = 4;\nconst working = 1;\n', 'utf8');
+    git(path, 'add', '--', 'example.ts');
+    await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 3;\n', 'utf8');
+    await service.createStash(repo, 'Second revision', false);
+    const [second] = await service.listStashes(repo);
+    expect(second.hash).not.toBe(first.hash);
+    expect((await service.getDiff(repo, second, 'all', 5))[0].fingerprint).toBe(firstAll.fingerprint);
+    expect((await service.getDiff(repo, second, 'staged', 5))[0].fingerprint).not.toBe(firstStaged.fingerprint);
+    expect((await service.getDiff(repo, second, 'unstaged', 5))[0].fingerprint).not.toBe(firstUnstaged.fingerprint);
+  });
+  it('retains SHA-256 snapshots and fingerprints captured untracked binary files', async () => {
+    const path = await repository(true);
+    const repo = await service.resolveRepository(path);
+    await writeFile(join(path, 'binary file.bin'), Buffer.from([0, 1, 2, 3]));
+    await service.createStash(repo, 'Binary review', true);
+    const [stash] = await service.listStashes(repo);
+    await service.retainStash(repo, stash);
+    const [file] = await service.getDiff(repo, stash, 'all', 5);
+    expect(file).toMatchObject({path: 'binary file.bin', binary: true, untracked: true, oldMode: '000000', newMode: '100644'});
+    expect(file.newBlob).toMatch(/^[a-f0-9]{64}$/);
+    expect(file.fingerprint).toBeTruthy();
+    git(path, 'stash', 'drop', 'stash@{0}');
+    expect((await service.listRetainedStashes(repo))[0].hash).toBe(stash.hash);
+  });
   it('separates all, staged, unstaged and untracked snapshots with immutable full context', async () => {
     const path = await repository();
     await writeFile(join(path, 'example.ts'), 'const staged = 2;\nconst working = 1;\n');

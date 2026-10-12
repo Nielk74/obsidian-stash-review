@@ -20,6 +20,10 @@ interface FileMetadata {
   path: string;
   oldPath?: string;
   status: DiffFile['status'];
+  oldBlob?: string;
+  newBlob?: string;
+  oldMode?: string;
+  newMode?: string;
 }
 
 function assertHash(hash: string): void {
@@ -80,7 +84,9 @@ export function parseDiff(patch: string, metadata: FileMetadata[] = [], untracke
         path: known?.path ?? newPath ?? oldPath ?? 'unknown',
         oldPath: known?.oldPath,
         status: known?.status ?? 'modified',
-        additions: 0, deletions: 0, binary: false, untracked, hunks: []
+        additions: 0, deletions: 0, binary: false, untracked, hunks: [],
+        ...(known?.oldBlob ? {oldBlob: known.oldBlob, newBlob: known.newBlob, oldMode: known.oldMode, newMode: known.newMode,
+          fingerprint: JSON.stringify([known.oldMode, known.oldBlob, known.newMode, known.newBlob, known.oldPath ?? known.path, known.path, untracked])} : {})
       };
       files.push(file);
       hunk = undefined;
@@ -141,19 +147,21 @@ export function parseDiff(patch: string, metadata: FileMetadata[] = [], untracke
   return files;
 }
 
-function parseNameStatus(output: string): FileMetadata[] {
+function parseRawDiff(output: string): FileMetadata[] {
   const fields = output.split('\0');
   const files: FileMetadata[] = [];
   for (let index = 0; index < fields.length && fields[index];) {
-    const status = fields[index++];
+    const header = fields[index++].match(/^:(\d{6}) (\d{6}) ([a-f0-9]{40}|[a-f0-9]{64}) ([a-f0-9]{40}|[a-f0-9]{64}) ([A-Z]\d*)$/);
+    if (!header) throw new GitError('Git returned invalid blob metadata.');
+    const [, oldMode, newMode, oldBlob, newBlob, status] = header;
     const first = fields[index++];
     if (first === undefined) throw new GitError('Git returned invalid file metadata.');
-    if (status.startsWith('R')) {
+    if (status.startsWith('R') || status.startsWith('C')) {
       const path = fields[index++];
       if (path === undefined) throw new GitError('Git returned invalid rename metadata.');
-      files.push({ path, oldPath: first, status: 'renamed' });
+      files.push({ path, oldPath: first, status: status.startsWith('R') ? 'renamed' : 'added', oldMode, newMode, oldBlob, newBlob });
     } else {
-      files.push({ path: first, status: status === 'A' ? 'added' : status === 'D' ? 'deleted' : 'modified' });
+      files.push({ path: first, status: status === 'A' ? 'added' : status === 'D' ? 'deleted' : 'modified', oldMode, newMode, oldBlob, newBlob });
     }
   }
   return files;
@@ -162,6 +170,7 @@ function parseNameStatus(output: string): FileMetadata[] {
 /** Desktop-only Git operations. Commands never invoke a shell or change cwd globally. */
 export class GitService {
   private readonly commonDirectories = new Map<string, string>();
+  private readonly retainedSnapshots = new Set<string>();
 
   constructor(private readonly gitPath = 'git') {
     if (!gitPath || gitPath.includes('\0')) throw new GitError('Set a valid Git executable in settings.');
@@ -246,6 +255,32 @@ export class GitService {
     return this.locked(repository, () => this.readStashes(repository));
   }
 
+  async retainStash(repository: Repository, stash: Stash): Promise<void> {
+    assertHash(stash.hash);
+    return this.locked(repository, async () => {
+      const key = `${this.commonDirectories.get(repository.path)}\0${stash.hash}`;
+      if (this.retainedSnapshots.has(key)) return;
+      await this.snapshot(repository, stash);
+      await this.run(repository.path, ['update-ref', `refs/stash-review/reviews/${stash.hash}`, stash.hash]);
+      this.retainedSnapshots.add(key);
+    });
+  }
+
+  async listRetainedStashes(repository: Repository): Promise<Stash[]> {
+    return this.locked(repository, async () => {
+      const output = await this.run(repository.path, ['for-each-ref', '--format=%(objectname)%00%(subject)%00%(committerdate:iso-strict)%00%(parent)%00%(objecttype)%00', 'refs/stash-review/reviews/', 'refs/stash-review/backups/']);
+      const fields = output.split('\0'), retained = new Map<string, Stash>();
+      for (let index = 0; index + 4 < fields.length; index += 5) {
+        const hash = fields[index].replace(/^\r?\n+/, '');
+        const parents = fields[index + 3].split(' ');
+        if (!hashPattern.test(hash) || fields[index + 4] !== 'commit' || parents.length < 2 || !parents.every(parent => hashPattern.test(parent))) continue;
+        const subject = fields[index + 1], match = subject.match(/^(?:WIP on|On) ([^:]+): (.*)$/s);
+        retained.set(hash, {hash, ref: 'Archived', message: match?.[2] ?? subject, branch: match?.[1] ?? '', createdAt: fields[index + 2], baseHash: parents[0], archived: true, recoverable: true});
+      }
+      return [...retained.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    });
+  }
+
   private async snapshot(repository: Repository, stash: Stash): Promise<{ base: string; index: string; working: string; untracked?: string }> {
     assertHash(stash.hash);
     const parents = (await this.run(repository.path, ['rev-list', '--parents', '-n', '1', stash.hash, '--'])).trim().split(' ');
@@ -262,7 +297,7 @@ export class GitService {
 
   private async treeDiff(repository: Repository, oldTree: string, newTree: string, context: number, untracked = false): Promise<DiffFile[]> {
     const shared = ['--no-ext-diff', '--no-textconv', '--no-color', '--no-relative', '--find-renames', '--submodule=short', '--ignore-submodules=none', '--src-prefix=a/', '--dst-prefix=b/', oldTree, newTree, '--'];
-    const metadata = parseNameStatus(await this.run(repository.path, ['diff', '--name-status', '-z', ...shared]));
+    const metadata = parseRawDiff(await this.run(repository.path, ['diff', '--raw', '--no-abbrev', '-z', ...shared]));
     if (!metadata.length) return [];
     const patch = await this.run(repository.path, ['diff', '--patch', `--unified=${context}`, ...shared]);
     return parseDiff(patch, metadata, untracked);
@@ -398,9 +433,14 @@ export class GitService {
   async restoreDroppedStash(repository: Repository, stash: Stash): Promise<void> {
     return this.locked(repository, async () => {
       assertHash(stash.hash);
-      const backup = (await this.run(repository.path, ['rev-parse', '--verify', this.backupRef(stash.hash)])).trim();
-      if (backup !== stash.hash) throw new GitError('The saved stash backup does not match this review.');
       if ((await this.readStashes(repository)).some(entry => entry.hash === stash.hash)) return;
+      let found = false;
+      for (const ref of [this.backupRef(stash.hash), `refs/stash-review/reviews/${stash.hash}`]) {
+        try {if ((await this.run(repository.path, ['rev-parse', '--verify', ref])).trim() === stash.hash) {found = true; break;}}
+        catch { /* A review may have a retention reference without a drop backup. */ }
+      }
+      if (!found) throw new GitError('No retained Git object is available for this review. Its saved notes are still available.');
+      await this.snapshot(repository, stash);
       await this.run(repository.path, ['stash', 'store', '--message', `On ${stash.branch || 'restored'}: ${stash.message}`, stash.hash]);
     });
   }
