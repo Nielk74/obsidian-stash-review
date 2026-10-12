@@ -50,6 +50,7 @@ export function ReviewApp({host, target, embedded = false}: {host: ReviewHost; t
   const [metadata, setMetadata] = useState<StashMetadata>(emptyMetadata);
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'failed'>('saved');
   const [files, setFiles] = useState<DiffFile[]>([]);
+  const [canonicalFiles,setCanonicalFiles]=useState<DiffFile[]>([]);
   const [diffLoading, setDiffLoading] = useState(false);
   const [diffError, setDiffError] = useState('');
   const [loadedDiffKey, setLoadedDiffKey] = useState('');
@@ -214,13 +215,13 @@ export function ReviewApp({host, target, embedded = false}: {host: ReviewHost; t
   useEffect(() => {
     const request = ++diffRequest.current;
     setSelection(null); setFullFiles(new Set()); setContextLoading(new Set()); fileRequests.current.clear();
-    if (!repository || !stash) {setFiles([]); setDiffLoading(false); setDiffError(''); return;}
+    if (!repository || !stash) {setFiles([]);setCanonicalFiles([]); setDiffLoading(false); setDiffError(''); return;}
     setDiffLoading(true); setDiffError('');
     const identity = `${repository.path}\0${stash.hash}\0${layer}\0${context}\0${reload}`;
     host.getDiff(repository, stash, layer, context).then(result => {
       if (request !== diffRequest.current) return;
-      setFiles(result); setLoadedDiffKey(identity); setActiveFile(previous => result.some(file => file.path === previous) ? previous : result[0]?.path ?? '');
-    }).catch(error => {if (request === diffRequest.current) {setFiles([]); setDiffError(errorText(error));}})
+      setFiles(result);setCanonicalFiles(result); setLoadedDiffKey(identity); setActiveFile(previous => result.some(file => file.path === previous) ? previous : result[0]?.path ?? '');
+    }).catch(error => {if (request === diffRequest.current) {setFiles([]);setCanonicalFiles([]); setDiffError(errorText(error));}})
       .finally(() => {if (request === diffRequest.current) setDiffLoading(false);});
     return () => {diffRequest.current++;};
   }, [host, repository?.id, repository?.path, stash?.hash, layer, context, reload]);
@@ -270,7 +271,8 @@ export function ReviewApp({host, target, embedded = false}: {host: ReviewHost; t
   const pageStashes=archiveMode ? visibleStashes.slice(archivePage*50,(archivePage+1)*50) : visibleStashes;
   const viewedFiles=useMemo(()=>layerReviewedPaths(metadata,layer),[metadata,layer]);
   const reviewedPaths = useMemo(() => new Set(viewedFiles), [viewedFiles]);
-  const changeIndex=useMemo(()=>indexChanges(files),[files]);
+  const searchEnabled=!!settledChangeQuery;
+  const changeIndex=useMemo(()=>searchEnabled?indexChanges(canonicalFiles):{rows:[]},[canonicalFiles,searchEnabled]);
   const changeMatches=useMemo(()=>findChanges(changeIndex,settledChangeQuery),[changeIndex,settledChangeQuery]);
   const visibleChangeMatches=useMemo(()=>{
     const result=new Map<string,ChangeMatch[]>(), marked=changeMatches.slice(0,200);

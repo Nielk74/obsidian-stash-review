@@ -1,6 +1,5 @@
 import {expect, test} from '@playwright/test';
 import {BenchmarkHost, fixtureMetadata} from '../../scripts/benchmark-fixtures';
-import type {ReviewHost} from '../../src/types';
 
 test('a dropped review remains readable and recoverable after reload', async ({page}) => {
   await page.goto('/');
@@ -145,4 +144,26 @@ test('a replacement review uses an explicitly selected original and preserves it
   await expect(page.getByText('Should captures with the same title always append?',{exact:false})).toBeVisible();
   const original=await page.evaluate(hash=>window.__demoHost.getMetadata('demo-fieldbook',hash),previous);
   expect(original.annotations).toHaveLength(1);
+});
+
+test('large diffs index text only when search starts and reuse the index while typing', async ({page}) => {
+  const fixture=new BenchmarkHost('dense-large-file');
+  await page.addInitScript(payload=>{
+    let connected:Window['__demoHost'];
+    const state=window as unknown as {diffTextReads:number};state.diffTextReads=0;
+    Object.defineProperty(window,'__demoHost',{configurable:true,get:()=>connected,set(host:Window['__demoHost']){
+      connected=host;host.listRepositories=async()=>[payload.repository];host.listStashes=async()=>payload.stashes;
+      for(const file of payload.files)for(const hunk of file.hunks)for(const line of hunk.lines){const text=line.text;Object.defineProperty(line,'text',{get(){state.diffTextReads++;return text;}});}
+      host.getDiff=async()=>payload.files;
+    }});
+  },{repository:fixture.repository,stashes:[fixture.stashes[0]],files:fixture.files});
+  await page.goto('/');await expect(page.locator('.sr-code').first()).toBeVisible();
+  const reads=()=>page.evaluate(()=>(window as unknown as {diffTextReads:number}).diffTextReads);
+  expect(await reads()).toBeLessThan(20000);
+  await page.getByRole('searchbox',{name:'Find in changes'}).fill('before');
+  await expect(page.locator('.sr-change-search-count')).toHaveText('1/5000');
+  const indexed=await reads();expect(indexed).toBeGreaterThan(30000);
+  await page.getByRole('searchbox',{name:'Find in changes'}).fill('after');
+  await expect(page.locator('.sr-search-match').first()).toHaveText('after');
+  expect((await reads())-indexed).toBeLessThan(15000);
 });
