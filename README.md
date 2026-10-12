@@ -97,6 +97,20 @@ To preview a review embedded in a note, use `?embed=1&repo=demo-fieldbook&stash=
 
 The test suite creates isolated temporary Git repositories to verify diff layers, stash identity, untracked files, mutation guards, and backup recovery. Browser tests exercise the review workflow and save screenshots as test artifacts. A package smoke test loads the compiled plugin against a minimal Obsidian API contract to check registration, persistence, and vault export. CI runs these checks before packaging a release. A native Obsidian GUI smoke test remains unverified on the headless development host.
 
+Run the performance audit separately from tests so other workloads do not distort timings:
+
+```sh
+npm run benchmark -- --output benchmarks/results/latest.json
+npm run benchmark -- --ref 0985990 --output benchmarks/results/baseline.json
+npm run benchmark -- --section browser --cpu 4 --viewport 1366x768 --samples 9
+```
+
+The audit measures production UI rendering and interactions, real Git reads and mutations in a disposable repository, plugin initialization and persistence, syntax and parsing, memory, and embed cleanup. Browser workloads cover ordinary reviews, 1,000 files/stashes/annotations, sparse 20,000-line files, dense 5,000-line changes, and six embeds. Each JSON report includes hardware, source hashes, raw samples, median, p95, long tasks, and explicit timing targets. `--section compute|git|browser`, `--workloads typical,multi-embed`, and `--cpu 1,4` select subsets. A revision comparison reads committed sources without changing the checkout. Git mutations stay inside the verified temporary fixture directory.
+
+Browser timings use a deterministic in-memory host to isolate rendering; real Git and the native plugin host are measured separately. CPU throttling approximates a slower machine, fresh pages/services retain operating-system disk caches, and single-sample actions do not establish a meaningful p95. These measurements do not replace testing inside Obsidian on the target laptop.
+
+Large diffs mount nearby files and row groups first, retaining them once visited to preserve selections and edits. Clipboard selection reconstructs intervening unloaded code from the snapshot. Identical reads across embeds share pending requests; immutable diff/source results use a bounded 16 MiB cache, while repository and stash lists remain fresh on refresh.
+
 For a release, update `package.json`, `manifest.json`, and `versions.json`, then push an annotated version tag such as `0.2.0`. The release workflow builds, tests, packages the plugin folder, and publishes assets using the GitHub CLI. Obsidian version tags have no `v` prefix.
 
 MIT licensed.

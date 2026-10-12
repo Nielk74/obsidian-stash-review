@@ -212,6 +212,8 @@
 /* Dense bordered diff cards and familiar green/red rows. */
 .sr-diff-scroll { flex: 1; min-width: 0; min-height: 0; overflow: auto; padding: 12px 14px 24px; background: var(--sr-bg); scrollbar-width: thin; scrollbar-color: var(--sr-border) transparent; scroll-padding-top: 10px; }
 .sr-diff-file { border: 1px solid var(--sr-border); border-radius: 5px; background: var(--sr-bg); overflow: clip; margin-bottom: 14px; scroll-margin-top: 0; }
+.sr-diff-deferred { content-visibility: auto; contain-intrinsic-size: auto 300px; }
+.sr-deferred-block { min-width: 0; }
 .sr-diff-file-header { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--sr-panel); border-bottom: 1px solid var(--sr-border); min-width: 0; min-height: 42px; position: sticky; top: 0; z-index: 3; }
 .sr-diff-file-header > svg { color: var(--sr-muted); }
 .sr-diff-filename { min-width: 0; flex: 1; font-family: var(--font-monospace, monospace); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

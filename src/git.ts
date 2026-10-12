@@ -302,8 +302,14 @@ export class GitService {
       const snapshot = await this.snapshot(repository, stash);
       const [oldTree, newTree] = this.trees(snapshot, layer);
       if (file.binary) return { oldContent: '', newContent: '' };
-      const oldContent = file.untracked ? { text: '', truncated: false } : await this.content(repository, oldTree, file.oldPath ?? file.path);
-      const newContent = await this.content(repository, file.untracked ? snapshot.untracked : newTree, file.path);
+      const contents = await Promise.allSettled([
+        file.untracked ? Promise.resolve({text: '', truncated: false}) : this.content(repository, oldTree, file.oldPath ?? file.path),
+        this.content(repository, file.untracked ? snapshot.untracked : newTree, file.path)
+      ]);
+      // Keep the repository lock until both readers finish, including on failure.
+      const failure = contents.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+      if (failure) throw failure.reason;
+      const [oldContent, newContent] = contents.map(result => (result as PromiseFulfilledResult<{text: string; truncated: boolean}>).value);
       return { oldContent: oldContent.text, newContent: newContent.text, truncated: oldContent.truncated || newContent.truncated };
     });
   }
