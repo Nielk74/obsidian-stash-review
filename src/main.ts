@@ -7,15 +7,33 @@ import { GitService } from './git';
 import { loadPluginData, readMetadata, reviewMarkdown } from './review-store';
 import { ReviewApp } from './ui/ReviewApp';
 import {parseReviewBlock, parseReviewParameters} from './markdown';
-import { type PluginData, type Repository, type ReviewHost, type ReviewTarget } from './types';
+import {ReadCache} from './read-cache';
+import { type DiffFile, type PluginData, type Repository, type ReviewHost, type ReviewTarget } from './types';
 
 const VIEW_TYPE = 'stash-review';
+
+function freezeDiff(files: DiffFile[]): DiffFile[] {
+  for (const file of files) {
+    for (const hunk of file.hunks) {
+      for (const line of hunk.lines) Object.freeze(line);
+      Object.freeze(hunk.lines); Object.freeze(hunk);
+    }
+    Object.freeze(file.hunks); Object.freeze(file);
+  }
+  Object.freeze(files);
+  return files;
+}
+
+function diffBytes(files: DiffFile[]): number {
+  return files.reduce((bytes, file) => bytes + 256 + file.path.length * 2 + (file.oldContent?.length ?? 0) * 2 + (file.newContent?.length ?? 0) * 2 + file.hunks.reduce((size, hunk) => size + 128 + hunk.header.length * 2 + hunk.lines.reduce((sum, line) => sum + 128 + line.text.length * 2, 0), 0), 0);
+}
 
 export default class StashReviewPlugin extends Plugin {
   data: PluginData = loadPluginData(null);
   git!: GitService;
   private pendingSave: Promise<void> = Promise.resolve();
   private host?: ReviewHost;
+  private reads = new ReadCache();
   private metadataListeners = new Set<(repositoryId: string, hash: string) => void>();
   readonly embeds = new Set<StashReviewEmbed>();
 
@@ -43,6 +61,7 @@ export default class StashReviewPlugin extends Plugin {
   onunload(): void {
     for (const embed of this.embeds) embed.unload();
     this.metadataListeners.clear();
+    this.reads.clear();
   }
 
   async persist(): Promise<void> {
@@ -91,7 +110,7 @@ export default class StashReviewPlugin extends Plugin {
         plugin.metadataListeners.add(listener);
         return () => {plugin.metadataListeners.delete(listener);};
       },
-      listRepositories: () => plugin.listRepositories(),
+      listRepositories: () => plugin.reads.read(JSON.stringify(['repositories', plugin.data.settings.gitPath, plugin.data.settings.repositories]), () => plugin.listRepositories()),
       async addRepository(path) {
         const repository = await plugin.git.resolveRepository(path);
         if (!plugin.data.settings.repositories.includes(repository.path)) {
@@ -100,9 +119,9 @@ export default class StashReviewPlugin extends Plugin {
         }
         return repository;
       },
-      listStashes: repository => plugin.git.listStashes(repository),
-      getDiff: (repository, stash, layer, context) => plugin.git.getDiff(repository, stash, layer, context),
-      getFileContents: (repository, stash, file, layer) => plugin.git.getFileContents(repository, stash, file, layer),
+      listStashes: repository => plugin.reads.read(JSON.stringify(['stashes', plugin.data.settings.gitPath, repository.path]), () => plugin.git.listStashes(repository)),
+      getDiff: (repository, stash, layer, context) => plugin.reads.read(JSON.stringify(['diff', plugin.data.settings.gitPath, repository.path, stash.hash, layer, context]), async () => freezeDiff(await plugin.git.getDiff(repository, stash, layer, context)), diffBytes),
+      getFileContents: (repository, stash, file, layer) => plugin.reads.read(JSON.stringify(['source', plugin.data.settings.gitPath, repository.path, stash.hash, layer, file.path, file.oldPath, file.untracked, file.binary]), async () => Object.freeze(await plugin.git.getFileContents(repository, stash, file, layer)), source => 128 + (source.oldContent.length + source.newContent.length) * 2),
       getMetadata: (repositoryId, hash) => readMetadata(plugin.data, repositoryId, hash),
       updateMetadata(repositoryId, hash, change) {
         const metadata = change(readMetadata(plugin.data, repositoryId, hash));

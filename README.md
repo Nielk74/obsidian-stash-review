@@ -97,6 +97,40 @@ To preview a review embedded in a note, use `?embed=1&repo=demo-fieldbook&stash=
 
 The test suite creates isolated temporary Git repositories to verify diff layers, stash identity, untracked files, mutation guards, and backup recovery. Browser tests exercise the review workflow and save screenshots as test artifacts. A package smoke test loads the compiled plugin against a minimal Obsidian API contract to check registration, persistence, and vault export. CI runs these checks before packaging a release. A native Obsidian GUI smoke test remains unverified on the headless development host.
 
+Run the performance audit separately from tests so other workloads do not distort timings:
+
+```sh
+npm run benchmark -- --output benchmarks/results/latest.json
+npm run benchmark -- --ref 0985990 --output benchmarks/results/baseline.json
+npm run benchmark -- --section browser --cpu 4 --viewport 1366x768 --samples 9
+```
+
+The audit measures production UI rendering and interactions, real Git reads and mutations in a disposable repository, plugin initialization and persistence, syntax and parsing, memory, and embed cleanup. Browser workloads cover ordinary reviews, 1,000 files/stashes/annotations, sparse 20,000-line files, dense 5,000-line changes, and six embeds. Each JSON report includes hardware, source hashes, raw samples, median, p95, long tasks, and explicit timing targets. `--section compute|git|browser`, `--workloads typical,multi-embed`, and `--cpu 1,4` select subsets. A revision comparison reads committed sources without changing the checkout. Git mutations stay inside the verified temporary fixture directory.
+
+Browser timings use a deterministic in-memory host to isolate rendering; real Git and the native plugin host are measured separately. CPU throttling approximates a slower machine, fresh pages/services retain operating-system disk caches, and single-sample actions do not establish a meaningful p95. These measurements do not replace testing inside Obsidian on the target laptop.
+
+Large diffs mount nearby files and row groups first, retaining them once visited to preserve selections and edits. Clipboard selection reconstructs intervening unloaded code from the snapshot. Identical reads across embeds share pending requests; immutable diff/source results use a bounded 16 MiB cache, while repository and stash lists remain fresh on refresh.
+
+### Measured performance, 2026-10-12
+
+The [complete optimized audit](benchmarks/results/optimized.json) records 469 cases and 2,527 timing samples on Windows 11, a Ryzen 7 9800X3D, and 31.1 GiB RAM. The baseline is commit `0985990`; browser comparisons below use the same fixtures at 1440×900 without CPU throttling. These are rendering timings with an in-memory host, except the explicitly named Git reads.
+
+| Operation | Before | After |
+| --- | ---: | ---: |
+| Open a 1,000-file review | 1,465 ms | 127 ms |
+| Switch a dense 5,000-line change to split view | 3,181 ms | 33 ms |
+| Expand full context in a 20,000-line file (one sample) | 1,716 ms | 51 ms |
+| Open the tab containing 1,000 annotations | 163 ms | 35 ms |
+| Cold formatting of 180,000 source characters | 38.8 ms | 1.2 ms |
+| Six simultaneous native-host reads of the same diff | 2,463 ms | 599 ms |
+| Six simultaneous native-host reads of the same source | 2,514 ms | 368 ms |
+
+Times are medians unless marked as one sample. Formatting above 100,000 source characters uses escaped plain code. Source reports: [compute baseline](benchmarks/results/baseline-compute.json), [Git baseline](benchmarks/results/baseline-git.json), [browser baseline](benchmarks/results/baseline-browser-final.json), and the earlier [4× CPU baseline](benchmarks/results/baseline-browser-4x.json), whose matrix contains fewer actions.
+
+All 206 unthrottled browser cases meet their recorded targets. With a 4× CPU slowdown, 18 of 206 browser cases exceed their targets: some large navigator/layer changes and wrapping after visiting every row still take hundreds of milliseconds. Cold native Git reads also retain several target misses, including a 700 ms p95 for the 120-file combined diff. A separate [1366×768 laptop viewport report](benchmarks/results/laptop.json) uses the same 4× slowdown and records 118 cases, 423 samples, and 12 target misses. Both browser reports contain zero runtime errors. The reports retain every miss; these results do not establish that every operation is instant on a physical laptop.
+
+The long-session check visits every group in the dense diff before repeating wrapping and annotation edits. Twelve six-embed mount/unmount cycles leave zero metadata listeners after each unmount and show 0.11 MiB of retained heap growth after collection. This is a bounded lifecycle check, not a guarantee against every possible leak.
+
 For a release, update `package.json`, `manifest.json`, and `versions.json`, then push an annotated version tag such as `0.2.0`. The release workflow builds, tests, packages the plugin folder, and publishes assets using the GitHub CLI. Obsidian version tags have no `v` prefix.
 
 MIT licensed.

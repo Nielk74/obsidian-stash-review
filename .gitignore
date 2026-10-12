@@ -11,3 +11,10 @@ playwright-report/
 !.env.example
 .test-vault/
 release-artifacts/
+benchmarks/results/*
+!benchmarks/results/baseline-compute.json
+!benchmarks/results/baseline-git.json
+!benchmarks/results/baseline-browser-final.json
+!benchmarks/results/baseline-browser-4x.json
+!benchmarks/results/optimized.json
+!benchmarks/results/laptop.json

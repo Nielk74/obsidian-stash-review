@@ -1,7 +1,8 @@
-import {useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent} from 'react';
+import {memo, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent} from 'react';
 import {Binary, Check, ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, FileMinus2, FilePenLine, FilePlus2, FileQuestion, FileSymlink, Folder, FolderOpen} from 'lucide-react';
 import type {DiffFile} from '../types';
 import {ancestorFolderPaths, buildFileTree, filterFileTree, flattenFileTree, folderPaths, matchesFileQuery, type FileTreeNode, type FileTreeRow} from './file-tree';
+import {DeferredBlock} from './DeferredBlock';
 
 export interface FileTreeProps {
   files: DiffFile[];
@@ -32,7 +33,18 @@ function FileIcon({file}: {file: DiffFile}) {
   return <Icon size={14} className={`sr-tree-icon sr-status-${file.status}${file.untracked ? ' sr-status-untracked' : ''}`} aria-hidden="true"/>;
 }
 
-export function FileTree({files, activePath, reviewedFiles, query, onSelect, layout = 'tree', scopeKey, revealKey = ''}: FileTreeProps) {
+function sameNavigation(left: FileTreeProps, right: FileTreeProps): boolean {
+  if (left.activePath !== right.activePath || left.query !== right.query || left.layout !== right.layout || left.scopeKey !== right.scopeKey || left.revealKey !== right.revealKey || left.onSelect !== right.onSelect) return false;
+  if (left.reviewedFiles !== right.reviewedFiles && (left.reviewedFiles.length !== right.reviewedFiles.length || left.reviewedFiles.some((path, index) => path !== right.reviewedFiles[index]))) return false;
+  // Source hydration and hunk changes do not affect navigation. Compare every
+  // field used by tree labels, filtering, icons and progress before reusing it.
+  return left.files === right.files || left.files.length === right.files.length && left.files.every((file, index) => {
+    const next = right.files[index];
+    return file.path === next.path && file.oldPath === next.oldPath && file.status === next.status && file.binary === next.binary && file.untracked === next.untracked && file.additions === next.additions && file.deletions === next.deletions;
+  });
+}
+
+export const FileTree = memo(function FileTree({files, activePath, reviewedFiles, query, onSelect, layout = 'tree', scopeKey, revealKey = ''}: FileTreeProps) {
   const [expansion, setExpansion] = useState(() => ({scopeKey, collapsed: readCollapsed(scopeKey)}));
   const [focusedKey, setFocusedKey] = useState(`file:${activePath}`);
   const rowRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -119,14 +131,16 @@ export function FileTree({files, activePath, reviewedFiles, query, onSelect, lay
           style={{'--sr-tree-depth': row.depth} as CSSProperties}
           onFocus={() => setFocusedKey(node.key)} onClick={() => activate(node)} onKeyDown={event => onKey(event, index)}
           title={node.kind === 'file' && node.file.oldPath && node.file.oldPath !== node.path ? `${node.file.oldPath} → ${node.path}` : node.path}>
+          <DeferredBlock height={21} className="sr-tree-item-body" force={rows.length <= 100 || node.key === effectiveFocus || node.kind === 'file' && node.path === activePath} render={() => <>
           <span className="sr-tree-chevron" aria-hidden="true">{node.kind === 'folder' ? expanded ? <ChevronDown size={12}/> : <ChevronRight size={12}/> : null}</span>
           {node.kind === 'folder' ? expanded ? <FolderOpen size={14} className="sr-tree-icon" aria-hidden="true"/> : <Folder size={14} className="sr-tree-icon" aria-hidden="true"/> : <FileIcon file={node.file}/>}
           <span className="sr-tree-name"><span>{node.name}</span>{layout === 'list' && node.parentPath && <small className="sr-tree-parent">{node.parentPath}</small>}</span>
           {node.kind === 'folder' ? <span className="sr-tree-folder-count">{node.fileCount}</span> : node.file.binary ? <span className="sr-tree-binary">Binary</span> : <span className="sr-tree-stats"><span className="sr-additions">+{node.additions}</span><span className="sr-deletions">−{node.deletions}</span></span>}
           <span className="sr-tree-viewed" title={node.kind === 'folder' ? `${node.reviewedCount}/${node.fileCount} viewed` : viewed ? 'Viewed' : 'Not viewed'}>{viewed ? <Check size={12} aria-hidden="true"/> : node.kind === 'folder' && node.reviewedCount > 0 ? <span>{node.reviewedCount}/{node.fileCount}</span> : null}</span>
+          </>}/>
         </button>;
       })}
       {!rows.length && <p className="sr-tree-empty">{searching ? 'No matching changed files' : 'No changed files'}</p>}
     </div>
   </div>;
-}
+}, sameNavigation);
