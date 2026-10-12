@@ -15,7 +15,7 @@ export function safeFingerprints(value: unknown): Partial<Record<DiffLayer, Reco
 function repositoryCatalog(value: unknown): Record<string, RepositoryBinding> {
   if (!isRecord(value)) return {};
   return Object.fromEntries(Object.entries(value).filter(([id, binding]) => isRecord(binding) && binding.id === id && typeof binding.name === 'string')
-    .map(([id, raw]) => {const binding = raw as unknown as RepositoryBinding; return [id, {id, name: binding.name, paths: strings(binding.paths)}];}));
+    .map(([id, raw]) => {const binding = raw as unknown as RepositoryBinding; return [id, {id, name: binding.name, paths: strings(binding.paths), ...(typeof binding.gitId==='string' ? {gitId:binding.gitId} : {})}];}));
 }
 
 function reviewCatalog(value: unknown): Record<string, Record<string, ReviewEntry>> {

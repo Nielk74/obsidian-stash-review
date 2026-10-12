@@ -19,7 +19,7 @@ class Component {
   removeChild(child) {this.children=this.children.filter(value=>value!==child);child.unload();return child;}
   unload() {this.unloaded=true;for(const child of this.children)child.unload();this.children=[];}
 }
-const MarkdownRenderer={async render(_app,source,element,_path,child) {element.textContent=source;child.rendered=true;}};
+const MarkdownRenderer={async render(_app,source,element,path,child) {element.textContent=source;child.rendered=true;child.sourcePath=path;}};
 class Plugin extends Component {
   constructor(app) {super(); this.app = app; this.manifest = manifest; this.saved = []; this.commands = []; this.protocols = new Map(); this.blocks = new Map(); }
   async loadData() { return null; }
@@ -53,6 +53,8 @@ try {
     hunks: [{header: '@@ -0,0 +1 @@', oldStart: 0, oldCount: 0, newStart: 1, newCount: 1, lines: [{type: 'add',newLine: 1,text: 'saved source'}]}]}]};
   await snapshotStorage.write('repoA', snapshotHash, 'all', nativeSnapshot);
   assert.deepEqual(await snapshotStorage.read('repoA', snapshotHash, 'all'), nativeSnapshot, 'Compressed native snapshots must preserve code and original coordinates');
+  await snapshotStorage.remove('repoA',snapshotHash,'all');
+  assert.equal(await snapshotStorage.read('repoA',snapshotHash,'all'),undefined);
   assert.equal(await snapshotStorage.read('repoA', snapshotHash, 'staged'), undefined, 'An uncaptured layer stays absent');
   await assert.rejects(snapshotStorage.write('../escape', snapshotHash, 'all', nativeSnapshot), /identity|repository/i);
   await assert.rejects(snapshotStorage.write('repoA', '../escape', 'all', nativeSnapshot), /identity|hash/i);
@@ -85,6 +87,10 @@ try {
   await Promise.resolve();assert.equal(child.rendered,true);dispose();dispose();
   assert.equal(child.unloaded,true,'Markdown components unload exactly when their view is removed');
   assert.equal(rendered[0].removed,true);assert.equal(plugin.children.length,0);
+  const nestedHost=plugin.createHost('Projects/Notes/review.md');
+  assert.equal(nestedHost.markdownSourcePath,'Projects/Notes/review.md');
+  const disposeNested=nestedHost.renderMarkdown('[Sibling](./sibling.md)',element,nestedHost.markdownSourcePath);
+  assert.equal(plugin.children.at(-1).sourcePath,'Projects/Notes/review.md');disposeNested();
   const protocol = plugin.protocols.get('stash-review');
   assert.equal(typeof protocol, 'function');
   app.existingLeaves = [app.lastLeaf];
@@ -162,6 +168,11 @@ try {
   assert.equal((await host.getDiff(offline,stash,'all',5))[0].path,'app.ts');
   await assert.rejects(host.applyStash(offline,stash,false),/connect/i);
   await assert.rejects(host.dropStash(offline,stash),/connect/i);
+  const failedPackage={...imported,repository:{id:'failed-native-import',name:'Failed import'}};
+  plugin.saveData=async()=>{throw new Error('Disk full');};
+  await assert.rejects(host.importReviewData(JSON.stringify(failedPackage)),/Disk full/);
+  plugin.saveData=originalSave;
+  await assert.rejects(host.getDiff({...offline,id:'failed-native-import'},stash,'all',5),/captured|layer|saved/i);
   const dataBefore=structuredClone(plugin.data);
   await assert.rejects(host.importReviewData('{invalid}'),/review|JSON|Unexpected/i);
   assert.deepEqual(plugin.data,dataBefore);
@@ -185,6 +196,13 @@ try {
   assert.ok(notes.get(exported).body.includes('Remember this idea'));
   assert.ok(notes.get(exported).body.includes('obsidian://stash-review?vault=Fixture+vault&repo=repoA&stash=' + stash.hash));
   assert.equal(app.lastFile.path, exported);
+  const originalData=structuredClone(plugin.data), originalResolve=plugin.git.resolveRepository;
+  plugin.data.repositoryCatalog={};plugin.data.settings.repositories=['C:/missing-original'];
+  plugin.git.resolveRepository=async()=>{throw new Error('Repository missing');};host.invalidateReads();
+  const legacyOffline=await host.listRepositories();
+  assert.ok(legacyOffline.some(repo=>repo.id==='repoA' && repo.offline),'Legacy metadata remains reachable when its original repository is missing');
+  assert.equal(host.getMetadata('repoA',stash.hash).title,metadata.title);
+  plugin.data=originalData;plugin.git.resolveRepository=originalResolve;
   console.log('Plugin bundle passed: CommonJS loading, commands, URI targeting, Markdown registration, shared metadata, persistence, self-file protection and live links in vault exports.');
 } finally {
   await rm(sandbox, { recursive: true, force: true });

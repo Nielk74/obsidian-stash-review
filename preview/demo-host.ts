@@ -58,7 +58,8 @@ export class DemoHost implements ReviewHost {
   };
   private library = new ReviewLibrary({getData:() => this.data,transaction:change => this.writes.transaction(change),storage:{
     async read(id,hash,layer) {const value=localStorage.getItem(`stash-review-snapshot:${id}:${hash}:${layer}`); return value ? parseSavedLayer(JSON.parse(value)) : undefined;},
-    async write(id,hash,layer,snapshot:SavedLayer) {localStorage.setItem(`stash-review-snapshot:${id}:${hash}:${layer}`,JSON.stringify(snapshot));}
+    async write(id,hash,layer,snapshot:SavedLayer) {localStorage.setItem(`stash-review-snapshot:${id}:${hash}:${layer}`,JSON.stringify(snapshot));},
+    async remove(id,hash,layer) {localStorage.removeItem(`stash-review-snapshot:${id}:${hash}:${layer}`);}
   },warn:message => this.notify(message)},this.git);
   private scenario = new URLSearchParams(location.search).get('state');
   readonly operations: Array<{ name: string; hash?: string; restoreIndex?: boolean; includeUntracked?: boolean }> = [];

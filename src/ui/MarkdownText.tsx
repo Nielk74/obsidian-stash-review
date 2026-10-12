@@ -1,13 +1,13 @@
 import {useEffect, useRef} from 'react';
 import type {ReviewHost} from '../types';
 
-export function MarkdownText({source,renderer,className=''}: {source: string; renderer?: ReviewHost['renderMarkdown']; className?: string}) {
+export function MarkdownText({source,renderer,sourcePath='',className=''}: {source: string; renderer?: ReviewHost['renderMarkdown']; sourcePath?:string; className?: string}) {
   const element = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!renderer || !element.current) return;
-    const dispose = renderer(source,element.current);
+    const dispose = renderer(source,element.current,sourcePath);
     return () => {dispose(); element.current?.replaceChildren();};
-  },[source,renderer]);
+  },[source,renderer,sourcePath]);
   return <div ref={element} className={`sr-markdown ${className}`}>{renderer ? undefined : source}</div>;
 }
 

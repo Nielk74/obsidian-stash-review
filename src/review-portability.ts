@@ -119,6 +119,30 @@ function parseMetadata(raw: unknown): StashMetadata {
   return readMetadata(data, 'portable', 'snapshot');
 }
 
+function validateAnnotatedCode(metadata:StashMetadata,layers:Record<DiffLayer,SavedLayer>):void {
+  const files=new Map(DIFF_LAYERS.map(layer=>[layer,new Map(layers[layer].files.map(file=>[file.path,file]))]));
+  for(const note of metadata.annotations) {
+    const excerpt=note.excerpt;
+    if(excerpt && (excerpt.startLine!==note.startLine || excerpt.text.split('\n').length>note.endLine-note.startLine+1))fail('annotated excerpt does not match its line range');
+    const file=files.get(note.layer)?.get(note.path);
+    if(!file || file.binary || file.sourceUnavailable || file.oldMode==='160000' || file.newMode==='160000')continue;
+    const source=!file.truncated ? note.side==='old'?file.oldContent:file.newContent : undefined;
+    let expected:string|undefined;
+    if(source!==undefined) {
+      const lines=source.split('\n');if(lines.at(-1)==='')lines.pop();
+      if(note.endLine>lines.length)fail('annotation line range exceeds available source');
+      expected=lines.slice(note.startLine-1,note.endLine).join('\n');
+    } else if(excerpt) {
+      const rows=new Map<number,string>();
+      for(const hunk of file.hunks)for(const line of hunk.lines){const number=note.side==='old'?line.oldLine:line.newLine;if(number!==undefined)rows.set(number,line.text);}
+      const selected:string[]=[];
+      for(let number=note.startLine;number<=note.endLine;number++){const text=rows.get(number);if(text===undefined)break;selected.push(text);}
+      if(selected.length===note.endLine-note.startLine+1)expected=selected.join('\n');
+    }
+    if(excerpt && expected!==undefined && (excerpt.truncated?!expected.startsWith(excerpt.text):expected!==excerpt.text))fail('annotated excerpt contradicts captured source');
+  }
+}
+
 export function parsePortableReview(source: string): PortableReview {
   if (source.length > MAX_PACKAGE_BYTES || new TextEncoder().encode(source).byteLength > MAX_PACKAGE_BYTES) fail('package exceeds the 32 MiB size limit');
   let raw: unknown;
@@ -129,8 +153,9 @@ export function parsePortableReview(source: string): PortableReview {
   if (typeof s.hash !== 'string' || !hashPattern.test(s.hash) || typeof s.baseHash !== 'string' || !hashPattern.test(s.baseHash) || s.hash.length !== s.baseHash.length
     || typeof s.message !== 'string' || typeof s.branch !== 'string' || typeof s.ref !== 'string' || typeof s.createdAt !== 'string') fail('invalid stash identity');
   const layers = Object.fromEntries(DIFF_LAYERS.map(layer => [layer, parseSavedLayer((value.layers as Record<string, unknown>)[layer])])) as Record<DiffLayer, SavedLayer>;
+  const metadata=parseMetadata(value.metadata);validateAnnotatedCode(metadata,layers);
   return {format: 'stash-review', version: 1, repository: {id: repository.id, name: repository.name},
-    stash: {hash: s.hash, baseHash: s.baseHash, message: s.message, branch: s.branch, ref: s.ref, createdAt: s.createdAt}, metadata: parseMetadata(value.metadata), layers};
+    stash: {hash: s.hash, baseHash: s.baseHash, message: s.message, branch: s.branch, ref: s.ref, createdAt: s.createdAt}, metadata, layers};
 }
 
 export function serializePortableReview(review: PortableReview): string {

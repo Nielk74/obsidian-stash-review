@@ -92,7 +92,7 @@ export interface StashMetadata {
   continuedFrom?: string;
 }
 
-export interface RepositoryBinding {id: string; name: string; paths: string[]}
+export interface RepositoryBinding {id: string; name: string; paths: string[]; gitId?:string}
 export interface ReviewSummary {title:string;description:string;tags:string[];pinned:boolean;openAnnotations:number}
 export interface ReviewEntry {
   stash: Stash;
@@ -129,6 +129,7 @@ export interface PluginData {
 export interface ReviewHost {
   settings: ReviewSettings;
   vaultName?: string;
+  markdownSourcePath?:string;
   openReview?(target: ReviewTarget): Promise<void>;
   subscribeMetadata?(listener: (repositoryId: string, hash: string) => void): () => void;
   // Apply against shared in-memory metadata synchronously, then persist it.
@@ -154,6 +155,6 @@ export interface ReviewHost {
   relocateRepository?(repositoryId: string, path: string): Promise<Repository>;
   exportReviewData?(repository: Repository, stash: Stash): Promise<string>;
   importReviewData?(source: string, repositoryId?: string): Promise<ReviewTarget>;
-  renderMarkdown?(source: string, element: HTMLElement): () => void;
+  renderMarkdown?(source: string, element: HTMLElement, sourcePath?:string): () => void;
   invalidateReads?(): void;
 }

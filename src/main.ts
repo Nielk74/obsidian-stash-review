@@ -24,6 +24,7 @@ export function createSnapshotStorage(directory: string): SnapshotStorage {
     return join(directory,createHash('sha256').update(id).digest('hex'),hash,`${layer}.json.gz`);
   };
   return {
+    async remove(id,hash,layer) {try {await unlink(filename(id,hash,layer));}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}},
     async read(id,hash,layer) {
       const path = filename(id,hash,layer);
       try {
@@ -78,7 +79,7 @@ export default class StashReviewPlugin extends Plugin {
     });
     this.registerMarkdownCodeBlockProcessor(VIEW_TYPE, (source, el, context) => {
       if (el.closest?.('.sr-markdown')) {el.textContent = source; return;}
-      try {context.addChild(new StashReviewEmbed(el, this, parseReviewBlock(source)));}
+      try {context.addChild(new StashReviewEmbed(el, this, parseReviewBlock(source),context.sourcePath));}
       catch (error) {
         el.empty(); el.addClass('sr-embed-error');
         el.createEl('strong', {text: 'Cannot display this stash review'});
@@ -113,6 +114,8 @@ export default class StashReviewPlugin extends Plugin {
     const results = await Promise.allSettled(paths.map(async path => this.library.registerRepository(await this.git.resolveRepository(path),path)));
     const repositories = results.filter((r): r is PromiseFulfilledResult<Repository> => r.status === 'fulfilled').map(r => r.value);
     const unique = repositories.filter((repository, index) => repositories.findIndex(r => r.path === repository.path) === index);
+    const legacy=Object.keys(this.data.reviews).filter(id=>validRepositoryId(id)&&!Object.hasOwn(this.data.repositoryCatalog??{},id)&&Object.keys(this.data.reviews[id]).some(hash=>/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(hash)));
+    if(legacy.length)await this.writes.transaction(draft=>{draft.repositoryCatalog??={};for(const id of legacy)draft.repositoryCatalog[id]??={id,name:`Saved repository ${id.slice(0,12)}`,paths:[]};});
     const failures = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
     if (failures.length && this.data.settings.repositories.length) new Notice(`Stash Review: ${failures.length} configured repository path(s) could not be opened. Check the paths in settings.`);
     for (const binding of Object.values(this.data.repositoryCatalog ?? {})) if (!unique.some(repo => repo.id === binding.id)) {
@@ -132,7 +135,8 @@ export default class StashReviewPlugin extends Plugin {
     return path ? [path.split(sep).join('/')] : ['main.js', 'manifest.json', 'styles.css', 'data.json', 'reviews'];
   }
 
-  createHost(): ReviewHost {
+  createHost(markdownSourcePath=''): ReviewHost {
+    if(markdownSourcePath)return Object.assign(Object.create(this.createHost()) as ReviewHost,{markdownSourcePath});
     if (this.host) return this.host;
     const plugin = this;
     return this.host = {
@@ -162,11 +166,11 @@ export default class StashReviewPlugin extends Plugin {
       exportReviewData: (repository,stash) => plugin.library.exportReviewData(repository,stash),
       importReviewData: (source,id) => plugin.library.importReviewData(source,id),
       invalidateReads: () => plugin.library.clear(),
-      renderMarkdown(source,element) {
+      renderMarkdown(source,element,sourcePath='') {
         const child = new Component(), rendered = element.ownerDocument.createElement('div');
         element.append(rendered); plugin.addChild(child);
         let disposed = false;
-        void MarkdownRenderer.render(plugin.app,source,rendered,'',child).catch(() => {if (!disposed) rendered.textContent = source;});
+        void MarkdownRenderer.render(plugin.app,source,rendered,sourcePath,child).catch(() => {if (!disposed) rendered.textContent = source;});
         return () => {if (disposed) return; disposed = true; plugin.removeChild(child); rendered.remove();};
       },
       getMetadata: (repositoryId, hash) => readMetadata(plugin.data, repositoryId, hash),
@@ -248,12 +252,12 @@ class StashReviewView extends ItemView {
 
 class StashReviewEmbed extends MarkdownRenderChild {
   private root?: Root;
-  constructor(el: HTMLElement, private plugin: StashReviewPlugin, private target: ReviewTarget) {super(el);}
+  constructor(el: HTMLElement, private plugin: StashReviewPlugin, private target: ReviewTarget, private sourcePath='') {super(el);}
   onload(): void {
     this.containerEl.empty(); this.containerEl.addClass('stash-review-embed');
     this.plugin.embeds.add(this);
     this.root = createRoot(this.containerEl);
-    this.root.render(createElement(ReviewApp, {host: this.plugin.createHost(), target: this.target, embedded: true}));
+    this.root.render(createElement(ReviewApp, {host: this.plugin.createHost(this.sourcePath), target: this.target, embedded: true}));
   }
   onunload(): void {
     this.root?.unmount(); this.root = undefined;

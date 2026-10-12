@@ -1,5 +1,6 @@
 import {expect, test} from '@playwright/test';
 import {BenchmarkHost, fixtureMetadata} from '../../scripts/benchmark-fixtures';
+import type {ReviewHost} from '../../src/types';
 
 test('a dropped review remains readable and recoverable after reload', async ({page}) => {
   await page.goto('/');
@@ -166,4 +167,21 @@ test('large diffs index text only when search starts and reuse the index while t
   await page.getByRole('searchbox',{name:'Find in changes'}).fill('after');
   await expect(page.locator('.sr-search-match').first()).toHaveText('after');
   expect((await reads())-indexed).toBeLessThan(15000);
+});
+
+test('Markdown rerenders when its containing note path changes and releases the old component', async ({page}) => {
+  await page.addInitScript(()=>{
+    let connected:Window['__demoHost'];
+    const events:Array<{path:string|undefined;disposed:boolean}>=[];
+    (window as unknown as {markdownEvents:typeof events}).markdownEvents=events;
+    Object.defineProperty(window,'__demoHost',{configurable:true,get:()=>connected,set(host:Window['__demoHost']){
+      connected=host;const api=host as ReviewHost,render=api.renderMarkdown!;api.markdownSourcePath='Projects/first.md';
+      api.renderMarkdown=(source,element,path)=>{const event={path,disposed:false};if(element.classList.contains('sr-review-description'))events.push(event);const dispose=render(source,element,path);return ()=>{event.disposed=true;dispose();};};
+    }});
+  });
+  await page.goto('/');await expect(page.locator('.sr-review-description')).toBeVisible();
+  await expect.poll(()=>page.evaluate(()=>(window as unknown as {markdownEvents:Array<{path:string}>}).markdownEvents.at(-1)?.path)).toBe('Projects/first.md');
+  await page.evaluate(async()=>{const api=window.__demoHost as ReviewHost;api.markdownSourcePath='Other/second.md';const repo=(await api.listRepositories())[0],stash=(await api.listStashes(repo))[0];await api.saveMetadata(repo.id,stash.hash,api.getMetadata(repo.id,stash.hash));});
+  await expect.poll(()=>page.evaluate(()=>(window as unknown as {markdownEvents:Array<{path:string}>}).markdownEvents.at(-1)?.path)).toBe('Other/second.md');
+  expect(await page.evaluate(()=>(window as unknown as {markdownEvents:Array<{disposed:boolean}>}).markdownEvents[0].disposed)).toBe(true);
 });

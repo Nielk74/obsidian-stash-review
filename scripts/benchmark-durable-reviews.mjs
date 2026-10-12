@@ -51,7 +51,7 @@ function libraryFixture(files=filesFor(12)) {
   const counts={diff:0,source:0,snapshotReads:0,snapshotWrites:0}, snapshots=new Map();
   const writes=new api.DataTransactions(()=>data,next=>{data=next;},async()=>{});
   const git={resolveRepository:async path=>({...repository,path,id:'physical-id'}),listStashes:async()=>[stash],retainStash:async()=>{},listRetainedStashes:async()=>[stash],getDiff:async()=>{counts.diff++;return structuredClone(files);},getFileContents:async(_repo,_stash,file)=>{counts.source++;return {oldContent:file.oldContent??'',newContent:file.newContent??''};}};
-  const library=new api.ReviewLibrary({getData:()=>data,transaction:change=>writes.transaction(change),storage:{read:async(id,hash,layer)=>{counts.snapshotReads++;return structuredClone(snapshots.get(JSON.stringify([id,hash,layer])));},write:async(id,hash,layer,snapshot)=>{counts.snapshotWrites++;snapshots.set(JSON.stringify([id,hash,layer]),structuredClone(snapshot));}}},git);
+  const library=new api.ReviewLibrary({getData:()=>data,transaction:change=>writes.transaction(change),storage:{read:async(id,hash,layer)=>{counts.snapshotReads++;return structuredClone(snapshots.get(JSON.stringify([id,hash,layer])));},write:async(id,hash,layer,snapshot)=>{counts.snapshotWrites++;snapshots.set(JSON.stringify([id,hash,layer]),structuredClone(snapshot));},remove:async(id,hash,layer)=>{snapshots.delete(JSON.stringify([id,hash,layer]));}}},git);
   return {library,writes,counts,data:()=>data};
 }
 for(const count of [1000,5000]) {

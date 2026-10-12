@@ -21,7 +21,8 @@ function fixture() {
   });
   const storage: SnapshotStorage = {
     async read(id, hash, layer) {snapshotReads++; return structuredClone(snapshots.get(JSON.stringify([id,hash,layer])));},
-    async write(id, hash, layer, value) {snapshotWrites++; snapshots.set(JSON.stringify([id,hash,layer]), structuredClone(value));}
+    async write(id, hash, layer, value) {snapshotWrites++; snapshots.set(JSON.stringify([id,hash,layer]), structuredClone(value));},
+    async remove(id,hash,layer) {snapshots.delete(JSON.stringify([id,hash,layer]));}
   };
   const git: LibraryGit = {
     async resolveRepository(path) {if (path === 'bad') throw new Error('Not a Git repository'); return {...repo, id: 'physical-id', path};},
@@ -38,6 +39,58 @@ function fixture() {
 }
 
 describe('durable review library', () => {
+  it('keeps relocated linked worktrees on one logical review identity after reload', async () => {
+    const f=fixture();
+    await f.library.relocateRepository(repo.id,'C:/moved');
+    const linked=await f.library.registerRepository({...repo,id:'physical-id',path:'C:/linked'});
+    expect(linked.id).toBe(repo.id);
+    expect(Object.keys(f.data().repositoryCatalog!)).toEqual([repo.id]);
+    const restored=loadPluginData(JSON.parse(JSON.stringify(f.data())));
+    const library=new ReviewLibrary({getData:()=>restored,transaction:async change=>change(restored),storage:f.storage},f.git);
+    expect((await library.registerRepository({...repo,id:'physical-id',path:'C:/another-linked'})).id).toBe(repo.id);
+    await library.registerRepository({...repo,id:'other-id',path:'C:/separate'});
+    await expect(library.relocateRepository('other-id','C:/yet-another-linked')).rejects.toThrow(/bound|another|already/i);
+  });
+  it('rolls back snapshots on import failure and a different retry keeps its own code', async () => {
+    const source=fixture(), packageA=await source.library.exportReviewData(repo,stash), packageB=JSON.parse(packageA);
+    packageB.metadata.title='Second package';
+    for(const layer of ['all','unstaged']) {
+      const changed=packageB.layers[layer].files[0];changed.newContent='second\n';changed.hunks[0].lines[1].text='second';changed.newBlob='d'.repeat(40);
+      changed.fingerprint=JSON.stringify([changed.oldMode,changed.oldBlob,changed.newMode,changed.newBlob,changed.path,changed.path,false]);
+    }
+    const target=fixture();target.reject(true);
+    await expect(target.library.importReviewData(packageA)).rejects.toThrow('Disk full');
+    expect(target.snapshots.size).toBe(0);
+    target.reject(false);await target.library.importReviewData(JSON.stringify(packageB));
+    expect(readMetadata(target.data(),repo.id,stash.hash).title).toBe('Second package');
+    expect((await target.storage.read(repo.id,stash.hash,'all'))!.files[0].newContent).toBe('second\n');
+  });
+  it('rejects conflicting captured code even when an imported package has identical notes', async () => {
+    const source=fixture(), packageA=await source.library.exportReviewData(repo,stash), target=fixture();
+    await target.library.importReviewData(packageA);
+    const changed=JSON.parse(packageA);
+    for(const layer of ['all','unstaged']) {
+      const file=changed.layers[layer].files[0];file.newContent='conflicting\n';file.hunks[0].lines[1].text='conflicting';
+    }
+    const before=structuredClone(target.data());
+    await expect(target.library.importReviewData(JSON.stringify(changed))).rejects.toThrow(/conflict|code|snapshot/i);
+    expect(target.data()).toEqual(before);
+    expect((await target.storage.read(repo.id,stash.hash,'all'))!.files[0].newContent).toBe('new\n');
+  });
+  it('keeps snapshot readers behind an import until its catalog commit or rollback finishes', async () => {
+    const source=fixture(), portable=await source.library.exportReviewData(repo,stash), target=fixture();
+    const write=target.storage.write;
+    let started!:()=>void,release!:()=>void;
+    const began=new Promise<void>(resolve=>{started=resolve;}), gate=new Promise<void>(resolve=>{release=resolve;});
+    target.storage.write=async(id,hash,layer,snapshot)=>{await write(id,hash,layer,snapshot);if(layer==='all'){started();await gate;}};
+    target.reject(true);const importing=target.library.importReviewData(portable);await began;
+    let settled=false;
+    const reading=target.library.getDiff({...repo,offline:true},stash,'all',5);
+    void reading.then(()=>{settled=true;},()=>{settled=true;});
+    await new Promise(resolve=>setTimeout(resolve,0));expect(settled).toBe(false);
+    release();await expect(importing).rejects.toThrow('Disk full');
+    await expect(reading).rejects.toThrow(/captured|layer|saved/i);expect(target.snapshots.size).toBe(0);
+  });
   it('continues an explicitly chosen revision only for exact fingerprints in each layer', async () => {
     const f=fixture(), revised={...stash,hash:'d'.repeat(40)}, original=structuredClone(file);
     f.git.getDiff=async (_repo,target,layer)=>[target.hash===revised.hash && layer==='staged' ? {...structuredClone(original),fingerprint:'different-index'} : structuredClone(original)];

@@ -8,6 +8,7 @@ export type LibraryGit = Pick<GitService, 'resolveRepository' | 'listStashes' | 
 export interface SnapshotStorage {
   read(repositoryId: string, hash: string, layer: DiffLayer): Promise<SavedLayer | undefined>;
   write(repositoryId: string, hash: string, layer: DiffLayer, snapshot: SavedLayer): Promise<void>;
+  remove(repositoryId:string,hash:string,layer:DiffLayer):Promise<void>;
 }
 export interface LibraryAdapter {
   getData(): PluginData;
@@ -95,11 +96,38 @@ export function diffBytes(files: DiffFile[]): number {
     + file.hunks.reduce((size, hunk) => size + 128 + hunk.header.length * 2 + hunk.lines.reduce((sum, line) => sum + 128 + line.text.length * 2, 0), 0), 0);
 }
 
+function compatibleLayers(existing:SavedLayer,incoming:SavedLayer):boolean {
+  if(existing.files.length!==incoming.files.length)return false;
+  const files=new Map(existing.files.map(file=>[file.path,file]));
+  for(const file of incoming.files) {
+    const original=files.get(file.path);
+    if(!original || (['oldPath','status','binary','untracked','oldMode','newMode','oldBlob','newBlob','fingerprint','additions','deletions'] as const).some(key=>original[key]!==file[key]))return false;
+    for(const side of ['old','new'] as const) {
+      const before=!original.truncated&&!original.sourceUnavailable ? original[side==='old'?'oldContent':'newContent'] : undefined;
+      const after=!file.truncated&&!file.sourceUnavailable ? file[side==='old'?'oldContent':'newContent'] : undefined;
+      if(before!==undefined && after!==undefined && before!==after)return false;
+      const known=(before??after)?.split('\n'), observed=new Map<number,string>();
+      for(const candidate of [original,file])for(const hunk of candidate.hunks)for(const line of hunk.lines) {
+        const number=side==='old'?line.oldLine:line.newLine;if(number===undefined)continue;
+        if(known && known[number-1]!==line.text || observed.has(number)&&observed.get(number)!==line.text)return false;
+        observed.set(number,line.text);
+      }
+    }
+  }
+  return true;
+}
+
 export class ReviewLibrary {
   private reads: ReadCache;
   private pendingWrites = new Map<string, Promise<void>>();
+  private reviewOperations=new Map<string,Promise<unknown>>();
   constructor(private adapter: LibraryAdapter, private gitSource: LibraryGit | (() => LibraryGit), reads?: ReadCache) {this.reads = reads ?? new ReadCache(16 * 1024 * 1024, 32);}
   private get git(): LibraryGit {return typeof this.gitSource === 'function' ? this.gitSource() : this.gitSource;}
+  private operation<T>(id:string,hash:string,run:()=>Promise<T>):Promise<T> {
+    const key=JSON.stringify([id,hash]), previous=this.reviewOperations.get(key)??Promise.resolve();
+    const next=previous.catch(()=>undefined).then(run).finally(()=>{if(this.reviewOperations.get(key)===next)this.reviewOperations.delete(key);});
+    this.reviewOperations.set(key,next);return next;
+  }
   private key(kind: string, id: string, hash = '', layer: DiffLayer = 'all', extra: unknown = ''): string {return JSON.stringify([kind,id,hash,layer,extra]);}
   private async saved(id: string, hash: string, layer: DiffLayer): Promise<SavedLayer | undefined> {
     return this.reads.read(this.key('saved',id,hash,layer), () => this.adapter.storage.read(id,hash,layer), value => value ? diffBytes(value.files) + 64 : 0);
@@ -127,27 +155,29 @@ export class ReviewLibrary {
     return writing;
   }
   async registerRepository(repository: Repository, configuredPath?: string): Promise<Repository> {
-    const data = this.adapter.getData(), bindings = Object.values(data.repositoryCatalog ?? {});
-    const binding = bindings.find(value => value.paths.includes(repository.path) || !!configuredPath && value.paths.includes(configuredPath)) ?? own(data.repositoryCatalog, repository.id);
-    const id = binding?.id ?? repository.id;
-    if (!binding || !binding.paths.includes(repository.path) || !!configuredPath && !binding.paths.includes(configuredPath)) await this.adapter.transaction(draft => {
-      catalogs(draft);
-      const existing = draft.repositoryCatalog![id];
-      draft.repositoryCatalog![id] = {id, name: existing?.name ?? repository.name, paths: [...new Set([...(existing?.paths ?? []),repository.path,...(configuredPath ? [configuredPath] : [])])]};
+    const find=(data:PluginData)=>Object.values(data.repositoryCatalog??{}).find(binding=>binding.paths.includes(repository.path)||!!configuredPath&&binding.paths.includes(configuredPath)||(binding.gitId??binding.id)===repository.id);
+    let binding=find(this.adapter.getData());
+    if(!binding || binding.gitId!==repository.id || !binding.paths.includes(repository.path) || !!configuredPath&&!binding.paths.includes(configuredPath)) await this.adapter.transaction(draft=>{
+      catalogs(draft);const existing=find(draft);
+      const id=existing?.id ?? (own(draft.repositoryCatalog,repository.id)?`${repository.id.slice(0,200)}-${crypto.randomUUID()}`:repository.id);
+      binding={id,name:existing?.name??repository.name,gitId:repository.id,paths:[...new Set([...(existing?.paths??[]),repository.path,...(configuredPath?[configuredPath]:[])])]};
+      draft.repositoryCatalog![id]=binding;
     });
-    return {...repository,id,name: binding?.name ?? repository.name};
+    return {...repository,id:binding!.id,name:binding!.name};
   }
   async relocateRepository(id: string, path: string): Promise<Repository> {
     const binding = own(this.adapter.getData().repositoryCatalog,id);
     if (!binding) throw new Error('Choose an existing repository to relocate.');
     const resolved = await this.git.resolveRepository(path);
-    const conflicting = Object.values(this.adapter.getData().repositoryCatalog ?? {}).find(value => value.id !== id && value.paths.includes(resolved.path));
+    const conflicting = Object.values(this.adapter.getData().repositoryCatalog ?? {}).find(value => value.id !== id && (value.paths.includes(resolved.path)||(value.gitId??value.id)===resolved.id));
     if (conflicting) throw new Error('That folder is already bound to another review repository.');
     await this.adapter.transaction(draft => {
       catalogs(draft);
-      const oldPaths = new Set(binding.paths), paths = draft.settings.repositories.filter(value => !oldPaths.has(value));
+      const current=own(draft.repositoryCatalog,id)!;
+      if(Object.values(draft.repositoryCatalog!).some(value=>value.id!==id&&(value.paths.includes(resolved.path)||(value.gitId??value.id)===resolved.id)))throw new Error('That folder is already bound to another review repository.');
+      const oldPaths = new Set(current.paths), paths = draft.settings.repositories.filter(value => !oldPaths.has(value));
       draft.settings.repositories = [...new Set([...paths,resolved.path])];
-      draft.repositoryCatalog![id] = {...binding, paths: [resolved.path]};
+      draft.repositoryCatalog![id] = {...current,gitId:resolved.id, paths: [resolved.path]};
     });
     this.reads.clear();
     return {...resolved,id,name: binding.name};
@@ -165,7 +195,7 @@ export class ReviewLibrary {
     });
   }
   async getDiff(repository: Repository, stash: Stash, layer: DiffLayer, context: number): Promise<DiffFile[]> {
-    return this.reads.read(this.key(repository.offline ? 'offline-diff' : 'diff',repository.id,stash.hash,layer,context), async () => {
+    return this.reads.read(this.key(repository.offline ? 'offline-diff' : 'diff',repository.id,stash.hash,layer,context), () => this.operation(repository.id,stash.hash,async () => {
       let files: DiffFile[] | undefined;
       if (!repository.offline) {
         try {await this.git.retainStash(repository,stash); files = await this.git.getDiff(repository,stash,layer,context);}
@@ -178,10 +208,10 @@ export class ReviewLibrary {
       const saved = await this.saved(repository.id,stash.hash,layer);
       if (!saved) throw new Error('This diff layer was not captured and its Git object is unavailable. Your review notes are preserved.');
       return immutableFiles(saved.files);
-    },diffBytes);
+    }),diffBytes);
   }
   async getFileContents(repository: Repository, stash: Stash, file: DiffFile, layer: DiffLayer): Promise<{oldContent: string; newContent: string; truncated?: boolean}> {
-    return this.reads.read(this.key('source',repository.id,stash.hash,layer,[file.path,file.fingerprint]),async () => {
+    return this.reads.read(this.key('source',repository.id,stash.hash,layer,[file.path,file.fingerprint]),() => this.operation(repository.id,stash.hash,async () => {
       if (file.oldContent !== undefined && file.newContent !== undefined) return {oldContent:file.oldContent,newContent:file.newContent,truncated:file.truncated};
       let source: {oldContent: string; newContent: string; truncated?: boolean} | undefined;
       if (!repository.offline) {
@@ -195,7 +225,7 @@ export class ReviewLibrary {
       const captured = saved?.files.find(value => value.path === file.path);
       if (captured?.oldContent !== undefined && captured.newContent !== undefined) return {oldContent:captured.oldContent,newContent:captured.newContent,truncated:captured.truncated};
       throw new Error('Full-file source was not included in this saved review. The captured diff and notes remain available.');
-    },source => 128 + (source.oldContent.length + source.newContent.length) * 2);
+    }),source => 128 + (source.oldContent.length + source.newContent.length) * 2);
   }
   async archiveReview(repository: Repository, stash: Stash, archived: boolean): Promise<void> {
     if (!repository.offline) await this.git.retainStash(repository,stash);
@@ -290,12 +320,17 @@ export class ReviewLibrary {
   async importReviewData(source: string, repositoryId?: string): Promise<ReviewTarget> {
     const review = parsePortableReview(source), id = repositoryId ?? review.repository.id;
     if (!validRepositoryId(id) || repositoryId && !own(this.adapter.getData().repositoryCatalog,id)) throw new Error('Choose a configured local repository, or import into the saved review library.');
+    return this.operation(id,review.stash.hash,async()=>{
     const existing = own(own(this.adapter.getData().reviews,id),review.stash.hash);
     if (existing && !equal(readMetadata(this.adapter.getData(),id,review.stash.hash),review.metadata)) throw new Error('Import conflict: existing review notes differ. Export the local review before importing another version.');
+    const before=new Map<DiffLayer,SavedLayer|undefined>(), written:DiffLayer[]=[];
     for (const layer of DIFF_LAYERS) {
       const captured = await this.saved(id,review.stash.hash,layer);
-      if (!captured) await this.writeSnapshot(id,review.stash.hash,layer,review.layers[layer]);
+      before.set(layer,captured);
+      if(captured&&!compatibleLayers(captured,review.layers[layer]))throw new Error('Import conflict: captured code differs for this stash hash. Existing snapshots and notes were kept.');
     }
+    try {
+    for(const layer of DIFF_LAYERS)if(!before.get(layer)){written.push(layer);await this.writeSnapshot(id,review.stash.hash,layer,review.layers[layer]);}
     await this.adapter.transaction(draft => {
       const local = own(own(draft.reviews,id),review.stash.hash);
       if (local && !equal(readMetadata(draft,id,review.stash.hash),review.metadata)) throw new Error('Import conflict: the local review changed while importing.');
@@ -305,10 +340,18 @@ export class ReviewLibrary {
       if (!local) draft.reviews[id][review.stash.hash] = clone(review.metadata);
       draft.reviewCatalog![id] ??= {};
       const oldEntry = entryOf(draft,id,review.stash.hash);
-      draft.reviewCatalog![id][review.stash.hash] = oldEntry ?? {...entryFor(review.stash),archived:true,snapshotLayers:[...DIFF_LAYERS],
-        fingerprints:Object.fromEntries(DIFF_LAYERS.map(layer => [layer,Object.fromEntries(review.layers[layer].files.filter(file => file.fingerprint).map(file => [file.path,file.fingerprint!]))]))};
+      draft.reviewCatalog![id][review.stash.hash] = {...(oldEntry??{...entryFor(review.stash),archived:true}),snapshotLayers:[...DIFF_LAYERS],
+        fingerprints:Object.fromEntries(DIFF_LAYERS.map(layer => [layer,Object.fromEntries((before.get(layer)??review.layers[layer]).files.filter(file => file.fingerprint).map(file => [file.path,file.fingerprint!]))]))};
     });
+    } catch(error) {
+      const failures=await Promise.allSettled(written.map(async layer=>{
+        await this.adapter.storage.remove(id,review.stash.hash,layer);this.reads.invalidate(this.key('saved',id,review.stash.hash,layer));
+      }));
+      if(failures.some(result=>result.status==='rejected'))throw new Error(`Import failed and its temporary snapshots could not all be removed. Existing notes were kept. ${error instanceof Error?error.message:String(error)}`);
+      throw error;
+    }
     return {repositoryId:id,stashHash:review.stash.hash,layer:'all'};
+    });
   }
   clear(): void {this.reads.clear();}
 }

@@ -26,6 +26,7 @@ interface DiffViewProps {
   searchMatches?: ChangeMatch[];
   ignoreWhitespace?: boolean;
   markdownRenderer?: ReviewHost['renderMarkdown'];
+  markdownSourcePath?:string;
   onToggleFull: () => void;
   onCopySource?: () => void;
   onReviewed: () => void;
@@ -179,7 +180,7 @@ function DiffBody(props: DiffViewProps & {threads: Annotation[]}) {
     const target = props.revealAnnotation, search = props.revealSearch;
     const marks = lines.flatMap(line => [...(line.oldLine === undefined ? [] : searchByLine.get(`old:${line.oldLine}`) ?? []), ...(line.newLine === undefined ? [] : searchByLine.get(`new:${line.newLine}`) ?? [])]);
     // Invalidate only affected row groups; handlers dispatch through committed props.
-    return [file, mode, layer, fullContext, props.ignoreWhitespace, props.markdownRenderer, selectedHere ? localSelection : null,
+    return [file, mode, layer, fullContext, props.ignoreWhitespace, props.markdownRenderer, props.markdownSourcePath, selectedHere ? localSelection : null,
       target?.path === file.path && target.layer === layer && inGroup(target.side,target.endLine) ? target : null,
       search?.path === file.path && inGroup(search.side,search.line) ? search : null,
       ...marks, ...threads.filter(thread => inGroup(thread.side,thread.endLine))];
@@ -203,7 +204,7 @@ function DiffBody(props: DiffViewProps & {threads: Annotation[]}) {
     const rowThreads = [...(threadsByLine.get(`old:${oldLine}`) ?? []), ...(threadsByLine.get(`new:${newLine}`) ?? [])];
     const composerHere = localSelection && localSelection.endLine === (localSelection.side === 'old' ? oldLine : newLine);
     if (!rowThreads.length && !composerHere) return null;
-    return <div className="sr-line-discussion">{rowThreads.map(annotation => <DeferredBlock key={annotation.id} height={180} force={rowThreads.length <= 25 || props.revealAnnotation?.id === annotation.id} render={() => <AnnotationThread annotation={annotation} onUpdate={actions.update} onDelete={actions.remove} markdownRenderer={props.markdownRenderer}/>}/>)}
+    return <div className="sr-line-discussion">{rowThreads.map(annotation => <DeferredBlock key={annotation.id} height={180} force={rowThreads.length <= 25 || props.revealAnnotation?.id === annotation.id} render={() => <AnnotationThread annotation={annotation} onUpdate={actions.update} onDelete={actions.remove} markdownRenderer={props.markdownRenderer} markdownSourcePath={props.markdownSourcePath}/>}/>)}
       {composerHere && <AnnotationComposer key={`${localSelection.path}-${localSelection.side}`} selection={localSelection} onSave={actions.save} onCancel={actions.cancel}/>}
     </div>;
   };

@@ -15,6 +15,21 @@ function portable() {
 }
 
 describe('portable review packages', () => {
+  it('rejects annotated excerpts and anchors that contradict available source', () => {
+    const value=portable();
+    const note={id:'note',path:value.layers.all.files[0].path,side:'new' as const,layer:'all' as const,startLine:1,endLine:1,body:'Original note',createdAt:'',updatedAt:'',resolved:false,replies:[],excerpt:{startLine:999,text:'fabricated code'}};
+    value.metadata.annotations=[note];
+    expect(()=>parsePortableReview(JSON.stringify(value))).toThrow(/excerpt|range|line/i);
+    note.excerpt={startLine:1,text:'fabricated code'};
+    expect(()=>parsePortableReview(JSON.stringify(value))).toThrow(/excerpt|source|code/i);
+    note.excerpt={startLine:1,text:'const next = 2;'};note.startLine=100;note.endLine=100;
+    expect(()=>parsePortableReview(JSON.stringify(value))).toThrow(/range|line|source/i);
+  });
+  it('keeps legacy comments when their source range was never captured', () => {
+    const value=portable(), file=value.layers.all.files[0];delete file.oldContent;delete file.newContent;
+    value.metadata.annotations=[{id:'note',path:file.path,side:'new',layer:'all',startLine:100,endLine:100,body:'Uncaptured range',createdAt:'',updatedAt:'',resolved:false,replies:[]}];
+    expect(parsePortableReview(JSON.stringify(value)).metadata.annotations[0].startLine).toBe(100);
+  });
   it('round trips original code, fingerprints, Unicode paths and notes', () => {
     const source = serializePortableReview(portable());
     const restored = parsePortableReview(source);
