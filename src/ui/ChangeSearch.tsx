@@ -10,9 +10,9 @@ export function ChangeSearch({query,onQuery,count,active,onPrevious,onNext,block
         if (event.key === 'Enter') {event.preventDefault(); if (!blocked && count) (event.shiftKey ? onPrevious : onNext)();}
         if (event.key === 'Escape') {event.preventDefault(); event.stopPropagation(); onQuery('');}
       }}/>
-    <span className="sr-search-count" aria-live="polite">{query ? count ? `${active + 1}/${count}` : '0' : 'Diff text'}</span>
-    {query && <><button type="button" className="sr-icon-button" aria-label="Previous match" onClick={onPrevious} disabled={!count || blocked}><ChevronLeft size={14}/></button>
-      <button type="button" className="sr-icon-button" aria-label="Next match" onClick={onNext} disabled={!count || blocked}><ChevronRight size={14}/></button>
+    <span className="sr-search-count sr-change-search-count" aria-live="polite">{query ? count ? `${Math.max(1,active + 1)}/${count}` : '0 matches' : 'Diff text'}</span>
+    {query && <><button type="button" className="sr-icon-button" aria-label="Previous change match" onClick={onPrevious} disabled={!count || blocked}><ChevronLeft size={14}/></button>
+      <button type="button" className="sr-icon-button" aria-label="Next change match" onClick={onNext} disabled={!count || blocked}><ChevronRight size={14}/></button>
       <button type="button" className="sr-icon-button" aria-label="Clear change search" onClick={() => onQuery('')}><X size={13}/></button></>}
   </div>;
 }

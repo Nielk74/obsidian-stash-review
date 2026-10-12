@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, emptyMetadata, type Annotation, type DiffLayer, type PluginData, type StashMetadata, type Repository, type Stash, type RepositoryBinding, type ReviewEntry } from './types';
+import { DEFAULT_SETTINGS, emptyMetadata, type Annotation, type DiffLayer, type PluginData, type StashMetadata, type Repository, type Stash, type RepositoryBinding, type ReviewEntry, type ReviewSummary } from './types';
 import {createReviewLink, markdownLink} from './markdown';
 
 export const DIFF_LAYERS: DiffLayer[] = ['all', 'staged', 'unstaged'];
@@ -87,6 +87,12 @@ export function readMetadata(data: PluginData, repositoryId: string, hash: strin
 
 export function reviewedPaths(metadata: StashMetadata, layer: DiffLayer): string[] {
   return metadata.reviewedByLayer?.[layer] ?? (layer === 'all' ? metadata.reviewedFiles : []);
+}
+
+export function reviewSummary(data:PluginData,id:string,hash:string):ReviewSummary {
+  const saved=Object.hasOwn(data.reviews,id) && Object.hasOwn(data.reviews[id],hash) ? data.reviews[id][hash] : undefined;
+  return {title:typeof saved?.title==='string'?saved.title:'',description:typeof saved?.description==='string'?saved.description:'',tags:strings(saved?.tags),pinned:saved?.pinned===true,
+    openAnnotations:Array.isArray(saved?.annotations)?saved.annotations.filter(note=>note && typeof note==='object' && note.resolved!==true).length:0};
 }
 
 export function withReviewedPath(metadata: StashMetadata, layer: DiffLayer, path: string, viewed: boolean): StashMetadata {

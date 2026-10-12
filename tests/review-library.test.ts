@@ -32,12 +32,34 @@ function fixture() {
     async getFileContents() {if (!available) throw new Error('Repository unavailable'); return {oldContent: 'old\n', newContent: 'new\n'};}
   };
   const library = new ReviewLibrary({getData: () => data, transaction: change => writes.transaction(change), storage}, git);
-  return {library, writes, storage, snapshots, data: () => data, persisted: () => persisted,
+  return {library, writes, storage, snapshots, git, data: () => data, persisted: () => persisted,
     unavailable: () => {available = false;}, rawDiff: () => {full = false;}, drop: () => {live = [];}, reject: (value: boolean) => {reject = value;}, block: (value?: Promise<void>) => {block = value;},
     counts: () => ({snapshotReads,snapshotWrites,gitReads})};
 }
 
 describe('durable review library', () => {
+  it('continues an explicitly chosen revision only for exact fingerprints in each layer', async () => {
+    const f=fixture(), revised={...stash,hash:'d'.repeat(40)}, original=structuredClone(file);
+    f.git.getDiff=async (_repo,target,layer)=>[target.hash===revised.hash && layer==='staged' ? {...structuredClone(original),fingerprint:'different-index'} : structuredClone(original)];
+    await f.library.getDiff(repo,stash,'all',5);
+    const note={id:'all-note',path:'app.ts',side:'new' as const,layer:'all' as const,startLine:1,endLine:1,body:'Keep original code',createdAt:'',updatedAt:'',resolved:false,replies:[]};
+    const metadata={...emptyMetadata(),title:'Original title',reviewedByLayer:{all:['app.ts'],staged:['app.ts']},annotations:[note,{...note,id:'index-note',layer:'staged' as const}]};
+    await f.writes.saveMetadata(repo.id,stash.hash,metadata);
+    await f.library.continueReview(repo,revised,stash.hash);
+    const next=readMetadata(f.data(),repo.id,revised.hash);
+    expect(next.annotations.map(value=>value.id)).toEqual(['all-note']);
+    expect(next.reviewedByLayer?.all).toEqual(['app.ts']);expect(next.reviewedByLayer?.staged).toEqual([]);
+    expect(next.continuedFrom).toBe(stash.hash);
+    expect(readMetadata(f.data(),repo.id,stash.hash).annotations).toEqual(metadata.annotations);
+    expect(f.data().reviewCatalog!.repo[stash.hash].archived).toBe(true);
+  });
+  it('records configured path aliases so relocation removes old settings spellings', async () => {
+    const f = fixture();
+    f.data().settings.repositories = ['C:\\original'];
+    await f.library.registerRepository(repo, 'C:\\original');
+    await f.library.relocateRepository('repo','C:/moved');
+    expect(f.data().settings.repositories).toEqual(['C:/moved']);
+  });
   it('keeps previously captured source when a later read supplies only richer diff context', async () => {
     const f = fixture();
     await f.library.getDiff(repo,stash,'all',5);

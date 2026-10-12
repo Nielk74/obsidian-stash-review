@@ -23,6 +23,14 @@ const entryOf = (data: PluginData, id: string, hash: string): ReviewEntry | unde
 const catalogs = (data: PluginData): void => {data.repositoryCatalog ??= {}; data.reviewCatalog ??= {};};
 const entryFor = (stash: Stash): ReviewEntry => ({stash: {...stash, archived: undefined, recoverable: undefined}, archived: false, snapshotLayers: [], fingerprints: {}});
 
+function immutableFiles(files: DiffFile[]): DiffFile[] {
+  for (const file of files) {
+    for (const hunk of file.hunks) {for (const line of hunk.lines) Object.freeze(line); Object.freeze(hunk.lines); Object.freeze(hunk);}
+    Object.freeze(file.hunks); Object.freeze(file);
+  }
+  Object.freeze(files); return files;
+}
+
 function concurrentMetadata(base: StashMetadata, proposed: StashMetadata, live: StashMetadata): StashMetadata {
   const next = clone(proposed);
   for (const key of ['title','description','tags','pinned','continuedFrom'] as const) {
@@ -118,14 +126,14 @@ export class ReviewLibrary {
     this.pendingWrites.set(key,writing);
     return writing;
   }
-  async registerRepository(repository: Repository): Promise<Repository> {
+  async registerRepository(repository: Repository, configuredPath?: string): Promise<Repository> {
     const data = this.adapter.getData(), bindings = Object.values(data.repositoryCatalog ?? {});
-    const binding = bindings.find(value => value.paths.includes(repository.path)) ?? own(data.repositoryCatalog, repository.id);
+    const binding = bindings.find(value => value.paths.includes(repository.path) || !!configuredPath && value.paths.includes(configuredPath)) ?? own(data.repositoryCatalog, repository.id);
     const id = binding?.id ?? repository.id;
-    if (!binding || !binding.paths.includes(repository.path)) await this.adapter.transaction(draft => {
+    if (!binding || !binding.paths.includes(repository.path) || !!configuredPath && !binding.paths.includes(configuredPath)) await this.adapter.transaction(draft => {
       catalogs(draft);
       const existing = draft.repositoryCatalog![id];
-      draft.repositoryCatalog![id] = {id, name: existing?.name ?? repository.name, paths: [...new Set([...(existing?.paths ?? []),repository.path])]};
+      draft.repositoryCatalog![id] = {id, name: existing?.name ?? repository.name, paths: [...new Set([...(existing?.paths ?? []),repository.path,...(configuredPath ? [configuredPath] : [])])]};
     });
     return {...repository,id,name: binding?.name ?? repository.name};
   }
@@ -165,11 +173,11 @@ export class ReviewLibrary {
       }
       if (files) {
         await this.capture(repository,stash,layer,{context,files}).catch(error => this.adapter.warn?.(`The Git snapshot is retained, but its review copy could not be saved: ${error instanceof Error ? error.message : String(error)}`));
-        return files;
+        return immutableFiles(files);
       }
       const saved = await this.saved(repository.id,stash.hash,layer);
       if (!saved) throw new Error('This diff layer was not captured and its Git object is unavailable. Your review notes are preserved.');
-      return saved.files;
+      return immutableFiles(saved.files);
     },diffBytes);
   }
   async getFileContents(repository: Repository, stash: Stash, file: DiffFile, layer: DiffLayer): Promise<{oldContent: string; newContent: string; truncated?: boolean}> {
@@ -202,13 +210,35 @@ export class ReviewLibrary {
     const live = new Set(liveResult.status === 'fulfilled' ? liveResult.value.map(value => value.hash) : []);
     const retained = new Map(retainedResult.status === 'fulfilled' ? retainedResult.value.map(value => [value.hash,value] as const) : []);
     const data = this.adapter.getData(), entries = own(data.reviewCatalog,repository.id) ?? {}, archived = new Map<string, Stash>();
-    for (const [hash, entry] of Object.entries(entries)) if (entry.archived || !live.has(hash)) archived.set(hash,{...entry.stash,ref:'Archived',archived:true,recoverable:retained.has(hash)});
-    for (const [hash, stash] of retained) if (!live.has(hash) && !archived.has(hash)) archived.set(hash,{...stash,archived:true,recoverable:true});
+    for (const [hash, entry] of Object.entries(entries)) if (entry.archived || !live.has(hash)) archived.set(hash,{...entry.stash,ref:'Archived',archived:true,recoverable:retained.has(hash),inStashList:live.has(hash)});
+    for (const [hash, stash] of retained) if (!live.has(hash) && !archived.has(hash)) archived.set(hash,{...stash,archived:true,recoverable:true,inStashList:false});
     for (const hash of Object.keys(own(data.reviews,repository.id) ?? {})) if (/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(hash) && !live.has(hash) && !archived.has(hash)) {
       const metadata = readMetadata(data,repository.id,hash);
-      archived.set(hash,{hash,ref:'Archived',message:metadata.title || 'Saved review',branch:'',createdAt:'',baseHash:'',archived:true,recoverable:false});
+      archived.set(hash,{hash,ref:'Archived',message:metadata.title || 'Saved review',branch:'',createdAt:'',baseHash:'',archived:true,recoverable:false,inStashList:false});
     }
     return [...archived.values()].sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  async listActiveStashes(repository: Repository): Promise<Stash[]> {
+    if (repository.offline) return [];
+    const stashes = await this.git.listStashes(repository), data = this.adapter.getData();
+    return stashes.filter(stash => !entryOf(data,repository.id,stash.hash)?.archived);
+  }
+  async withExcerpts(repository: Repository, stash: Stash, original: StashMetadata): Promise<StashMetadata> {
+    const metadata = clone(original), filesByLayer = new Map<DiffLayer, DiffFile[]>();
+    for (const annotation of metadata.annotations) {
+      if (annotation.excerpt) continue;
+      try {
+        let files = filesByLayer.get(annotation.layer);
+        if (!files) {files = await this.getDiff(repository,stash,annotation.layer,5); filesByLayer.set(annotation.layer,files);}
+        const file = files.find(value => value.path === annotation.path);
+        if (!file || file.binary) continue;
+        const source = await this.getFileContents(repository,stash,file,annotation.layer);
+        if (source.truncated) continue;
+        const lines = (annotation.side === 'old' ? source.oldContent : source.newContent).split('\n');
+        if (annotation.endLine <= lines.length) annotation.excerpt = {text:lines.slice(annotation.startLine - 1,annotation.endLine).join('\n'),startLine:annotation.startLine};
+      } catch { /* Export the discussion with an explicit missing-code note. */ }
+    }
+    return metadata;
   }
   async continueReview(repository: Repository, stash: Stash, predecessorHash: string): Promise<void> {
     if (predecessorHash === stash.hash) throw new Error('Choose a different original review.');

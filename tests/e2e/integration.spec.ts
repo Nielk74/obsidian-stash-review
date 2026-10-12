@@ -141,7 +141,7 @@ test('independent edits in two embeds survive while their disk writes are pendin
   await expect(reviews.nth(1).getByRole('button', {name: 'Unpin stash', exact: true})).toBeVisible();
   const metadata = await page.evaluate(() => window.__demoHost.getMetadata('demo-fieldbook', '8d7be6a901afe7794ed9a6f1a3cb0318409876da'));
   expect(metadata.pinned).toBe(true);
-  expect(metadata.reviewedFiles).toContain('src/paths.ts');
+  expect(metadata.reviewedByLayer?.staged).toContain('src/paths.ts');
 });
 
 test('retargeting an open review hides the old stash until the linked repository is resolved', async ({page}) => {

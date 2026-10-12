@@ -16,6 +16,7 @@ export interface Stash {
   baseHash: string;
   archived?: boolean;
   recoverable?: boolean;
+  inStashList?: boolean;
 }
 
 export type DiffLayer = 'all' | 'staged' | 'unstaged';
@@ -92,6 +93,7 @@ export interface StashMetadata {
 }
 
 export interface RepositoryBinding {id: string; name: string; paths: string[]}
+export interface ReviewSummary {title:string;description:string;tags:string[];pinned:boolean;openAnnotations:number}
 export interface ReviewEntry {
   stash: Stash;
   archived: boolean;
@@ -137,6 +139,7 @@ export interface ReviewHost {
   getDiff(repository: Repository, stash: Stash, layer: DiffLayer, context: number): Promise<DiffFile[]>;
   getFileContents(repository: Repository, stash: Stash, file: DiffFile, layer: DiffLayer): Promise<{oldContent: string; newContent: string; truncated?: boolean}>;
   getMetadata(repositoryId: string, hash: string): StashMetadata;
+  getReviewSummary?(repositoryId:string,hash:string):ReviewSummary;
   saveMetadata(repositoryId: string, hash: string, metadata: StashMetadata): Promise<void>;
   createStash(repository: Repository, message: string, includeUntracked: boolean): Promise<void>;
   applyStash(repository: Repository, stash: Stash, restoreIndex: boolean): Promise<void>;

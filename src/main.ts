@@ -5,14 +5,14 @@ import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 import {createHash, randomUUID} from 'node:crypto';
 import {gzip, gunzip} from 'node:zlib';
 import {promisify} from 'node:util';
-import { FileSystemAdapter, ItemView, MarkdownRenderChild, Notice, Plugin, PluginSettingTab, Setting, type App, type ViewStateResult, type WorkspaceLeaf } from 'obsidian';
+import { Component, FileSystemAdapter, ItemView, MarkdownRenderer, MarkdownRenderChild, Notice, Plugin, PluginSettingTab, Setting, type App, type ViewStateResult, type WorkspaceLeaf } from 'obsidian';
 import { GitService } from './git';
-import { loadPluginData, readMetadata, reviewMarkdown } from './review-store';
+import { loadPluginData, readMetadata, reviewMarkdown, reviewSummary } from './review-store';
 import { ReviewApp } from './ui/ReviewApp';
 import {parseReviewBlock, parseReviewParameters} from './markdown';
 import {ReadCache} from './read-cache';
 import {MAX_PACKAGE_BYTES, parseSavedLayer, validRepositoryId} from './review-portability';
-import type {SnapshotStorage} from './review-library';
+import {DataTransactions, ReviewLibrary, type SnapshotStorage} from './review-library';
 import { type DiffFile, type PluginData, type Repository, type ReviewHost, type ReviewTarget } from './types';
 
 const VIEW_TYPE = 'stash-review';
@@ -48,26 +48,11 @@ export function createSnapshotStorage(directory: string): SnapshotStorage {
   };
 }
 
-function freezeDiff(files: DiffFile[]): DiffFile[] {
-  for (const file of files) {
-    for (const hunk of file.hunks) {
-      for (const line of hunk.lines) Object.freeze(line);
-      Object.freeze(hunk.lines); Object.freeze(hunk);
-    }
-    Object.freeze(file.hunks); Object.freeze(file);
-  }
-  Object.freeze(files);
-  return files;
-}
-
-function diffBytes(files: DiffFile[]): number {
-  return files.reduce((bytes, file) => bytes + 256 + file.path.length * 2 + (file.oldContent?.length ?? 0) * 2 + (file.newContent?.length ?? 0) * 2 + file.hunks.reduce((size, hunk) => size + 128 + hunk.header.length * 2 + hunk.lines.reduce((sum, line) => sum + 128 + line.text.length * 2, 0), 0), 0);
-}
-
 export default class StashReviewPlugin extends Plugin {
   data: PluginData = loadPluginData(null);
   git!: GitService;
-  private pendingSave: Promise<void> = Promise.resolve();
+  private writes!: DataTransactions;
+  private library!: ReviewLibrary;
   private host?: ReviewHost;
   private reads = new ReadCache(16 * 1024 * 1024, 32);
   private metadataListeners = new Set<(repositoryId: string, hash: string) => void>();
@@ -76,12 +61,23 @@ export default class StashReviewPlugin extends Plugin {
   async onload(): Promise<void> {
     this.data = loadPluginData(await this.loadData());
     this.git = new GitService(this.data.settings.gitPath);
+    this.writes = new DataTransactions(() => this.data, data => {
+      const previous = this.data; this.data = data;
+      for (const [id,reviews] of Object.entries(data.reviews)) for (const [hash,metadata] of Object.entries(reviews)) {
+        if (JSON.stringify(previous.reviews[id]?.[hash]) !== JSON.stringify(metadata)) this.metadataListeners.forEach(listener => listener(id,hash));
+      }
+    }, data => this.saveData(data));
+    const adapter = this.app.vault.adapter;
+    if (!(adapter instanceof FileSystemAdapter)) throw new Error('Stash Review requires a local filesystem vault.');
+    const directory = join(adapter.getBasePath(),this.app.vault.configDir || '.obsidian','plugins',this.manifest.id,'reviews');
+    this.library = new ReviewLibrary({getData:() => this.data,transaction:change => this.writes.transaction(change),storage:createSnapshotStorage(directory),warn:message => new Notice(message)},() => this.git,this.reads);
     this.registerView(VIEW_TYPE, leaf => new StashReviewView(leaf, this));
     this.registerObsidianProtocolHandler(VIEW_TYPE, async parameters => {
       try {await this.openReview(parseReviewParameters(parameters));}
       catch (error) {new Notice(`Stash Review: ${error instanceof Error ? error.message : String(error)}`);}
     });
     this.registerMarkdownCodeBlockProcessor(VIEW_TYPE, (source, el, context) => {
+      if (el.closest?.('.sr-markdown')) {el.textContent = source; return;}
       try {context.addChild(new StashReviewEmbed(el, this, parseReviewBlock(source)));}
       catch (error) {
         el.empty(); el.addClass('sr-embed-error');
@@ -101,9 +97,7 @@ export default class StashReviewPlugin extends Plugin {
   }
 
   async persist(): Promise<void> {
-    const save = this.pendingSave.catch(() => {}).then(() => this.saveData(this.data));
-    this.pendingSave = save;
-    await save;
+    await this.writes.persist();
   }
 
   async openReview(target?: ReviewTarget): Promise<void> {
@@ -116,11 +110,14 @@ export default class StashReviewPlugin extends Plugin {
   async listRepositories(): Promise<Repository[]> {
     let paths = this.data.settings.repositories;
     if (!paths.length && this.app.vault.adapter instanceof FileSystemAdapter) paths = [this.app.vault.adapter.getBasePath()];
-    const results = await Promise.allSettled(paths.map(path => this.git.resolveRepository(path)));
+    const results = await Promise.allSettled(paths.map(async path => this.library.registerRepository(await this.git.resolveRepository(path),path)));
     const repositories = results.filter((r): r is PromiseFulfilledResult<Repository> => r.status === 'fulfilled').map(r => r.value);
     const unique = repositories.filter((repository, index) => repositories.findIndex(r => r.path === repository.path) === index);
     const failures = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
     if (failures.length && this.data.settings.repositories.length) new Notice(`Stash Review: ${failures.length} configured repository path(s) could not be opened. Check the paths in settings.`);
+    for (const binding of Object.values(this.data.repositoryCatalog ?? {})) if (!unique.some(repo => repo.id === binding.id)) {
+      unique.push({id:binding.id,name:binding.name,path:`library://${binding.id}`,branch:'',dirty:false,offline:true});
+    }
     return unique;
   }
 
@@ -148,36 +145,53 @@ export default class StashReviewPlugin extends Plugin {
       },
       listRepositories: () => plugin.reads.read(JSON.stringify(['repositories', plugin.data.settings.gitPath, plugin.data.settings.repositories]), () => plugin.listRepositories()),
       async addRepository(path) {
-        const repository = await plugin.git.resolveRepository(path);
+        const repository = await plugin.library.registerRepository(await plugin.git.resolveRepository(path),path);
         if (!plugin.data.settings.repositories.includes(repository.path)) {
           plugin.data.settings.repositories.push(repository.path);
           await plugin.persist();
         }
         return repository;
       },
-      listStashes: repository => plugin.reads.read(JSON.stringify(['stashes', plugin.data.settings.gitPath, repository.path]), () => plugin.git.listStashes(repository)),
-      getDiff: (repository, stash, layer, context) => plugin.reads.read(JSON.stringify(['diff', plugin.data.settings.gitPath, repository.path, stash.hash, layer, context]), async () => freezeDiff(await plugin.git.getDiff(repository, stash, layer, context)), diffBytes),
-      getFileContents: (repository, stash, file, layer) => plugin.reads.read(JSON.stringify(['source', plugin.data.settings.gitPath, repository.path, stash.hash, layer, file.path, file.oldPath, file.untracked, file.binary]), async () => Object.freeze(await plugin.git.getFileContents(repository, stash, file, layer)), source => 128 + (source.oldContent.length + source.newContent.length) * 2),
+      listStashes: repository => plugin.reads.read(JSON.stringify(['stashes', repository.id, repository.path]), () => plugin.library.listActiveStashes(repository)),
+      listArchivedReviews: repository => plugin.reads.read(JSON.stringify(['archives',repository.id,repository.path]),() => plugin.library.listArchivedReviews(repository)),
+      getDiff: (repository,stash,layer,context) => plugin.library.getDiff(repository,stash,layer,context),
+      getFileContents: (repository,stash,file,layer) => plugin.library.getFileContents(repository,stash,file,layer),
+      archiveReview: (repository,stash,archived) => plugin.library.archiveReview(repository,stash,archived),
+      continueReview: (repository,stash,hash) => plugin.library.continueReview(repository,stash,hash),
+      relocateRepository: (id,path) => plugin.library.relocateRepository(id,path),
+      exportReviewData: (repository,stash) => plugin.library.exportReviewData(repository,stash),
+      importReviewData: (source,id) => plugin.library.importReviewData(source,id),
+      invalidateReads: () => plugin.library.clear(),
+      renderMarkdown(source,element) {
+        const child = new Component(), rendered = element.ownerDocument.createElement('div');
+        element.append(rendered); plugin.addChild(child);
+        let disposed = false;
+        void MarkdownRenderer.render(plugin.app,source,rendered,'',child).catch(() => {if (!disposed) rendered.textContent = source;});
+        return () => {if (disposed) return; disposed = true; plugin.removeChild(child); rendered.remove();};
+      },
       getMetadata: (repositoryId, hash) => readMetadata(plugin.data, repositoryId, hash),
+      getReviewSummary: (id,hash) => reviewSummary(plugin.data,id,hash),
       updateMetadata(repositoryId, hash, change) {
         const metadata = change(readMetadata(plugin.data, repositoryId, hash));
         return {metadata, saved: this.saveMetadata(repositoryId, hash, metadata)};
       },
       async saveMetadata(repositoryId, hash, metadata) {
-        if (!Object.hasOwn(plugin.data.reviews, repositoryId)) plugin.data.reviews[repositoryId] = {};
-        plugin.data.reviews[repositoryId][hash] = structuredClone(metadata);
+        const saved = plugin.writes.saveMetadata(repositoryId,hash,metadata);
         for (const listener of plugin.metadataListeners) listener(repositoryId, hash);
-        await plugin.persist();
+        await saved;
       },
       async createStash(repository, message, untracked) {
+        if (repository.offline) throw new Error('Connect the repository before creating a stash.');
         await plugin.git.createStash(repository, message, untracked, await plugin.protectedPluginPaths(repository));
       },
       async applyStash(repository, stash, index) {
+        if (repository.offline) throw new Error('Connect the repository before applying a stash.');
         await plugin.git.applyStash(repository, stash, index, await plugin.protectedPluginPaths(repository));
       },
-      dropStash: (repository, stash) => plugin.git.dropStash(repository, stash),
-      restoreDroppedStash: (repository, stash) => plugin.git.restoreDroppedStash(repository, stash),
+      dropStash: (repository, stash) => repository.offline ? Promise.reject(new Error('Connect the repository before dropping a stash.')) : plugin.git.dropStash(repository, stash),
+      restoreDroppedStash: (repository, stash) => repository.offline ? Promise.reject(new Error('Connect the repository before restoring a stash.')) : plugin.git.restoreDroppedStash(repository, stash),
       async exportReview(repository, stash, metadata) {
+        metadata = await plugin.library.withExcerpts(repository,stash,metadata);
         const folder = 'Stash Reviews';
         if (!(await plugin.app.vault.adapter.exists(folder))) {
           try { await plugin.app.vault.createFolder(folder); }
@@ -262,6 +276,17 @@ class StashReviewSettings extends PluginSettingTab {
         this.plugin.data.settings.repositories = [...new Set(value.split('\n').map(path => path.trim()).filter(Boolean))];
         await this.save();
       }));
+    for (const binding of Object.values(this.plugin.data.repositoryCatalog ?? {})) {
+      let newPath = binding.paths[0] ?? '';
+      new Setting(containerEl).setName(`Relocate ${binding.name}`).setDesc('Choose its new folder while keeping saved notes and review links.')
+        .addText(text => text.setValue(newPath).onChange(value => {newPath=value;}))
+        .addButton(button => button.setButtonText('Relocate').onClick(async () => {
+          button.setDisabled(true);
+          try {await this.plugin.createHost().relocateRepository!(binding.id,newPath.trim());new Notice(`Moved the review binding for ${binding.name}.`);this.display();}
+          catch (error) {new Notice(`Could not relocate repository: ${error instanceof Error ? error.message : String(error)}`);}
+          finally {button.setDisabled(false);}
+        }));
+    }
     new Setting(containerEl)
       .setName('Git executable')
       .setDesc('Use git from PATH, or an absolute executable path if Obsidian cannot find it (for example /opt/homebrew/bin/git). Restart the review tab after changing this.')
@@ -291,6 +316,7 @@ class StashReviewSettings extends PluginSettingTab {
     new Setting(containerEl).setName('Open review workspace').addButton(button => button.setButtonText('Open Stash Review').setCta().onClick(() => this.plugin.openReview()));
   }
   private async save(): Promise<void> {
+    this.plugin.createHost().invalidateReads?.();
     try { await this.plugin.persist(); }
     catch (error) { new Notice(`Could not save Stash Review settings: ${error instanceof Error ? error.message : String(error)}`); }
   }

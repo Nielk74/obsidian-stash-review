@@ -13,8 +13,15 @@ const require = createRequire(import.meta.url);
 const source = await readFile(join(bundleRoot, 'main.js'), 'utf8');
 const manifest = JSON.parse(await readFile(join(bundleRoot, 'manifest.json'), 'utf8'));
 const notices = [];
-class Plugin {
-  constructor(app) { this.app = app; this.manifest = manifest; this.saved = []; this.commands = []; this.protocols = new Map(); this.blocks = new Map(); }
+class Component {
+  constructor() {this.children=[];this.unloaded=false;}
+  addChild(child) {this.children.push(child);return child;}
+  removeChild(child) {this.children=this.children.filter(value=>value!==child);child.unload();return child;}
+  unload() {this.unloaded=true;for(const child of this.children)child.unload();this.children=[];}
+}
+const MarkdownRenderer={async render(_app,source,element,_path,child) {element.textContent=source;child.rendered=true;}};
+class Plugin extends Component {
+  constructor(app) {super(); this.app = app; this.manifest = manifest; this.saved = []; this.commands = []; this.protocols = new Map(); this.blocks = new Map(); }
   async loadData() { return null; }
   async saveData(data) { this.saved.push(structuredClone(data)); }
   registerView(type, factory) { this.registeredView = { type, factory }; }
@@ -30,7 +37,7 @@ class ItemView {}
 class MarkdownRenderChild { constructor(containerEl) { this.containerEl = containerEl; } }
 class Setting {}
 class Notice { constructor(message) { notices.push(message); } }
-const obsidian = { Plugin, FileSystemAdapter, PluginSettingTab, ItemView, MarkdownRenderChild, Setting, Notice };
+const obsidian = { Component, MarkdownRenderer, Plugin, FileSystemAdapter, PluginSettingTab, ItemView, MarkdownRenderChild, Setting, Notice };
 const mod = { exports: {} };
 const wrapper = vm.runInThisContext(`(function(exports, require, module, __filename, __dirname) {\n${source}\n})`, { filename: 'stash-review-release.js' });
 wrapper(mod.exports, name => name === 'obsidian' ? obsidian : require(name), mod, join(bundleRoot, 'main.js'), bundleRoot);
@@ -71,6 +78,13 @@ try {
   await plugin.commands.find(c => c.id === 'open-review').callback();
   assert.equal(app.lastState.type, 'stash-review');
   const host = plugin.createHost();
+  assert.equal(typeof host.listArchivedReviews,'function');
+  assert.equal(typeof host.importReviewData,'function');
+  const rendered=[], element={ownerDocument:{createElement(){return {remove(){this.removed=true;}};}},append(child){rendered.push(child);}};
+  const dispose=host.renderMarkdown('See [[Project]]',element), child=plugin.children.at(-1);
+  await Promise.resolve();assert.equal(child.rendered,true);dispose();dispose();
+  assert.equal(child.unloaded,true,'Markdown components unload exactly when their view is removed');
+  assert.equal(rendered[0].removed,true);assert.equal(plugin.children.length,0);
   const protocol = plugin.protocols.get('stash-review');
   assert.equal(typeof protocol, 'function');
   app.existingLeaves = [app.lastLeaf];
@@ -101,16 +115,16 @@ try {
   assert.equal(plugin.saved.at(-1).reviews.repoB['b'.repeat(40)].title, 'Different repository');
   assert.deepEqual(updatedReview, {repositoryId: 'repoB', hash: 'b'.repeat(40)});
   unsubscribe();
-  const originalPersist = plugin.persist.bind(plugin);
-  const finishWrites = [];
-  plugin.persist = () => new Promise((resolve, reject) => {finishWrites.push(() => {void originalPersist().then(resolve, reject);});});
+  const originalSave=plugin.saveData.bind(plugin);
+  let finishWrite;const blocked=new Promise(resolve=>{finishWrite=resolve;});
+  plugin.saveData=async data=>{await blocked;await originalSave(data);};
   const firstEdit = host.updateMetadata('repoC', 'c'.repeat(40), previous => ({...previous, pinned: true}));
   const secondEdit = host.updateMetadata('repoC', 'c'.repeat(40), previous => ({...previous, description: 'Another view can edit while persistence is pending'}));
   assert.equal(host.getMetadata('repoC', 'c'.repeat(40)).pinned, true, 'Concurrent edits must use the authoritative shared metadata');
   assert.equal(host.getMetadata('repoC', 'c'.repeat(40)).description, 'Another view can edit while persistence is pending');
-  finishWrites.forEach(finish => finish());
+  finishWrite();
   await Promise.all([firstEdit.saved, secondEdit.saved]);
-  plugin.persist = originalPersist;
+  plugin.saveData=originalSave;
   assert.equal(plugin.saved.at(-1).reviews.repoC['c'.repeat(40)].pinned, true);
   const loaded = host.getMetadata('repoA', 'a'.repeat(40));
   loaded.tags.push('local mutation');
@@ -118,7 +132,9 @@ try {
   const repository = { id: 'repoA', name: 'Fixture', path: sandbox, branch: 'main', dirty: false };
   const stash = { hash: 'a'.repeat(40), ref: 'stash@{0}', message: 'Prototype', branch: 'main', createdAt: new Date().toISOString(), baseHash: 'b'.repeat(40) };
   let diffReads = 0, sourceReads = 0, stashReads = 0;
-  const file = {path: 'app.ts', status: 'modified', additions: 1, deletions: 1, binary: false, hunks: [{header: '@@ -1 +1 @@', oldStart: 1, oldCount: 1, newStart: 1, newCount: 1, lines: [{type: 'add', text: 'saved', newLine: 1}]}]};
+  const file = {path: 'app.ts', status: 'modified', additions: 1, deletions: 1, binary: false, untracked:false, hunks: [{header: '@@ -1 +1 @@', oldStart: 1, oldCount: 1, newStart: 1, newCount: 1, lines: [{type:'delete',text:'before',oldLine:1},{type: 'add', text: 'saved', newLine: 1}]}]};
+  plugin.git.retainStash=async()=>{};
+  plugin.git.listRetainedStashes=async()=>[stash];
   plugin.git.getDiff = async () => {diffReads++; await new Promise(resolve => setTimeout(resolve, 5)); return structuredClone([file]);};
   plugin.git.getFileContents = async () => {sourceReads++; return {oldContent: 'before', newContent: 'saved'};};
   plugin.git.listStashes = async () => {stashReads++; return [stash];};
@@ -135,6 +151,26 @@ try {
   await Promise.all(Array.from({length: 6}, () => host.listStashes(repository)));
   await host.listStashes(repository);
   assert.equal(stashReads, 2, 'Refreshing a mutable stash list must read Git again');
+  await host.archiveReview(repository,stash,true);
+  assert.equal((await host.listStashes(repository)).length,0,'Archiving hides the review without dropping the Git stash');
+  assert.equal((await host.listArchivedReviews(repository))[0].inStashList,true);
+  await host.archiveReview(repository,stash,false);
+  const portable=await host.exportReviewData(repository,stash);
+  const imported=JSON.parse(portable);imported.repository={id:'saved-offline',name:'Offline fixture'};
+  const target=await host.importReviewData(JSON.stringify(imported));
+  const offline={...repository,id:target.repositoryId,offline:true};
+  assert.equal((await host.getDiff(offline,stash,'all',5))[0].path,'app.ts');
+  await assert.rejects(host.applyStash(offline,stash,false),/connect/i);
+  await assert.rejects(host.dropStash(offline,stash),/connect/i);
+  const dataBefore=structuredClone(plugin.data);
+  await assert.rejects(host.importReviewData('{invalid}'),/review|JSON|Unexpected/i);
+  assert.deepEqual(plugin.data,dataBefore);
+  plugin.git.resolveRepository=async path=>({...repository,path});
+  await host.addRepository(sandbox);
+  plugin.git.resolveRepository=async path=>({...repository,id:'physical-new-id',path});
+  const moved=await host.relocateRepository('repoA',join(sandbox,'relocated'));
+  assert.equal(moved.id,'repoA');assert.equal(host.getMetadata('repoA',stash.hash).title,metadata.title);
+  await protocol({repo:'repoA',stash:stash.hash});assert.equal(app.lastState.state.repo,'repoA');
   let capture;
   plugin.git.createStash = async (...args) => { capture = args; };
   await host.createStash(repository, 'Preserve reviews', true);
