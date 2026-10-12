@@ -113,4 +113,16 @@ describe('durable review data', () => {
     expect(output).toContain('Try 100ms.');
     expect(output).toContain(stash.hash);
   });
+  it('exports per-layer progress and original annotated code without losing missing-source notes', () => {
+    const repository: Repository = {id:'repo',name:'Notes',path:'C:/notes',branch:'main',dirty:false};
+    const stash: Stash = {hash:'a'.repeat(40),baseHash:'b'.repeat(40),ref:'stash@{0}',message:'Review',branch:'main',createdAt:''};
+    const annotation = {id:'source',path:'app.ts',side:'new' as const,layer:'staged' as const,startLine:2,endLine:2,body:'Keep original',createdAt:'',updatedAt:'',resolved:false,replies:[],excerpt:{text:'const original = "<safe>";',startLine:2}};
+    const metadata = {...emptyMetadata(),reviewedByLayer:{staged:['app.ts']},annotations:[annotation,{...annotation,id:'missing',path:'lost.ts',excerpt:undefined}]};
+    const markdown = reviewMarkdown(repository,stash,metadata);
+    expect(markdown).toContain('Staged'); expect(markdown).toContain('- [x] app.ts');
+    expect(markdown).toContain('const original = "<safe>";');
+    expect(markdown).toContain('Original new lines 2');
+    expect(markdown).toContain('Original code excerpt unavailable');
+    expect(markdown).toContain('lost.ts');
+  });
 });

@@ -111,6 +111,13 @@ function escapeMarkdown(value: string): string {
   return value.replace(/[\\`*_\[\]<>#|]/g, '\\$&').replace(/[\r\n]/g, ' ');
 }
 
+export function codeFence(source: string, language = ''): string {
+  let longest = 0;
+  for (const run of source.matchAll(/`+/g)) longest = Math.max(longest,run[0].length);
+  const fence = '`'.repeat(Math.max(3,longest + 1));
+  return `${fence}${language.replace(/[^a-zA-Z0-9_+-]/g,'')}\n${source}${source.endsWith('\n') ? '' : '\n'}${fence}`;
+}
+
 export function reviewMarkdown(repository: Repository, stash: Stash, metadata: StashMetadata, vaultName?: string): string {
   const lines = [
     `# ${escapeMarkdown(metadata.title || stash.message)}`,
@@ -126,7 +133,8 @@ export function reviewMarkdown(repository: Repository, stash: Stash, metadata: S
     '',
     '## Reviewed files',
     '',
-    ...(metadata.reviewedFiles.length ? metadata.reviewedFiles.map(p => `- [x] ${escapeMarkdown(p)}`) : ['No files marked as viewed.']),
+    ...DIFF_LAYERS.flatMap(layer => [`### ${layer === 'all' ? 'All changes' : layer === 'staged' ? 'Staged' : 'Unstaged'}`, '',
+      ...(reviewedPaths(metadata,layer).length ? reviewedPaths(metadata,layer).map(path => `- [x] ${escapeMarkdown(path)}`) : ['No files marked as viewed.']), '']),
     '',
     '## Code annotations',
     ''
@@ -139,6 +147,11 @@ export function reviewMarkdown(repository: Repository, stash: Stash, metadata: S
       `Status: ${annotation.resolved ? 'Resolved' : 'Open'} · Layer: ${annotation.layer}`,
       '', annotation.body, ''
     );
+    if (annotation.excerpt) {
+      const end = annotation.excerpt.startLine + annotation.excerpt.text.split('\n').length - 1;
+      lines.push(`Original ${annotation.side} lines ${annotation.excerpt.startLine}${end === annotation.excerpt.startLine ? '' : `-${end}`}:`, '',
+        codeFence(annotation.excerpt.text,annotation.path.split('.').pop() ?? ''), '');
+    } else lines.push('Original code excerpt unavailable; the discussion is preserved.', '');
     for (const reply of annotation.replies) lines.push(`Reply (${reply.createdAt}):`, '', reply.body, '');
   }
   if (!metadata.annotations.length) lines.push('No code annotations yet.', '');

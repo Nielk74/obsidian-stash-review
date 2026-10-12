@@ -21,7 +21,7 @@ export function changeRanges(before: string, after: string): {old: ChangeRange; 
 }
 
 /** Add inline marks to already escaped highlight.js output, keeping token tags intact. */
-export function markChangedText(html: string, range: ChangeRange): string {
+export function markChangedText(html: string, range: ChangeRange, cssClass: 'sr-inline-change' | 'sr-search-match' = 'sr-inline-change'): string {
   if (range.start >= range.end) return html;
   let offset = 0;
   return (html.match(/<[^>]*>|&(?:#\d+|#x[a-f\d]+|[a-z]+);|[^<&]+|[<&]/gi) ?? []).map(piece => {
@@ -31,11 +31,11 @@ export function markChangedText(html: string, range: ChangeRange): string {
       const length = code > 0xffff ? 2 : 1;
       const changed = offset < range.end && offset + length > range.start;
       offset += length;
-      return changed ? `<mark class="sr-inline-change">${piece}</mark>` : piece;
+      return changed ? `<mark class="${cssClass}">${piece}</mark>` : piece;
     }
     const start = Math.max(0, Math.min(piece.length, range.start - offset));
     const end = Math.max(start, Math.min(piece.length, range.end - offset));
     offset += piece.length;
-    return start === end ? piece : `${piece.slice(0, start)}<mark class="sr-inline-change">${piece.slice(start, end)}</mark>${piece.slice(end)}`;
+    return start === end ? piece : `${piece.slice(0, start)}<mark class="${cssClass}">${piece.slice(start, end)}</mark>${piece.slice(end)}`;
   }).join('');
 }

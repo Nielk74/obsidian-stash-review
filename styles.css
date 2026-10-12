@@ -530,3 +530,17 @@
 @media (prefers-reduced-motion: reduce) {
   .sr-app *, .sr-app *::before, .sr-app *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+/* Durable review controls share the existing compact toolbar and thread layout. */
+.sr-app .sr-change-search {display:flex;align-items:center;gap:5px;min-width:145px;max-width:360px;flex:1 1 190px;padding:3px 7px;border:1px solid var(--background-modifier-border);border-radius:5px;color:var(--text-muted);}
+.sr-app .sr-change-search input {min-width:60px;width:100%;border:0;background:transparent;box-shadow:none;font-size:12px;padding:3px 0;}
+.sr-app .sr-search-count {font-size:10px;white-space:nowrap;}
+.sr-app .sr-change-search .sr-icon-button {width:22px;height:22px;flex-shrink:0;}
+.sr-app mark.sr-search-match {color:inherit;background:rgba(234,179,8,.32);border-bottom:1px solid rgba(234,179,8,.7);border-radius:2px;}
+.sr-app .sr-markdown {overflow-wrap:anywhere;}
+.sr-app .sr-markdown > :first-child {margin-top:0;}
+.sr-app .sr-markdown > :last-child {margin-bottom:0;}
+.sr-app .sr-markdown p {margin:0 0 .65em;white-space:pre-wrap;}
+.sr-app .sr-markdown pre {overflow:auto;max-height:240px;padding:10px;border-radius:5px;background:var(--background-primary);}
+.sr-app .sr-markdown pre code {white-space:pre;font-size:12px;}
+.sr-app .sr-markdown ul,.sr-app .sr-markdown ol {padding-left:20px;}
+.sr-app .sr-markdown a {color:var(--text-accent);}
