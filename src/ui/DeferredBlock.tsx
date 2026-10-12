@@ -4,14 +4,14 @@ interface Watcher {observer: IntersectionObserver; callbacks: Map<Element, () =>
 const watchers = new WeakMap<Element, Watcher>();
 
 /** Mount near the viewport once, then retain the content and any in-progress edits. */
-export function DeferredBlock({height, force = false, render}: {height: number; force?: boolean; render: () => ReactNode}) {
+export function DeferredBlock({height, force = false, contained = false, className = '', render}: {height: number; force?: boolean; contained?: boolean; className?: string; render: () => ReactNode}) {
   const element = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(force);
   useEffect(() => {
     if (ready) return;
     if (force) {setReady(true); return;}
     const target = element.current;
-    const root = target?.closest('.sr-diff-scroll, .sr-annotations-panel, .sr-stash-list');
+    const root = target?.closest('.sr-diff-scroll, .sr-annotations-panel, .sr-stash-list, .sr-tree-items');
     if (!target || !root || typeof IntersectionObserver === 'undefined') {setReady(true); return;}
     let watcher = watchers.get(root);
     if (!watcher) {
@@ -28,5 +28,5 @@ export function DeferredBlock({height, force = false, render}: {height: number; 
       if (!active.callbacks.size) {active.observer.disconnect(); watchers.delete(root);}
     };
   }, [ready, force]);
-  return <div ref={element} className="sr-deferred-block">{ready || force ? render() : <div aria-hidden="true" style={{height}}/>}</div>;
+  return <div ref={element} className={`sr-deferred-block ${className}`} style={contained && !force ? {contentVisibility: 'auto', containIntrinsicSize: `auto ${height}px`} : undefined}>{ready || force ? render() : <div className="sr-deferred-placeholder" aria-hidden="true" style={{height, width: '100%'}}/>}</div>;
 }

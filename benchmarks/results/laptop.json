@@ -1,0 +1,3623 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "2e9ebb3a4a070fb4bfa841252dae701b1dace445",
+    "workingTree": true,
+    "computeBundleSha256": "333e66150173c5f6edb5792e84cd5d3be3186aec76ccf52ac9bf7407bbe9d061"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true,
+    "chromium": "156.0.8078.4"
+  },
+  "methodology": {
+    "samples": 3,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames and wait for deferred content intersecting the visible scroll viewport; background prefetch outside it is excluded."
+  },
+  "startedAt": "2026-10-12T12:50:45.525Z",
+  "metrics": [
+    {
+      "name": "ui.typical.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 464,
+      "p95Ms": 871.8,
+      "minMs": 431.7,
+      "maxMs": 871.8,
+      "rawMs": [
+        871.8,
+        464,
+        431.7
+      ],
+      "targetMs": 500,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": false
+    },
+    {
+      "name": "ui.typical.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 130.6,
+      "p95Ms": 133.8,
+      "minMs": 113.1,
+      "maxMs": 133.8,
+      "rawMs": [
+        113.1,
+        133.8,
+        130.6
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.layer-staged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 173.1,
+      "p95Ms": 183.4,
+      "minMs": 155.5,
+      "maxMs": 183.4,
+      "rawMs": [
+        183.4,
+        155.5,
+        173.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.layer-unstaged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 177.5,
+      "p95Ms": 223.6,
+      "minMs": 167.4,
+      "maxMs": 223.6,
+      "rawMs": [
+        223.6,
+        167.4,
+        177.5
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.typical.4x.layer-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 187.1,
+      "p95Ms": 200.4,
+      "minMs": 184.6,
+      "maxMs": 200.4,
+      "rawMs": [
+        200.4,
+        184.6,
+        187.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.typical.4x.context-lines",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 38.6,
+      "p95Ms": 51.8,
+      "minMs": 28.2,
+      "maxMs": 51.8,
+      "rawMs": [
+        38.6,
+        51.8,
+        28.2
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.refresh-stashes",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 22.9,
+      "p95Ms": 26.5,
+      "minMs": 9.6,
+      "maxMs": 26.5,
+      "rawMs": [
+        26.5,
+        9.6,
+        22.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.9,
+      "p95Ms": 44.3,
+      "minMs": 27.4,
+      "maxMs": 44.3,
+      "rawMs": [
+        32.9,
+        44.3,
+        27.4
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.1,
+      "p95Ms": 31.7,
+      "minMs": 29.2,
+      "maxMs": 31.7,
+      "rawMs": [
+        29.2,
+        30.1,
+        31.7
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.5,
+      "p95Ms": 38.3,
+      "minMs": 29.5,
+      "maxMs": 38.3,
+      "rawMs": [
+        38.3,
+        29.5,
+        31.5
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.2,
+      "p95Ms": 31.1,
+      "minMs": 27.3,
+      "maxMs": 31.1,
+      "rawMs": [
+        27.3,
+        31.1,
+        30.2
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.5,
+      "p95Ms": 32,
+      "minMs": 30,
+      "maxMs": 32,
+      "rawMs": [
+        32,
+        31.5,
+        30
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 51.7,
+      "p95Ms": 65,
+      "minMs": 49.3,
+      "maxMs": 65,
+      "rawMs": [
+        49.3,
+        65,
+        51.7
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 35.4,
+      "p95Ms": 50.7,
+      "minMs": 34.8,
+      "maxMs": 50.7,
+      "rawMs": [
+        50.7,
+        34.8,
+        35.4
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 43.3,
+      "p95Ms": 48.2,
+      "minMs": 41.7,
+      "maxMs": 48.2,
+      "rawMs": [
+        43.3,
+        41.7,
+        48.2
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.1,
+      "p95Ms": 29.3,
+      "minMs": 26.2,
+      "maxMs": 29.3,
+      "rawMs": [
+        26.2,
+        27.1,
+        29.3
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 38.8,
+      "p95Ms": 49.3,
+      "minMs": 38.1,
+      "maxMs": 49.3,
+      "rawMs": [
+        49.3,
+        38.8,
+        38.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 55.7,
+      "p95Ms": 58.4,
+      "minMs": 48.6,
+      "maxMs": 58.4,
+      "rawMs": [
+        55.7,
+        58.4,
+        48.6
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 58.9,
+      "p95Ms": 69.8,
+      "minMs": 57.6,
+      "maxMs": 69.8,
+      "rawMs": [
+        57.6,
+        58.9,
+        69.8
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 152.5,
+      "p95Ms": 169.2,
+      "minMs": 143.7,
+      "maxMs": 169.2,
+      "rawMs": [
+        169.2,
+        143.7,
+        152.5
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 87,
+      "p95Ms": 87,
+      "minMs": 87,
+      "maxMs": 87,
+      "rawMs": [
+        87
+      ],
+      "targetMs": 500,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 33.1,
+      "p95Ms": 34.2,
+      "minMs": 29.7,
+      "maxMs": 34.2,
+      "rawMs": [
+        29.7,
+        34.2,
+        33.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 51.7,
+      "p95Ms": 51.7,
+      "minMs": 51.7,
+      "maxMs": 51.7,
+      "rawMs": [
+        51.7
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 32.3,
+      "p95Ms": 32.3,
+      "minMs": 32.3,
+      "maxMs": 32.3,
+      "rawMs": [
+        32.3
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 47.3,
+      "p95Ms": 48.4,
+      "minMs": 47.3,
+      "maxMs": 48.4,
+      "rawMs": [
+        47.3,
+        48.4,
+        47.3
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29.9,
+      "p95Ms": 33.5,
+      "minMs": 29.5,
+      "maxMs": 33.5,
+      "rawMs": [
+        29.5,
+        33.5,
+        29.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.9,
+      "p95Ms": 32,
+      "minMs": 30.5,
+      "maxMs": 32,
+      "rawMs": [
+        30.9,
+        30.5,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.7,
+      "p95Ms": 31.6,
+      "minMs": 29.9,
+      "maxMs": 31.6,
+      "rawMs": [
+        29.9,
+        31.6,
+        30.7
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.6,
+      "p95Ms": 32,
+      "minMs": 29.8,
+      "maxMs": 32,
+      "rawMs": [
+        29.8,
+        31.6,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.7,
+      "p95Ms": 29.3,
+      "minMs": 19.9,
+      "maxMs": 29.3,
+      "rawMs": [
+        19.9,
+        29.3,
+        27.7
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 630.5,
+      "p95Ms": 1103.4,
+      "minMs": 604.6,
+      "maxMs": 1103.4,
+      "rawMs": [
+        1103.4,
+        630.5,
+        604.6
+      ],
+      "targetMs": 2000,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "workload": {
+        "files": 1000,
+        "lines": 20,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 75.7,
+      "p95Ms": 91.1,
+      "minMs": 51.4,
+      "maxMs": 91.1,
+      "rawMs": [
+        91.1,
+        51.4,
+        75.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.layer-staged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 268.7,
+      "p95Ms": 298.9,
+      "minMs": 247.8,
+      "maxMs": 298.9,
+      "rawMs": [
+        247.8,
+        268.7,
+        298.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.layer-unstaged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 262.4,
+      "p95Ms": 290.4,
+      "minMs": 259,
+      "maxMs": 290.4,
+      "rawMs": [
+        262.4,
+        259,
+        290.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.layer-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 156,
+      "p95Ms": 202.1,
+      "minMs": 134.5,
+      "maxMs": 202.1,
+      "rawMs": [
+        202.1,
+        134.5,
+        156
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.context-lines",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 61.9,
+      "p95Ms": 92.7,
+      "minMs": 60.9,
+      "maxMs": 92.7,
+      "rawMs": [
+        60.9,
+        92.7,
+        61.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.refresh-stashes",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 52,
+      "p95Ms": 69.5,
+      "minMs": 44.4,
+      "maxMs": 69.5,
+      "rawMs": [
+        69.5,
+        44.4,
+        52
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 42.7,
+      "p95Ms": 61.1,
+      "minMs": 39.5,
+      "maxMs": 61.1,
+      "rawMs": [
+        61.1,
+        39.5,
+        42.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 50.6,
+      "p95Ms": 55.2,
+      "minMs": 43,
+      "maxMs": 55.2,
+      "rawMs": [
+        50.6,
+        43,
+        55.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 43.5,
+      "p95Ms": 46.6,
+      "minMs": 40.9,
+      "maxMs": 46.6,
+      "rawMs": [
+        40.9,
+        43.5,
+        46.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 36.4,
+      "p95Ms": 42,
+      "minMs": 33.7,
+      "maxMs": 42,
+      "rawMs": [
+        36.4,
+        42,
+        33.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 35.4,
+      "p95Ms": 37.2,
+      "minMs": 33.9,
+      "maxMs": 37.2,
+      "rawMs": [
+        35.4,
+        37.2,
+        33.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 121.9,
+      "p95Ms": 130.4,
+      "minMs": 118.9,
+      "maxMs": 130.4,
+      "rawMs": [
+        130.4,
+        121.9,
+        118.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 55.9,
+      "p95Ms": 69.5,
+      "minMs": 51.5,
+      "maxMs": 69.5,
+      "rawMs": [
+        69.5,
+        55.9,
+        51.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 188.5,
+      "p95Ms": 200.9,
+      "minMs": 178.9,
+      "maxMs": 200.9,
+      "rawMs": [
+        188.5,
+        178.9,
+        200.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 39.1,
+      "p95Ms": 118.3,
+      "minMs": 37.9,
+      "maxMs": 118.3,
+      "rawMs": [
+        118.3,
+        37.9,
+        39.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 42.5,
+      "p95Ms": 70.3,
+      "minMs": 40,
+      "maxMs": 70.3,
+      "rawMs": [
+        70.3,
+        42.5,
+        40
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 194.8,
+      "p95Ms": 206.2,
+      "minMs": 184.2,
+      "maxMs": 206.2,
+      "rawMs": [
+        184.2,
+        206.2,
+        194.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 260.5,
+      "p95Ms": 319.2,
+      "minMs": 258.2,
+      "maxMs": 319.2,
+      "rawMs": [
+        319.2,
+        260.5,
+        258.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 269.9,
+      "p95Ms": 296.1,
+      "minMs": 263.7,
+      "maxMs": 296.1,
+      "rawMs": [
+        263.7,
+        269.9,
+        296.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 82.8,
+      "p95Ms": 82.8,
+      "minMs": 82.8,
+      "maxMs": 82.8,
+      "rawMs": [
+        82.8
+      ],
+      "targetMs": 500,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "lines": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 54.5,
+      "p95Ms": 72.8,
+      "minMs": 51.5,
+      "maxMs": 72.8,
+      "rawMs": [
+        72.8,
+        51.5,
+        54.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 81.4,
+      "p95Ms": 81.4,
+      "minMs": 81.4,
+      "maxMs": 81.4,
+      "rawMs": [
+        81.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 63.8,
+      "p95Ms": 63.8,
+      "minMs": 63.8,
+      "maxMs": 63.8,
+      "rawMs": [
+        63.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 106.1,
+      "p95Ms": 108.1,
+      "minMs": 98.4,
+      "maxMs": 108.1,
+      "rawMs": [
+        98.4,
+        108.1,
+        106.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 45,
+      "p95Ms": 64.9,
+      "minMs": 33.5,
+      "maxMs": 64.9,
+      "rawMs": [
+        64.9,
+        45,
+        33.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 45.1,
+      "p95Ms": 46.7,
+      "minMs": 41.9,
+      "maxMs": 46.7,
+      "rawMs": [
+        46.7,
+        45.1,
+        41.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 42.5,
+      "p95Ms": 58.5,
+      "minMs": 41.2,
+      "maxMs": 58.5,
+      "rawMs": [
+        42.5,
+        58.5,
+        41.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 36.5,
+      "p95Ms": 42.2,
+      "minMs": 34.9,
+      "maxMs": 42.2,
+      "rawMs": [
+        42.2,
+        34.9,
+        36.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 56.3,
+      "p95Ms": 60.6,
+      "minMs": 24.7,
+      "maxMs": 60.6,
+      "rawMs": [
+        56.3,
+        60.6,
+        24.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 477.5,
+      "p95Ms": 916.9,
+      "minMs": 469.5,
+      "maxMs": 916.9,
+      "rawMs": [
+        916.9,
+        469.5,
+        477.5
+      ],
+      "targetMs": 2000,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "workload": {
+        "files": 1,
+        "lines": 5000,
+        "changed": 5000,
+        "stashes": 20,
+        "notes": 0
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 78.5,
+      "p95Ms": 80.3,
+      "minMs": 58.1,
+      "maxMs": 80.3,
+      "rawMs": [
+        80.3,
+        58.1,
+        78.5
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.layer-staged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 153.2,
+      "p95Ms": 155.6,
+      "minMs": 139.9,
+      "maxMs": 155.6,
+      "rawMs": [
+        153.2,
+        139.9,
+        155.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.layer-unstaged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 162.2,
+      "p95Ms": 183.2,
+      "minMs": 155.8,
+      "maxMs": 183.2,
+      "rawMs": [
+        155.8,
+        183.2,
+        162.2
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.layer-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 167,
+      "p95Ms": 168.8,
+      "minMs": 144.9,
+      "maxMs": 168.8,
+      "rawMs": [
+        167,
+        144.9,
+        168.8
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.context-lines",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30,
+      "p95Ms": 30.4,
+      "minMs": 23.8,
+      "maxMs": 30.4,
+      "rawMs": [
+        30,
+        30.4,
+        23.8
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.refresh-stashes",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 20.5,
+      "p95Ms": 21,
+      "minMs": 11.9,
+      "maxMs": 21,
+      "rawMs": [
+        11.9,
+        21,
+        20.5
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.4,
+      "p95Ms": 32.9,
+      "minMs": 27.2,
+      "maxMs": 32.9,
+      "rawMs": [
+        27.2,
+        32.9,
+        32.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 174.8,
+      "p95Ms": 201,
+      "minMs": 174.7,
+      "maxMs": 201,
+      "rawMs": [
+        201,
+        174.7,
+        174.8
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 132.3,
+      "p95Ms": 160.4,
+      "minMs": 121.4,
+      "maxMs": 160.4,
+      "rawMs": [
+        132.3,
+        160.4,
+        121.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30,
+      "p95Ms": 32.1,
+      "minMs": 27.8,
+      "maxMs": 32.1,
+      "rawMs": [
+        27.8,
+        30,
+        32.1
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.6,
+      "p95Ms": 33.1,
+      "minMs": 31,
+      "maxMs": 33.1,
+      "rawMs": [
+        33.1,
+        31.6,
+        31
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 171.2,
+      "p95Ms": 184.4,
+      "minMs": 169.4,
+      "maxMs": 184.4,
+      "rawMs": [
+        184.4,
+        171.2,
+        169.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 25.9,
+      "p95Ms": 31.8,
+      "minMs": 19.6,
+      "maxMs": 31.8,
+      "rawMs": [
+        31.8,
+        25.9,
+        19.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 138.7,
+      "p95Ms": 140.4,
+      "minMs": 133.6,
+      "maxMs": 140.4,
+      "rawMs": [
+        140.4,
+        138.7,
+        133.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.9,
+      "p95Ms": 40.1,
+      "minMs": 24.9,
+      "maxMs": 40.1,
+      "rawMs": [
+        40.1,
+        24.9,
+        27.9
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 143.7,
+      "p95Ms": 179.5,
+      "minMs": 126.6,
+      "maxMs": 179.5,
+      "rawMs": [
+        179.5,
+        126.6,
+        143.7
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 151.3,
+      "p95Ms": 151.3,
+      "minMs": 151.3,
+      "maxMs": 151.3,
+      "rawMs": [
+        151.3
+      ],
+      "targetMs": 500,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "lines": 5000,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 66.6,
+      "p95Ms": 72.6,
+      "minMs": 56.8,
+      "maxMs": 72.6,
+      "rawMs": [
+        72.6,
+        56.8,
+        66.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 105.6,
+      "p95Ms": 105.6,
+      "minMs": 105.6,
+      "maxMs": 105.6,
+      "rawMs": [
+        105.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 68.7,
+      "p95Ms": 68.7,
+      "minMs": 68.7,
+      "maxMs": 68.7,
+      "rawMs": [
+        68.7
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 38.3,
+      "p95Ms": 177.8,
+      "minMs": 36.1,
+      "maxMs": 177.8,
+      "rawMs": [
+        36.1,
+        177.8,
+        38.3
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.1,
+      "p95Ms": 28.4,
+      "minMs": 21.2,
+      "maxMs": 28.4,
+      "rawMs": [
+        27.1,
+        21.2,
+        28.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.5,
+      "p95Ms": 32.4,
+      "minMs": 30.5,
+      "maxMs": 32.4,
+      "rawMs": [
+        32.4,
+        30.5,
+        30.5
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.6,
+      "p95Ms": 30.8,
+      "minMs": 30.2,
+      "maxMs": 30.8,
+      "rawMs": [
+        30.6,
+        30.2,
+        30.8
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31,
+      "p95Ms": 31.5,
+      "minMs": 30.6,
+      "maxMs": 31.5,
+      "rawMs": [
+        31.5,
+        30.6,
+        31
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 49.7,
+      "p95Ms": 86.8,
+      "minMs": 22.7,
+      "maxMs": 86.8,
+      "rawMs": [
+        49.7,
+        86.8,
+        22.7
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.scroll-every-row-group",
+      "group": "browser",
+      "samples": 98,
+      "medianMs": 103.1,
+      "p95Ms": 139.6,
+      "minMs": 65,
+      "maxMs": 199.7,
+      "rawMs": [
+        160.2,
+        103.9,
+        79.7,
+        101.2,
+        128,
+        102,
+        81.8,
+        77.4,
+        73.9,
+        66.3,
+        94.6,
+        99.4,
+        139.6,
+        140.8,
+        103.1,
+        65,
+        80.2,
+        96.5,
+        79.1,
+        90,
+        80,
+        69.2,
+        90.1,
+        76,
+        91.8,
+        86.9,
+        106.2,
+        121.9,
+        113.1,
+        102.3,
+        84.3,
+        78.3,
+        75.1,
+        100.8,
+        99.6,
+        86.1,
+        104.5,
+        96.8,
+        103.4,
+        113.2,
+        93.1,
+        75.2,
+        99.5,
+        89,
+        94,
+        113.8,
+        99.1,
+        103.8,
+        115.3,
+        102,
+        74.9,
+        100.8,
+        100.6,
+        79.3,
+        106.7,
+        110.1,
+        110.1,
+        117.4,
+        101.9,
+        103.1,
+        79.8,
+        103.4,
+        112.4,
+        76.1,
+        106.9,
+        94.1,
+        98.9,
+        101.6,
+        96,
+        77.7,
+        111.1,
+        115.5,
+        112,
+        111.4,
+        111.4,
+        118.1,
+        115.7,
+        109.6,
+        120.7,
+        131,
+        130.9,
+        111.2,
+        109.3,
+        104.2,
+        129,
+        123.9,
+        127.3,
+        125.6,
+        131.3,
+        127.7,
+        94.2,
+        127,
+        127.9,
+        142.3,
+        132,
+        124.1,
+        129.4,
+        199.7
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.wrap-after-full-scroll",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 271.4,
+      "p95Ms": 367.5,
+      "minMs": 238.6,
+      "maxMs": 367.5,
+      "rawMs": [
+        271.4,
+        367.5,
+        238.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-open-after-full-scroll",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 167.4,
+      "p95Ms": 184.6,
+      "minMs": 158.9,
+      "maxMs": 184.6,
+      "rawMs": [
+        184.6,
+        158.9,
+        167.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-save-after-full-scroll",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 189.6,
+      "p95Ms": 189.6,
+      "minMs": 189.6,
+      "maxMs": 189.6,
+      "rawMs": [
+        189.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 599.7,
+      "p95Ms": 944,
+      "minMs": 564.3,
+      "maxMs": 944,
+      "rawMs": [
+        944,
+        564.3,
+        599.7
+      ],
+      "targetMs": 2000,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.8,
+      "p95Ms": 29.3,
+      "minMs": 24.7,
+      "maxMs": 29.3,
+      "rawMs": [
+        24.7,
+        28.8,
+        29.3
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.layer-staged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 41.5,
+      "p95Ms": 43.3,
+      "minMs": 31.9,
+      "maxMs": 43.3,
+      "rawMs": [
+        41.5,
+        43.3,
+        31.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.layer-unstaged",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.2,
+      "p95Ms": 31.3,
+      "minMs": 26.7,
+      "maxMs": 31.3,
+      "rawMs": [
+        26.7,
+        28.2,
+        31.3
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.layer-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 33,
+      "p95Ms": 36.5,
+      "minMs": 32,
+      "maxMs": 36.5,
+      "rawMs": [
+        33,
+        36.5,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.context-lines",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29.3,
+      "p95Ms": 32.5,
+      "minMs": 28.6,
+      "maxMs": 32.5,
+      "rawMs": [
+        28.6,
+        29.3,
+        32.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.refresh-stashes",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.6,
+      "p95Ms": 32.7,
+      "minMs": 31,
+      "maxMs": 32.7,
+      "rawMs": [
+        31.6,
+        32.7,
+        31
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.8,
+      "p95Ms": 32.6,
+      "minMs": 31.5,
+      "maxMs": 32.6,
+      "rawMs": [
+        31.5,
+        32.6,
+        31.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 38.7,
+      "p95Ms": 42.6,
+      "minMs": 37.9,
+      "maxMs": 42.6,
+      "rawMs": [
+        38.7,
+        37.9,
+        42.6
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.3,
+      "p95Ms": 38.1,
+      "minMs": 29.2,
+      "maxMs": 38.1,
+      "rawMs": [
+        38.1,
+        31.3,
+        29.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 37.2,
+      "p95Ms": 56.3,
+      "minMs": 36.6,
+      "maxMs": 56.3,
+      "rawMs": [
+        56.3,
+        36.6,
+        37.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 44.9,
+      "p95Ms": 48.5,
+      "minMs": 44.5,
+      "maxMs": 48.5,
+      "rawMs": [
+        44.9,
+        44.5,
+        48.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 24.6,
+      "p95Ms": 28.9,
+      "minMs": 19.4,
+      "maxMs": 28.9,
+      "rawMs": [
+        24.6,
+        19.4,
+        28.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 45.9,
+      "p95Ms": 53.3,
+      "minMs": 40.1,
+      "maxMs": 53.3,
+      "rawMs": [
+        53.3,
+        40.1,
+        45.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 51.9,
+      "p95Ms": 54.7,
+      "minMs": 51,
+      "maxMs": 54.7,
+      "rawMs": [
+        54.7,
+        51.9,
+        51
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 63.7,
+      "p95Ms": 67.3,
+      "minMs": 60.5,
+      "maxMs": 67.3,
+      "rawMs": [
+        63.7,
+        67.3,
+        60.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 174.7,
+      "p95Ms": 189.4,
+      "minMs": 164.4,
+      "maxMs": 189.4,
+      "rawMs": [
+        164.4,
+        174.7,
+        189.4
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 78.5,
+      "p95Ms": 78.5,
+      "minMs": 78.5,
+      "maxMs": 78.5,
+      "rawMs": [
+        78.5
+      ],
+      "targetMs": 500,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.6,
+      "p95Ms": 33.3,
+      "minMs": 28.9,
+      "maxMs": 33.3,
+      "rawMs": [
+        33.3,
+        32.6,
+        28.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 116.1,
+      "p95Ms": 116.1,
+      "minMs": 116.1,
+      "maxMs": 116.1,
+      "rawMs": [
+        116.1
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 86.5,
+      "p95Ms": 86.5,
+      "minMs": 86.5,
+      "maxMs": 86.5,
+      "rawMs": [
+        86.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 121.4,
+      "p95Ms": 123.3,
+      "minMs": 112.8,
+      "maxMs": 123.3,
+      "rawMs": [
+        123.3,
+        121.4,
+        112.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.7,
+      "p95Ms": 38.5,
+      "minMs": 29.4,
+      "maxMs": 38.5,
+      "rawMs": [
+        38.5,
+        29.4,
+        31.7
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.6,
+      "p95Ms": 31.4,
+      "minMs": 30.5,
+      "maxMs": 31.4,
+      "rawMs": [
+        30.5,
+        31.4,
+        30.6
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.8,
+      "p95Ms": 32.9,
+      "minMs": 31.6,
+      "maxMs": 32.9,
+      "rawMs": [
+        31.6,
+        32.8,
+        32.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.5,
+      "p95Ms": 31.8,
+      "minMs": 31.4,
+      "maxMs": 31.8,
+      "rawMs": [
+        31.5,
+        31.4,
+        31.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.scroll-to-last-code",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 24.1,
+      "p95Ms": 30.1,
+      "minMs": 12,
+      "maxMs": 30.1,
+      "rawMs": [
+        30.1,
+        12,
+        24.1
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Production browser: initial paint, layer/layout/scope switching, stash/file search, navigation, full context, collapse, annotation save/resolve, viewed progress, clipboard/Markdown/export, six embeds, repeated mount/unmount and heap, 1x/4x CPU."
+  ],
+  "memory": [
+    {
+      "name": "ui.typical.4x.end",
+      "heapMiB": 5.33,
+      "domNodes": 974,
+      "codeRows": 9,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 4,
+        "stashes": 4,
+        "diff": 31,
+        "source": 32,
+        "saves": 6,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 159.90000000037253,
+          "duration": 89
+        },
+        {
+          "start": 249.90000000037253,
+          "duration": 127
+        },
+        {
+          "start": 445.5,
+          "duration": 97
+        },
+        {
+          "start": 562.0999999996275,
+          "duration": 101
+        },
+        {
+          "start": 695.4000000003725,
+          "duration": 103
+        },
+        {
+          "start": 884.9000000003725,
+          "duration": 64
+        },
+        {
+          "start": 949.7999999988824,
+          "duration": 97
+        },
+        {
+          "start": 1072.2999999988824,
+          "duration": 61
+        },
+        {
+          "start": 1153.5,
+          "duration": 120
+        },
+        {
+          "start": 1305.0999999996275,
+          "duration": 53
+        },
+        {
+          "start": 1358.9000000003725,
+          "duration": 78
+        },
+        {
+          "start": 1481.4000000003725,
+          "duration": 62
+        },
+        {
+          "start": 1566.5999999996275,
+          "duration": 114
+        },
+        {
+          "start": 1710.5,
+          "duration": 51
+        },
+        {
+          "start": 1761.9000000003725,
+          "duration": 98
+        },
+        {
+          "start": 1907,
+          "duration": 60
+        },
+        {
+          "start": 1967.7999999988824,
+          "duration": 118
+        },
+        {
+          "start": 2126.7999999988824,
+          "duration": 61
+        },
+        {
+          "start": 2188.5999999996275,
+          "duration": 140
+        },
+        {
+          "start": 2362.2999999988824,
+          "duration": 73
+        },
+        {
+          "start": 2435.699999999255,
+          "duration": 110
+        },
+        {
+          "start": 2630,
+          "duration": 98
+        },
+        {
+          "start": 2764.5,
+          "duration": 57
+        },
+        {
+          "start": 2822.199999999255,
+          "duration": 117
+        },
+        {
+          "start": 2978.7999999988824,
+          "duration": 58
+        },
+        {
+          "start": 3037.0999999996275,
+          "duration": 102
+        },
+        {
+          "start": 3172.5999999996275,
+          "duration": 57
+        },
+        {
+          "start": 3229.5999999996275,
+          "duration": 108
+        },
+        {
+          "start": 3369.2999999988824,
+          "duration": 65
+        },
+        {
+          "start": 3435,
+          "duration": 115
+        },
+        {
+          "start": 3588.5,
+          "duration": 58
+        },
+        {
+          "start": 3647.2999999988824,
+          "duration": 147
+        },
+        {
+          "start": 3850,
+          "duration": 64
+        },
+        {
+          "start": 3914.4000000003725,
+          "duration": 100
+        },
+        {
+          "start": 4101.199999999255,
+          "duration": 89
+        },
+        {
+          "start": 4229.199999999255,
+          "duration": 59
+        },
+        {
+          "start": 4311,
+          "duration": 103
+        },
+        {
+          "start": 4858.799999998882,
+          "duration": 119
+        },
+        {
+          "start": 5031.299999998882,
+          "duration": 55
+        },
+        {
+          "start": 5087,
+          "duration": 98
+        },
+        {
+          "start": 7754.699999999255,
+          "duration": 127
+        },
+        {
+          "start": 7952.5999999996275,
+          "duration": 55
+        },
+        {
+          "start": 8008,
+          "duration": 102
+        },
+        {
+          "start": 8191.5999999996275,
+          "duration": 53
+        },
+        {
+          "start": 8244.699999999255,
+          "duration": 114
+        },
+        {
+          "start": 8493.900000000373,
+          "duration": 51
+        },
+        {
+          "start": 8544.900000000373,
+          "duration": 113
+        },
+        {
+          "start": 8669.699999999255,
+          "duration": 61
+        },
+        {
+          "start": 8879.099999999627,
+          "duration": 95
+        },
+        {
+          "start": 9098.900000000373,
+          "duration": 106
+        },
+        {
+          "start": 9298.5,
+          "duration": 53
+        }
+      ]
+    },
+    {
+      "name": "ui.many-files.4x.end",
+      "heapMiB": 11.43,
+      "domNodes": 4193,
+      "codeRows": 9,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 4,
+        "stashes": 4,
+        "diff": 31,
+        "source": 32,
+        "saves": 6,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 235.7000000011176,
+          "duration": 128
+        },
+        {
+          "start": 364.5,
+          "duration": 101
+        },
+        {
+          "start": 542.5,
+          "duration": 60
+        },
+        {
+          "start": 632,
+          "duration": 50
+        },
+        {
+          "start": 1338.5,
+          "duration": 54
+        },
+        {
+          "start": 1638.800000000745,
+          "duration": 56
+        },
+        {
+          "start": 1696.2000000011176,
+          "duration": 53
+        },
+        {
+          "start": 1830.5999999996275,
+          "duration": 53
+        },
+        {
+          "start": 2026,
+          "duration": 53
+        },
+        {
+          "start": 2155.300000000745,
+          "duration": 62
+        },
+        {
+          "start": 2358.5999999996275,
+          "duration": 70
+        },
+        {
+          "start": 2429.0999999996275,
+          "duration": 61
+        },
+        {
+          "start": 2490.5,
+          "duration": 54
+        },
+        {
+          "start": 2654.0999999996275,
+          "duration": 57
+        },
+        {
+          "start": 2812.9000000003725,
+          "duration": 58
+        },
+        {
+          "start": 3096.0999999996275,
+          "duration": 55
+        },
+        {
+          "start": 3151.5999999996275,
+          "duration": 52
+        },
+        {
+          "start": 3204.2000000011176,
+          "duration": 52
+        },
+        {
+          "start": 3290.2000000011176,
+          "duration": 60
+        },
+        {
+          "start": 3364.7000000011176,
+          "duration": 51
+        },
+        {
+          "start": 3616,
+          "duration": 58
+        },
+        {
+          "start": 3675.5999999996275,
+          "duration": 52
+        },
+        {
+          "start": 3914.300000000745,
+          "duration": 57
+        },
+        {
+          "start": 3972.5999999996275,
+          "duration": 61
+        },
+        {
+          "start": 4034.2000000011176,
+          "duration": 58
+        },
+        {
+          "start": 4139.5999999996275,
+          "duration": 57
+        },
+        {
+          "start": 4398.300000000745,
+          "duration": 52
+        },
+        {
+          "start": 4840.5999999996275,
+          "duration": 58
+        },
+        {
+          "start": 5020.0999999996275,
+          "duration": 58
+        },
+        {
+          "start": 5835.700000001118,
+          "duration": 54
+        },
+        {
+          "start": 6019,
+          "duration": 53
+        },
+        {
+          "start": 7370,
+          "duration": 50
+        },
+        {
+          "start": 7819.5999999996275,
+          "duration": 53
+        },
+        {
+          "start": 8023.200000001118,
+          "duration": 50
+        },
+        {
+          "start": 8137.800000000745,
+          "duration": 59
+        },
+        {
+          "start": 8371.800000000745,
+          "duration": 70
+        },
+        {
+          "start": 8442.300000000745,
+          "duration": 70
+        },
+        {
+          "start": 8620.800000000745,
+          "duration": 71
+        },
+        {
+          "start": 8692,
+          "duration": 90
+        },
+        {
+          "start": 8917.099999999627,
+          "duration": 66
+        },
+        {
+          "start": 8984.400000000373,
+          "duration": 78
+        },
+        {
+          "start": 9179.200000001118,
+          "duration": 68
+        },
+        {
+          "start": 9247.900000000373,
+          "duration": 66
+        },
+        {
+          "start": 9433.400000000373,
+          "duration": 75
+        },
+        {
+          "start": 9509.400000000373,
+          "duration": 80
+        },
+        {
+          "start": 9597.700000001118,
+          "duration": 51
+        },
+        {
+          "start": 9995.800000000745,
+          "duration": 69
+        },
+        {
+          "start": 10065.5,
+          "duration": 70
+        },
+        {
+          "start": 10230.400000000373,
+          "duration": 68
+        },
+        {
+          "start": 10299.200000001118,
+          "duration": 71
+        },
+        {
+          "start": 10484.5,
+          "duration": 75
+        },
+        {
+          "start": 10560.099999999627,
+          "duration": 67
+        },
+        {
+          "start": 10731.599999999627,
+          "duration": 96
+        },
+        {
+          "start": 10828,
+          "duration": 75
+        },
+        {
+          "start": 11002.200000001118,
+          "duration": 77
+        },
+        {
+          "start": 11079.5,
+          "duration": 76
+        },
+        {
+          "start": 11314.400000000373,
+          "duration": 60
+        },
+        {
+          "start": 11415,
+          "duration": 106
+        },
+        {
+          "start": 11521.800000000745,
+          "duration": 64
+        },
+        {
+          "start": 11587.200000001118,
+          "duration": 87
+        },
+        {
+          "start": 11678.300000000745,
+          "duration": 59
+        },
+        {
+          "start": 11768,
+          "duration": 103
+        },
+        {
+          "start": 11872.200000001118,
+          "duration": 81
+        },
+        {
+          "start": 11977.099999999627,
+          "duration": 150
+        },
+        {
+          "start": 12131.099999999627,
+          "duration": 118
+        },
+        {
+          "start": 12278.599999999627,
+          "duration": 170
+        },
+        {
+          "start": 12455.400000000373,
+          "duration": 81
+        },
+        {
+          "start": 12565.700000001118,
+          "duration": 160
+        },
+        {
+          "start": 12731.800000000745,
+          "duration": 94
+        },
+        {
+          "start": 12836.200000001118,
+          "duration": 89
+        },
+        {
+          "start": 12959.300000000745,
+          "duration": 155
+        },
+        {
+          "start": 13115.800000000745,
+          "duration": 92
+        },
+        {
+          "start": 13240.400000000373,
+          "duration": 157
+        },
+        {
+          "start": 13398.300000000745,
+          "duration": 94
+        },
+        {
+          "start": 13517.200000001118,
+          "duration": 159
+        },
+        {
+          "start": 13685.400000000373,
+          "duration": 107
+        },
+        {
+          "start": 13815.400000000373,
+          "duration": 174
+        },
+        {
+          "start": 13997.300000000745,
+          "duration": 103
+        },
+        {
+          "start": 14121.5,
+          "duration": 180
+        },
+        {
+          "start": 14314.200000001118,
+          "duration": 115
+        }
+      ]
+    },
+    {
+      "name": "ui.dense-large-file.4x.end",
+      "heapMiB": 42.39,
+      "domNodes": 110813,
+      "codeRows": 10000,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 4,
+        "stashes": 4,
+        "diff": 31,
+        "source": 31,
+        "saves": 7,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 348.8999999985099,
+          "duration": 53
+        },
+        {
+          "start": 490.19999999925494,
+          "duration": 64
+        },
+        {
+          "start": 659.2999999988824,
+          "duration": 66
+        },
+        {
+          "start": 864.6999999992549,
+          "duration": 92
+        },
+        {
+          "start": 1054.699999999255,
+          "duration": 91
+        },
+        {
+          "start": 1232,
+          "duration": 91
+        },
+        {
+          "start": 1415.2999999988824,
+          "duration": 89
+        },
+        {
+          "start": 1595,
+          "duration": 104
+        },
+        {
+          "start": 1786.199999999255,
+          "duration": 117
+        },
+        {
+          "start": 2003.699999999255,
+          "duration": 95
+        },
+        {
+          "start": 2198.699999999255,
+          "duration": 114
+        },
+        {
+          "start": 2427.0999999996275,
+          "duration": 114
+        },
+        {
+          "start": 2626.699999999255,
+          "duration": 124
+        },
+        {
+          "start": 2855.89999999851,
+          "duration": 96
+        },
+        {
+          "start": 3053.39999999851,
+          "duration": 107
+        },
+        {
+          "start": 3268.89999999851,
+          "duration": 105
+        },
+        {
+          "start": 3475.89999999851,
+          "duration": 120
+        },
+        {
+          "start": 3693.5999999996275,
+          "duration": 87
+        },
+        {
+          "start": 3855.5999999996275,
+          "duration": 90
+        },
+        {
+          "start": 4041.699999999255,
+          "duration": 112
+        },
+        {
+          "start": 4706.89999999851,
+          "duration": 181
+        },
+        {
+          "start": 4948.199999999255,
+          "duration": 90
+        },
+        {
+          "start": 5101.5999999996275,
+          "duration": 156
+        },
+        {
+          "start": 5320.89999999851,
+          "duration": 106
+        },
+        {
+          "start": 5500.5,
+          "duration": 151
+        },
+        {
+          "start": 5738.799999998882,
+          "duration": 99
+        },
+        {
+          "start": 5908.199999999255,
+          "duration": 165
+        },
+        {
+          "start": 6155.799999998882,
+          "duration": 101
+        },
+        {
+          "start": 6333.299999998882,
+          "duration": 116
+        },
+        {
+          "start": 6503.799999998882,
+          "duration": 94
+        },
+        {
+          "start": 7137.0999999996275,
+          "duration": 100
+        },
+        {
+          "start": 7371.799999998882,
+          "duration": 120
+        },
+        {
+          "start": 7618.89999999851,
+          "duration": 84
+        },
+        {
+          "start": 7795.799999998882,
+          "duration": 100
+        },
+        {
+          "start": 8013.39999999851,
+          "duration": 89
+        },
+        {
+          "start": 8212,
+          "duration": 96
+        },
+        {
+          "start": 8483.299999998882,
+          "duration": 95
+        },
+        {
+          "start": 8705.199999999255,
+          "duration": 111
+        },
+        {
+          "start": 8924.89999999851,
+          "duration": 100
+        },
+        {
+          "start": 9116.199999999255,
+          "duration": 97
+        },
+        {
+          "start": 9304.5,
+          "duration": 87
+        },
+        {
+          "start": 9528.39999999851,
+          "duration": 121
+        },
+        {
+          "start": 9736.599999999627,
+          "duration": 109
+        },
+        {
+          "start": 9955.699999999255,
+          "duration": 127
+        },
+        {
+          "start": 10158.39999999851,
+          "duration": 101
+        },
+        {
+          "start": 10360.599999999627,
+          "duration": 113
+        },
+        {
+          "start": 10604.099999999627,
+          "duration": 100
+        },
+        {
+          "start": 10769.199999999255,
+          "duration": 113
+        },
+        {
+          "start": 11600.599999999627,
+          "duration": 123
+        },
+        {
+          "start": 12582.099999999627,
+          "duration": 138
+        },
+        {
+          "start": 12758.599999999627,
+          "duration": 74
+        },
+        {
+          "start": 12863.5,
+          "duration": 59
+        },
+        {
+          "start": 13139.299999998882,
+          "duration": 76
+        },
+        {
+          "start": 13297.199999999255,
+          "duration": 66
+        },
+        {
+          "start": 13413.099999999627,
+          "duration": 72
+        },
+        {
+          "start": 13552.699999999255,
+          "duration": 85
+        },
+        {
+          "start": 13718,
+          "duration": 111
+        },
+        {
+          "start": 13905.89999999851,
+          "duration": 66
+        },
+        {
+          "start": 14029.099999999627,
+          "duration": 69
+        },
+        {
+          "start": 14157.299999998882,
+          "duration": 58
+        },
+        {
+          "start": 14273.599999999627,
+          "duration": 55
+        },
+        {
+          "start": 14372.599999999627,
+          "duration": 65
+        },
+        {
+          "start": 14504,
+          "duration": 73
+        },
+        {
+          "start": 14658.699999999255,
+          "duration": 69
+        },
+        {
+          "start": 14834.799999998882,
+          "duration": 98
+        },
+        {
+          "start": 15062.599999999627,
+          "duration": 85
+        },
+        {
+          "start": 15230,
+          "duration": 85
+        },
+        {
+          "start": 15373.89999999851,
+          "duration": 63
+        },
+        {
+          "start": 15509.89999999851,
+          "duration": 61
+        },
+        {
+          "start": 15654.299999998882,
+          "duration": 65
+        },
+        {
+          "start": 15791.599999999627,
+          "duration": 61
+        },
+        {
+          "start": 15937.799999998882,
+          "duration": 63
+        },
+        {
+          "start": 16077.099999999627,
+          "duration": 65
+        },
+        {
+          "start": 16206.199999999255,
+          "duration": 67
+        },
+        {
+          "start": 16360,
+          "duration": 59
+        },
+        {
+          "start": 16489.39999999851,
+          "duration": 71
+        },
+        {
+          "start": 16645.39999999851,
+          "duration": 70
+        },
+        {
+          "start": 16796.799999998882,
+          "duration": 63
+        },
+        {
+          "start": 16963.599999999627,
+          "duration": 65
+        },
+        {
+          "start": 17152.299999998882,
+          "duration": 74
+        },
+        {
+          "start": 17342.5,
+          "duration": 77
+        },
+        {
+          "start": 17534.799999998882,
+          "duration": 74
+        },
+        {
+          "start": 17691.599999999627,
+          "duration": 76
+        },
+        {
+          "start": 17857.099999999627,
+          "duration": 60
+        },
+        {
+          "start": 18006.099999999627,
+          "duration": 73
+        },
+        {
+          "start": 18179.599999999627,
+          "duration": 80
+        },
+        {
+          "start": 18370.799999998882,
+          "duration": 64
+        },
+        {
+          "start": 18544.199999999255,
+          "duration": 77
+        },
+        {
+          "start": 18759.5,
+          "duration": 59
+        },
+        {
+          "start": 18925.099999999627,
+          "duration": 61
+        },
+        {
+          "start": 19099.699999999255,
+          "duration": 67
+        },
+        {
+          "start": 19292.799999998882,
+          "duration": 66
+        },
+        {
+          "start": 19473.199999999255,
+          "duration": 60
+        },
+        {
+          "start": 19626.5,
+          "duration": 65
+        },
+        {
+          "start": 19812.39999999851,
+          "duration": 61
+        },
+        {
+          "start": 19993.099999999627,
+          "duration": 59
+        },
+        {
+          "start": 20172,
+          "duration": 62
+        },
+        {
+          "start": 20366.099999999627,
+          "duration": 67
+        },
+        {
+          "start": 20570.799999998882,
+          "duration": 63
+        },
+        {
+          "start": 20765.799999998882,
+          "duration": 70
+        },
+        {
+          "start": 20987,
+          "duration": 63
+        },
+        {
+          "start": 21193.299999998882,
+          "duration": 59
+        },
+        {
+          "start": 21353.699999999255,
+          "duration": 76
+        },
+        {
+          "start": 21562.799999998882,
+          "duration": 65
+        },
+        {
+          "start": 21750.799999998882,
+          "duration": 73
+        },
+        {
+          "start": 21937.39999999851,
+          "duration": 67
+        },
+        {
+          "start": 22145.89999999851,
+          "duration": 67
+        },
+        {
+          "start": 22367.099999999627,
+          "duration": 62
+        },
+        {
+          "start": 22580.599999999627,
+          "duration": 71
+        },
+        {
+          "start": 22836.699999999255,
+          "duration": 67
+        },
+        {
+          "start": 23056.5,
+          "duration": 65
+        },
+        {
+          "start": 23276.099999999627,
+          "duration": 64
+        },
+        {
+          "start": 23468.39999999851,
+          "duration": 69
+        },
+        {
+          "start": 23707.5,
+          "duration": 60
+        },
+        {
+          "start": 23944.799999998882,
+          "duration": 62
+        },
+        {
+          "start": 24139.599999999627,
+          "duration": 64
+        },
+        {
+          "start": 24363.299999998882,
+          "duration": 68
+        },
+        {
+          "start": 24573.89999999851,
+          "duration": 83
+        },
+        {
+          "start": 24829.299999998882,
+          "duration": 60
+        },
+        {
+          "start": 25049,
+          "duration": 61
+        },
+        {
+          "start": 25264.199999999255,
+          "duration": 60
+        },
+        {
+          "start": 25457.199999999255,
+          "duration": 67
+        },
+        {
+          "start": 25691.299999998882,
+          "duration": 73
+        },
+        {
+          "start": 25950.799999998882,
+          "duration": 64
+        },
+        {
+          "start": 26201.89999999851,
+          "duration": 68
+        },
+        {
+          "start": 26448.699999999255,
+          "duration": 63
+        },
+        {
+          "start": 26693.199999999255,
+          "duration": 63
+        },
+        {
+          "start": 26945.599999999627,
+          "duration": 68
+        },
+        {
+          "start": 27198,
+          "duration": 66
+        },
+        {
+          "start": 27444.699999999255,
+          "duration": 64
+        },
+        {
+          "start": 27698.299999998882,
+          "duration": 67
+        },
+        {
+          "start": 27970.799999998882,
+          "duration": 71
+        },
+        {
+          "start": 28250.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 28510.699999999255,
+          "duration": 64
+        },
+        {
+          "start": 28773.5,
+          "duration": 63
+        },
+        {
+          "start": 29012.599999999627,
+          "duration": 81
+        },
+        {
+          "start": 29311.299999998882,
+          "duration": 72
+        },
+        {
+          "start": 29593.199999999255,
+          "duration": 70
+        },
+        {
+          "start": 29871.799999998882,
+          "duration": 71
+        },
+        {
+          "start": 30161.699999999255,
+          "duration": 72
+        },
+        {
+          "start": 30449.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 30748.699999999255,
+          "duration": 68
+        },
+        {
+          "start": 31003.699999999255,
+          "duration": 84
+        },
+        {
+          "start": 31323.599999999627,
+          "duration": 70
+        },
+        {
+          "start": 31634,
+          "duration": 72
+        },
+        {
+          "start": 31945.099999999627,
+          "duration": 75
+        },
+        {
+          "start": 32240.39999999851,
+          "duration": 81
+        },
+        {
+          "start": 32543.5,
+          "duration": 68
+        },
+        {
+          "start": 32836.29999999888,
+          "duration": 70
+        },
+        {
+          "start": 33187.09999999963,
+          "duration": 91
+        },
+        {
+          "start": 33626.89999999851,
+          "duration": 227
+        },
+        {
+          "start": 33897.5,
+          "duration": 318
+        },
+        {
+          "start": 34282.79999999888,
+          "duration": 187
+        },
+        {
+          "start": 34474.5,
+          "duration": 106
+        },
+        {
+          "start": 34727.89999999851,
+          "duration": 129
+        },
+        {
+          "start": 34927.5,
+          "duration": 53
+        },
+        {
+          "start": 34981.199999999255,
+          "duration": 113
+        },
+        {
+          "start": 35152.59999999963,
+          "duration": 102
+        },
+        {
+          "start": 35314.199999999255,
+          "duration": 57
+        },
+        {
+          "start": 35371.89999999851,
+          "duration": 160
+        },
+        {
+          "start": 35565.39999999851,
+          "duration": 114
+        },
+        {
+          "start": 35842.09999999963,
+          "duration": 122
+        }
+      ]
+    },
+    {
+      "name": "ui.multi-embed.4x.end",
+      "heapMiB": 8.51,
+      "domNodes": 5848,
+      "codeRows": 54,
+      "listeners": 6,
+      "hostReads": {
+        "repositories": 9,
+        "stashes": 9,
+        "diff": 30,
+        "source": 31,
+        "saves": 6,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 166.09999999962747,
+          "duration": 79
+        },
+        {
+          "start": 245.7999999988824,
+          "duration": 66
+        },
+        {
+          "start": 318.2999999988824,
+          "duration": 136
+        },
+        {
+          "start": 455.09999999962747,
+          "duration": 74
+        },
+        {
+          "start": 1597.4000000003725,
+          "duration": 67
+        },
+        {
+          "start": 1665,
+          "duration": 129
+        },
+        {
+          "start": 1883.199999999255,
+          "duration": 109
+        },
+        {
+          "start": 2031.699999999255,
+          "duration": 56
+        },
+        {
+          "start": 2087.7999999988824,
+          "duration": 110
+        },
+        {
+          "start": 3997.0999999996275,
+          "duration": 58
+        },
+        {
+          "start": 4055.5,
+          "duration": 142
+        },
+        {
+          "start": 4272.0999999996275,
+          "duration": 51
+        },
+        {
+          "start": 4323.199999999255,
+          "duration": 115
+        },
+        {
+          "start": 4585,
+          "duration": 113
+        },
+        {
+          "start": 4865.9000000003725,
+          "duration": 112
+        },
+        {
+          "start": 5099.799999998882,
+          "duration": 118
+        },
+        {
+          "start": 5310.4000000003725,
+          "duration": 54
+        },
+        {
+          "start": 5364.9000000003725,
+          "duration": 114
+        },
+        {
+          "start": 5573.4000000003725,
+          "duration": 55
+        },
+        {
+          "start": 5879,
+          "duration": 62
+        },
+        {
+          "start": 6102.5999999996275,
+          "duration": 69
+        },
+        {
+          "start": 6235.0999999996275,
+          "duration": 61
+        },
+        {
+          "start": 6367.199999999255,
+          "duration": 63
+        },
+        {
+          "start": 7214.5,
+          "duration": 62
+        }
+      ]
+    }
+  ],
+  "browserBundle": {
+    "sha256": "558c351471e2e1bde42355e849cb2ee139d0433df6e6fe59fd06189204f99e6f",
+    "bytes": 488302,
+    "gzipBytes": 153168,
+    "brotliBytes": 124377
+  },
+  "completedAt": "2026-10-12T12:52:07.239Z"
+}

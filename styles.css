@@ -184,10 +184,12 @@
 .sr-app .sr-tree-tools button:hover { color: var(--sr-text); background: var(--sr-hover); }
 .sr-tree-items { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--sr-border) transparent; padding: 2px 2px 10px; }
 .sr-app .sr-tree-item { display: flex; gap: 5px; align-items: center; width: 100%; min-height: 31px; padding: 5px 4px 5px calc(4px + var(--sr-tree-depth, 0) * 13px); background: transparent; border: 0; border-radius: 4px; text-align: left; font-size: 12px; position: relative; }
+.sr-tree-item-body { display: flex; flex: 1; align-items: center; gap: 5px; min-height: 21px; }
+.sr-tree-item-body > .sr-deferred-placeholder { pointer-events: none; }
 .sr-app .sr-tree-item:hover { background: var(--sr-hover); }
 .sr-app .sr-tree-item.sr-active { color: var(--sr-accent); background: var(--sr-accent-bg); box-shadow: inset 2px 0 0 var(--sr-accent); }
 .sr-tree-chevron { width: 12px; height: 16px; display: inline-flex; align-items: center; justify-content: center; color: var(--sr-muted); flex-shrink: 0; }
-.sr-tree-folder > .sr-tree-icon { color: var(--sr-accent); fill: color-mix(in srgb, var(--sr-accent) 18%, transparent); }
+.sr-tree-folder .sr-tree-item-body > .sr-tree-icon { color: var(--sr-accent); fill: color-mix(in srgb, var(--sr-accent) 18%, transparent); }
 .sr-tree-icon { color: var(--sr-muted); }
 .sr-tree-icon.sr-status-modified { color: var(--sr-yellow); }
 .sr-tree-icon.sr-status-added, .sr-tree-icon.sr-status-untracked { color: var(--sr-green); }

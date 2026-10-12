@@ -40,7 +40,7 @@ export function escapeHtml(value: string): string {
 // Every HTML fragment originates from highlight.js or the escaping fallback.
 const syntaxCache = new Map<string, string[]>();
 let syntaxCacheSize = 0;
-const MAX_HIGHLIGHT_CHARS = 200_000;
+const MAX_HIGHLIGHT_CHARS = 100_000;
 const MAX_CACHE_CHARS = 2_000_000;
 export function highlightedLines(source: string, path: string): string[] {
   source = source.replace(/\r\n/g, '\n');

@@ -6,7 +6,7 @@ import {createServer} from 'node:http';
 import {createRequire, builtinModules} from 'node:module';
 import {cpus, tmpdir, totalmem, platform, release} from 'node:os';
 import {basename, dirname, join, relative, resolve, sep} from 'node:path';
-import {mkdtemp, mkdir, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdtemp, mkdir, readFile, rename, rm, writeFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {gzipSync, brotliCompressSync} from 'node:zlib';
 import {build} from 'esbuild';
@@ -63,7 +63,17 @@ const report = {
   startedAt: new Date().toISOString(), metrics: [], browserErrors: [], coverage: [], memory: []
 };
 await mkdir(dirname(output), {recursive: true});
-async function checkpoint() {await writeFile(output, JSON.stringify(report, null, 2) + '\n', 'utf8');}
+async function checkpoint() {
+  const pending = output + '.pending';
+  await writeFile(pending, JSON.stringify(report, null, 2) + '\n', 'utf8');
+  for (let attempt = 0; ; attempt++) {
+    try {await rename(pending, output); return;}
+    catch (error) {
+      if (attempt >= 4 || !['EACCES', 'EPERM', 'EBUSY', 'UNKNOWN'].includes(error.code)) throw error;
+      await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1)));
+    }
+  }
+}
 function summary(values) {
   const sorted = [...values].sort((a, b) => a - b);
   const median = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
@@ -266,7 +276,7 @@ async function gitBenchmarks() {
   }
 }
 
-const afterPaint = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+const afterPaint = page => page.evaluate(() => window.benchmark.paint());
 async function browserTiming(page, action, value) {
   return page.evaluate(async ({action, value}) => {
     const app = document.querySelector('.sr-app');
@@ -291,7 +301,7 @@ async function browserTiming(page, action, value) {
       case 'context': {const control = app.querySelector('select[aria-label="Diff context lines"]'); control.value = String(value); control.dispatchEvent(new Event('change', {bubbles: true})); break;}
       case 'refresh': click('Refresh stashes'); break;
       case 'scroll-end': {const region = app.querySelector(value); region.scrollTop = region.scrollHeight; break;}
-      case 'walk-next': app.querySelector('.sr-diff-code .sr-deferred-block > [aria-hidden="true"]')?.parentElement.scrollIntoView({block: 'center', behavior: 'instant'}); break;
+      case 'walk-next': app.querySelector('.sr-diff-code .sr-deferred-placeholder')?.parentElement.scrollIntoView({block: 'center', behavior: 'instant'}); break;
       case 'annotation': app.querySelector('.sr-diff-file button[aria-label="Annotate new line 2"]').click(); break;
       case 'annotation-body': input('Annotation text', value); break;
       case 'save-annotation': app.querySelector('.sr-composer button[type="submit"]').click(); break;
@@ -304,25 +314,8 @@ async function browserTiming(page, action, value) {
       }
       default: throw new Error('Unknown benchmark action: ' + action);
     }
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    for (let frame = 0; frame < 120; frame++) {
-      const pending = [...app.querySelectorAll('.sr-deferred-block > [aria-hidden="true"]')].some(element => {
-        const root = element.closest('.sr-diff-scroll, .sr-annotations-panel, .sr-stash-list');
-        if (!root) return false;
-        const viewport = root.getBoundingClientRect();
-        if (viewport.right <= 0 || viewport.left >= innerWidth || viewport.bottom <= 0 || viewport.top >= innerHeight) return false;
-        const article = element.closest('.sr-diff-file');
-        if (article) {
-          const bounds = article.getBoundingClientRect();
-          if (bounds.bottom < viewport.top || bounds.top > viewport.bottom) return false;
-        }
-        const rect = element.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0 && viewport.height > 0 && rect.bottom >= viewport.top && rect.top <= viewport.bottom;
-      });
-      if (!pending) return performance.now() - start;
-      await new Promise(resolve => requestAnimationFrame(resolve));
-    }
-    throw new Error('Visible deferred content did not finish mounting');
+    await window.benchmark.paint();
+    return performance.now() - start;
   }, {action, value});
 }
 
@@ -357,7 +350,8 @@ async function browserBenchmarks() {
         const startups = Math.min(samples, scenario === 'dense-large-file' || scenario === 'many-files' || scenario === 'many-notes' ? 3 : 5);
         for (let sample = 0; sample < startups; sample++) {
           await page.goto(url + '/?scenario=' + scenario, {waitUntil: 'domcontentloaded'});
-          await page.waitForFunction(() => window.benchmark && document.querySelector('.sr-code') && window.benchmark.host.counts.source > 0, undefined, {timeout: 60_000});
+          const ready = await page.waitForFunction(() => window.benchmark && document.querySelector('.sr-code') && window.benchmark.host.counts.source > 0, undefined, {timeout: 60_000});
+          await ready.dispose();
           await afterPaint(page);
           initial.push(await page.evaluate(() => performance.now()));
         }
@@ -415,10 +409,13 @@ async function browserBenchmarks() {
         await run('scroll-to-last-code', 'scroll-end', '.sr-diff-scroll');
         if (scenario === 'dense-large-file') {
           const steps = [];
-          for (let step = 0; step < 120 && await page.locator('.sr-diff-code .sr-deferred-block > [aria-hidden="true"]').count(); step++) steps.push(await browserTiming(page, 'walk-next'));
-          assert.equal(await page.locator('.sr-diff-code .sr-deferred-block > [aria-hidden="true"]').count(), 0, 'Long-session audit must visit every row group');
+          for (let step = 0; step < 120 && await page.locator('.sr-diff-code .sr-deferred-placeholder').count(); step++) steps.push(await browserTiming(page, 'walk-next'));
+          assert.equal(await page.locator('.sr-diff-code .sr-deferred-placeholder').count(), 0, 'Long-session audit must visit every row group');
           if (steps.length) await record(prefix + 'scroll-every-row-group', 'browser', steps, cpuRate === 1 ? 100 : 200, {scenario, cpuRate});
           await run('wrap-after-full-scroll', 'click', 'Wrap code lines');
+          await run('annotation-open-after-full-scroll', 'annotation', undefined, () => browserTiming(page, 'click', 'Cancel annotation').catch(() => {}));
+          await browserTiming(page, 'annotation-body', 'Annotation after reviewing every row');
+          await record(prefix + 'annotation-save-after-full-scroll', 'browser', [await browserTiming(page, 'save-annotation')], cpuRate === 1 ? 100 : 200, {scenario, cpuRate});
         }
         if (scenario === 'many-stashes') await run('scroll-to-last-stash', 'scroll-end', '.sr-stash-list');
         const metrics = await page.evaluate(() => ({
@@ -442,7 +439,8 @@ async function browserBenchmarks() {
             const usage = await cdp.send('Runtime.getHeapUsage');
             cycles.push(+(usage.usedSize / 1024 ** 2).toFixed(2));
             await page.evaluate(() => window.benchmark.mount());
-            await page.waitForFunction(() => document.querySelectorAll('.sr-app').length === 6 && document.querySelector('.sr-code'));
+            const ready = await page.waitForFunction(() => document.querySelectorAll('.sr-app').length === 6 && !!document.querySelector('.sr-code'));
+            await ready.dispose();
             await afterPaint(page);
           }
           report.memory.push({name: 'ui.multi-embed.unmounted-cycles', heapMiB: cycles, growthMiB: +(cycles.at(-1) - cycles[0]).toFixed(2)});

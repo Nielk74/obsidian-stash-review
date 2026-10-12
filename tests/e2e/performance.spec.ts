@@ -17,6 +17,7 @@ async function largeReview(page: Page, scenario: 'many-files' | 'dense-large-fil
         host.getDiff = async () => payload.files.map(({oldContent: _old, newContent: _next, ...file}) => file);
         host.getFileContents = async (_repository, _stash, file) => ({oldContent: sources.get(file.path)!.oldContent!, newContent: sources.get(file.path)!.newContent!});
         host.getMetadata = () => structuredClone(payload.metadata);
+        host.saveMetadata = async (_repository, _hash, metadata) => {payload.metadata = structuredClone(metadata);};
       }
     });
   }, payload);
@@ -82,4 +83,32 @@ test('split selections include unloaded rows from only the selected side', async
   await page.keyboard.press('Control+c');
   const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n');
   expect(copied).toBe(fixture.files[0].newContent!.trimEnd());
+});
+
+test('visited row groups dispatch annotation changes to the current review', async ({page}) => {
+  await largeReview(page, 'dense-large-file');
+  await page.evaluate(async () => {
+    for (let group = 0; group < 120; group++) {
+      const pending = document.querySelector<HTMLElement>('.sr-diff-code .sr-deferred-placeholder');
+      if (!pending) return;
+      pending.parentElement!.scrollIntoView({block: 'center', behavior: 'instant'});
+      for (let frame = 0; pending.isConnected && frame < 120; frame++) await new Promise(resolve => requestAnimationFrame(resolve));
+      if (pending.isConnected) throw new Error('Visible row group did not render');
+    }
+  });
+  expect(await page.locator('.sr-diff-code .sr-deferred-placeholder').count()).toBe(0);
+  await page.getByRole('button', {name: 'Annotate new line 5000', exact: true}).click();
+  await page.getByRole('textbox', {name: 'Annotation text', exact: true}).fill('A note after visiting every row');
+  await page.getByRole('button', {name: 'Save annotation', exact: true}).click();
+  const thread = page.locator('.sr-diff-scroll .sr-thread').filter({hasText: 'A note after visiting every row'});
+  await expect(thread).toBeVisible();
+  const id = await thread.getAttribute('data-annotation-id');
+  const saved = page.locator(`.sr-diff-scroll [data-annotation-id="${id}"]`);
+  await saved.getByRole('button', {name: 'Annotation actions', exact: true}).click();
+  await saved.getByRole('button', {name: 'Edit annotation', exact: true}).click();
+  await saved.getByRole('textbox', {name: 'Edit annotation text', exact: true}).fill('Updated note after visiting every row');
+  await saved.getByRole('button', {name: 'Save changes', exact: true}).click();
+  await expect(saved.getByText('Updated note after visiting every row', {exact: true})).toBeVisible();
+  await saved.getByRole('button', {name: 'Resolve thread', exact: true}).click();
+  await expect(saved.getByText('Resolved', {exact: true})).toBeVisible();
 });

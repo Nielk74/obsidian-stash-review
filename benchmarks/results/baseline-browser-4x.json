@@ -1,0 +1,5531 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "commit": "09859908f372d07a7b2fe17c77bf06ae41ecf235",
+    "workingTree": false,
+    "codeSha256": "787a010b98a4796717e65ed06b184e179070846c57067df3e2b9142bb31fbac8"
+  },
+  "environment": {
+    "node": "v24.5.0",
+    "git": "git version 2.50.1.windows.1",
+    "os": "win32 10.0.26100",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "logicalCpus": 16,
+    "totalMemoryGiB": 31.1,
+    "explicitGC": true,
+    "chromium": "156.0.8078.4"
+  },
+  "methodology": {
+    "samples": 3,
+    "statistics": "Median and nearest-rank p95; raw samples retained.",
+    "cold": "Fresh service/page/module workloads; OS disk caches are not flushed.",
+    "browser": "Production React bundle; synthetic Git host to isolate UI cost. Native-host Git costs measured separately.",
+    "nativeHost": "Actual plugin bundle through an Obsidian API shim; metadata serialization writes a real temporary file.",
+    "thresholds": "Targets for this audit, not universal guarantees. Browser timings include two animation frames to reach paint."
+  },
+  "startedAt": "2026-10-12T11:38:23.905Z",
+  "metrics": [
+    {
+      "name": "ui.typical.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 331.4,
+      "p95Ms": 665.2,
+      "minMs": 315.8,
+      "maxMs": 665.2,
+      "rawMs": [
+        665.2,
+        331.4,
+        315.8
+      ],
+      "targetMs": 500,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": false
+    },
+    {
+      "name": "ui.typical.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 87.5,
+      "p95Ms": 87.6,
+      "minMs": 84.9,
+      "maxMs": 87.6,
+      "rawMs": [
+        87.5,
+        87.6,
+        84.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.6,
+      "p95Ms": 63.7,
+      "minMs": 26.5,
+      "maxMs": 63.7,
+      "rawMs": [
+        31.6,
+        63.7,
+        26.5
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.3,
+      "p95Ms": 32.4,
+      "minMs": 31.8,
+      "maxMs": 32.4,
+      "rawMs": [
+        32.3,
+        32.4,
+        31.8
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31,
+      "p95Ms": 32.8,
+      "minMs": 26.3,
+      "maxMs": 32.8,
+      "rawMs": [
+        26.3,
+        32.8,
+        31
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.9,
+      "p95Ms": 32.8,
+      "minMs": 25.4,
+      "maxMs": 32.8,
+      "rawMs": [
+        25.4,
+        31.9,
+        32.8
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.4,
+      "p95Ms": 32.2,
+      "minMs": 31,
+      "maxMs": 32.2,
+      "rawMs": [
+        31,
+        32.2,
+        31.4
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 37.2,
+      "p95Ms": 41.1,
+      "minMs": 37.2,
+      "maxMs": 41.1,
+      "rawMs": [
+        41.1,
+        37.2,
+        37.2
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.3,
+      "p95Ms": 54.4,
+      "minMs": 30.9,
+      "maxMs": 54.4,
+      "rawMs": [
+        54.4,
+        30.9,
+        32.3
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 34.9,
+      "p95Ms": 35.2,
+      "minMs": 31.6,
+      "maxMs": 35.2,
+      "rawMs": [
+        35.2,
+        31.6,
+        34.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.9,
+      "p95Ms": 31.6,
+      "minMs": 27.9,
+      "maxMs": 31.6,
+      "rawMs": [
+        28.9,
+        27.9,
+        31.6
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.5,
+      "p95Ms": 41.3,
+      "minMs": 31.1,
+      "maxMs": 41.3,
+      "rawMs": [
+        41.3,
+        32.5,
+        31.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 44.6,
+      "p95Ms": 48.6,
+      "minMs": 37.1,
+      "maxMs": 48.6,
+      "rawMs": [
+        48.6,
+        44.6,
+        37.1
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 42.6,
+      "p95Ms": 50.6,
+      "minMs": 42,
+      "maxMs": 50.6,
+      "rawMs": [
+        50.6,
+        42,
+        42.6
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 136.8,
+      "p95Ms": 163.7,
+      "minMs": 136.4,
+      "maxMs": 163.7,
+      "rawMs": [
+        136.8,
+        163.7,
+        136.4
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 68.7,
+      "p95Ms": 68.7,
+      "minMs": 68.7,
+      "maxMs": 68.7,
+      "rawMs": [
+        68.7
+      ],
+      "targetMs": 500,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.9,
+      "p95Ms": 29.5,
+      "minMs": 28.4,
+      "maxMs": 29.5,
+      "rawMs": [
+        29.5,
+        28.4,
+        28.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 31.9,
+      "p95Ms": 31.9,
+      "minMs": 31.9,
+      "maxMs": 31.9,
+      "rawMs": [
+        31.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 30.9,
+      "p95Ms": 30.9,
+      "minMs": 30.9,
+      "maxMs": 30.9,
+      "rawMs": [
+        30.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.4,
+      "p95Ms": 32.6,
+      "minMs": 31.4,
+      "maxMs": 32.6,
+      "rawMs": [
+        31.4,
+        32.6,
+        32.4
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.9,
+      "p95Ms": 32.9,
+      "minMs": 28,
+      "maxMs": 32.9,
+      "rawMs": [
+        31.9,
+        28,
+        32.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.9,
+      "p95Ms": 32.1,
+      "minMs": 31.8,
+      "maxMs": 32.1,
+      "rawMs": [
+        31.8,
+        32.1,
+        31.9
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32,
+      "p95Ms": 33,
+      "minMs": 30.6,
+      "maxMs": 33,
+      "rawMs": [
+        30.6,
+        32,
+        33
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.typical.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.3,
+      "p95Ms": 32.3,
+      "minMs": 30.8,
+      "maxMs": 32.3,
+      "rawMs": [
+        32.3,
+        30.8,
+        32.3
+      ],
+      "targetMs": 200,
+      "scenario": "typical",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 11582,
+      "p95Ms": 11855.5,
+      "minMs": 11507.9,
+      "maxMs": 11855.5,
+      "rawMs": [
+        11582,
+        11855.5,
+        11507.9
+      ],
+      "targetMs": 2000,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "workload": {
+        "files": 1000,
+        "lines": 20,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 8578.8,
+      "p95Ms": 9269.8,
+      "minMs": 7689.5,
+      "maxMs": 9269.8,
+      "rawMs": [
+        8578.8,
+        7689.5,
+        9269.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1398.3,
+      "p95Ms": 1505.5,
+      "minMs": 1383.9,
+      "maxMs": 1505.5,
+      "rawMs": [
+        1383.9,
+        1505.5,
+        1398.3
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 98.2,
+      "p95Ms": 119.3,
+      "minMs": 93.2,
+      "maxMs": 119.3,
+      "rawMs": [
+        119.3,
+        93.2,
+        98.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 98.3,
+      "p95Ms": 124.5,
+      "minMs": 97.5,
+      "maxMs": 124.5,
+      "rawMs": [
+        98.3,
+        97.5,
+        124.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 91.3,
+      "p95Ms": 92.3,
+      "minMs": 85.4,
+      "maxMs": 92.3,
+      "rawMs": [
+        92.3,
+        91.3,
+        85.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 67,
+      "p95Ms": 89,
+      "minMs": 61.6,
+      "maxMs": 89,
+      "rawMs": [
+        89,
+        61.6,
+        67
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 179.7,
+      "p95Ms": 197.9,
+      "minMs": 146.3,
+      "maxMs": 197.9,
+      "rawMs": [
+        179.7,
+        197.9,
+        146.3
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 108.1,
+      "p95Ms": 109.5,
+      "minMs": 101.6,
+      "maxMs": 109.5,
+      "rawMs": [
+        108.1,
+        109.5,
+        101.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 456.3,
+      "p95Ms": 523.7,
+      "minMs": 448.5,
+      "maxMs": 523.7,
+      "rawMs": [
+        456.3,
+        448.5,
+        523.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29.8,
+      "p95Ms": 93.2,
+      "minMs": 24.3,
+      "maxMs": 93.2,
+      "rawMs": [
+        93.2,
+        24.3,
+        29.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 92,
+      "p95Ms": 114.4,
+      "minMs": 70.1,
+      "maxMs": 114.4,
+      "rawMs": [
+        92,
+        70.1,
+        114.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 494.6,
+      "p95Ms": 501.9,
+      "minMs": 435.6,
+      "maxMs": 501.9,
+      "rawMs": [
+        501.9,
+        435.6,
+        494.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1599.7,
+      "p95Ms": 1697.5,
+      "minMs": 1577.5,
+      "maxMs": 1697.5,
+      "rawMs": [
+        1577.5,
+        1697.5,
+        1599.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 8251.3,
+      "p95Ms": 9443,
+      "minMs": 8205.2,
+      "maxMs": 9443,
+      "rawMs": [
+        8205.2,
+        8251.3,
+        9443
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 149.7,
+      "p95Ms": 149.7,
+      "minMs": 149.7,
+      "maxMs": 149.7,
+      "rawMs": [
+        149.7
+      ],
+      "targetMs": 500,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "lines": 20,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 134.9,
+      "p95Ms": 149.6,
+      "minMs": 130.5,
+      "maxMs": 149.6,
+      "rawMs": [
+        149.6,
+        134.9,
+        130.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 433.8,
+      "p95Ms": 433.8,
+      "minMs": 433.8,
+      "maxMs": 433.8,
+      "rawMs": [
+        433.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 242.2,
+      "p95Ms": 242.2,
+      "minMs": 242.2,
+      "maxMs": 242.2,
+      "rawMs": [
+        242.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 264,
+      "p95Ms": 265.1,
+      "minMs": 255.6,
+      "maxMs": 265.1,
+      "rawMs": [
+        265.1,
+        264,
+        255.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 120.4,
+      "p95Ms": 151.7,
+      "minMs": 22,
+      "maxMs": 151.7,
+      "rawMs": [
+        151.7,
+        22,
+        120.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-files.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 205.9,
+      "p95Ms": 209.4,
+      "minMs": 190,
+      "maxMs": 209.4,
+      "rawMs": [
+        209.4,
+        190,
+        205.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 201.1,
+      "p95Ms": 211.1,
+      "minMs": 187.6,
+      "maxMs": 211.1,
+      "rawMs": [
+        211.1,
+        201.1,
+        187.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-files.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 226.2,
+      "p95Ms": 251.6,
+      "minMs": 224.9,
+      "maxMs": 251.6,
+      "rawMs": [
+        224.9,
+        251.6,
+        226.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-files",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-stashes.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1215.6,
+      "p95Ms": 1568.1,
+      "minMs": 1193.8,
+      "maxMs": 1568.1,
+      "rawMs": [
+        1568.1,
+        1193.8,
+        1215.6
+      ],
+      "targetMs": 2000,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 1000,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 210.8,
+      "p95Ms": 216.6,
+      "minMs": 178.8,
+      "maxMs": 216.6,
+      "rawMs": [
+        216.6,
+        210.8,
+        178.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-stashes.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 124.3,
+      "p95Ms": 131.7,
+      "minMs": 114.2,
+      "maxMs": 131.7,
+      "rawMs": [
+        114.2,
+        124.3,
+        131.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 122.2,
+      "p95Ms": 127.5,
+      "minMs": 114.9,
+      "maxMs": 127.5,
+      "rawMs": [
+        127.5,
+        122.2,
+        114.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 99.1,
+      "p95Ms": 112.8,
+      "minMs": 86,
+      "maxMs": 112.8,
+      "rawMs": [
+        86,
+        99.1,
+        112.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 89.8,
+      "p95Ms": 104,
+      "minMs": 84.2,
+      "maxMs": 104,
+      "rawMs": [
+        104,
+        84.2,
+        89.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 489.7,
+      "p95Ms": 513.9,
+      "minMs": 431.1,
+      "maxMs": 513.9,
+      "rawMs": [
+        489.7,
+        431.1,
+        513.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-stashes.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 217.2,
+      "p95Ms": 233.3,
+      "minMs": 214.5,
+      "maxMs": 233.3,
+      "rawMs": [
+        217.2,
+        214.5,
+        233.3
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-stashes.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 103,
+      "p95Ms": 172.4,
+      "minMs": 94,
+      "maxMs": 172.4,
+      "rawMs": [
+        172.4,
+        94,
+        103
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 114.8,
+      "p95Ms": 114.9,
+      "minMs": 110.1,
+      "maxMs": 114.9,
+      "rawMs": [
+        114.8,
+        114.9,
+        110.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.4,
+      "p95Ms": 30.2,
+      "minMs": 28,
+      "maxMs": 30.2,
+      "rawMs": [
+        30.2,
+        28,
+        28.4
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 108.9,
+      "p95Ms": 109.3,
+      "minMs": 96.1,
+      "maxMs": 109.3,
+      "rawMs": [
+        109.3,
+        108.9,
+        96.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 114.7,
+      "p95Ms": 119.3,
+      "minMs": 104.7,
+      "maxMs": 119.3,
+      "rawMs": [
+        114.7,
+        119.3,
+        104.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 132.2,
+      "p95Ms": 140.1,
+      "minMs": 128.3,
+      "maxMs": 140.1,
+      "rawMs": [
+        128.3,
+        132.2,
+        140.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 214.7,
+      "p95Ms": 232.9,
+      "minMs": 211.1,
+      "maxMs": 232.9,
+      "rawMs": [
+        211.1,
+        214.7,
+        232.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-stashes.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 162.8,
+      "p95Ms": 162.8,
+      "minMs": 162.8,
+      "maxMs": 162.8,
+      "rawMs": [
+        162.8
+      ],
+      "targetMs": 500,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 104.6,
+      "p95Ms": 120.1,
+      "minMs": 84.6,
+      "maxMs": 120.1,
+      "rawMs": [
+        120.1,
+        104.6,
+        84.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 179.6,
+      "p95Ms": 179.6,
+      "minMs": 179.6,
+      "maxMs": 179.6,
+      "rawMs": [
+        179.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 170.7,
+      "p95Ms": 170.7,
+      "minMs": 170.7,
+      "maxMs": 170.7,
+      "rawMs": [
+        170.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 183.9,
+      "p95Ms": 184.6,
+      "minMs": 172.3,
+      "maxMs": 184.6,
+      "rawMs": [
+        184.6,
+        183.9,
+        172.3
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 82.2,
+      "p95Ms": 112.7,
+      "minMs": 6.1,
+      "maxMs": 112.7,
+      "rawMs": [
+        112.7,
+        82.2,
+        6.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 145.5,
+      "p95Ms": 159.2,
+      "minMs": 132,
+      "maxMs": 159.2,
+      "rawMs": [
+        132,
+        159.2,
+        145.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 151.2,
+      "p95Ms": 158,
+      "minMs": 149.9,
+      "maxMs": 158,
+      "rawMs": [
+        151.2,
+        149.9,
+        158
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-stashes.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 163.5,
+      "p95Ms": 174,
+      "minMs": 157.8,
+      "maxMs": 174,
+      "rawMs": [
+        174,
+        163.5,
+        157.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-stashes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1970.2,
+      "p95Ms": 2218.9,
+      "minMs": 1814.2,
+      "maxMs": 2218.9,
+      "rawMs": [
+        2218.9,
+        1814.2,
+        1970.2
+      ],
+      "targetMs": 2000,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 1000
+      },
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-notes.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 411.4,
+      "p95Ms": 428,
+      "minMs": 322.6,
+      "maxMs": 428,
+      "rawMs": [
+        428,
+        411.4,
+        322.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-notes.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 167.3,
+      "p95Ms": 189.6,
+      "minMs": 143.1,
+      "maxMs": 189.6,
+      "rawMs": [
+        189.6,
+        167.3,
+        143.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 114.2,
+      "p95Ms": 116.4,
+      "minMs": 110.5,
+      "maxMs": 116.4,
+      "rawMs": [
+        116.4,
+        114.2,
+        110.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 117.2,
+      "p95Ms": 143.9,
+      "minMs": 107.7,
+      "maxMs": 143.9,
+      "rawMs": [
+        107.7,
+        117.2,
+        143.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.3,
+      "p95Ms": 53.1,
+      "minMs": 27.6,
+      "maxMs": 53.1,
+      "rawMs": [
+        53.1,
+        28.3,
+        27.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 34.3,
+      "p95Ms": 36.7,
+      "minMs": 30.4,
+      "maxMs": 36.7,
+      "rawMs": [
+        34.3,
+        30.4,
+        36.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 119.3,
+      "p95Ms": 142.6,
+      "minMs": 111.8,
+      "maxMs": 142.6,
+      "rawMs": [
+        111.8,
+        119.3,
+        142.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 174,
+      "p95Ms": 185.7,
+      "minMs": 157.2,
+      "maxMs": 185.7,
+      "rawMs": [
+        185.7,
+        174,
+        157.2
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 131.7,
+      "p95Ms": 146.6,
+      "minMs": 108.4,
+      "maxMs": 146.6,
+      "rawMs": [
+        108.4,
+        131.7,
+        146.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.9,
+      "p95Ms": 38.7,
+      "minMs": 23.6,
+      "maxMs": 38.7,
+      "rawMs": [
+        38.7,
+        23.6,
+        31.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1484.6,
+      "p95Ms": 1617.5,
+      "minMs": 1473.1,
+      "maxMs": 1617.5,
+      "rawMs": [
+        1617.5,
+        1484.6,
+        1473.1
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-notes.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 249.5,
+      "p95Ms": 254.3,
+      "minMs": 246.6,
+      "maxMs": 254.3,
+      "rawMs": [
+        249.5,
+        246.6,
+        254.3
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-notes.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 177.8,
+      "p95Ms": 180.3,
+      "minMs": 166.5,
+      "maxMs": 180.3,
+      "rawMs": [
+        180.3,
+        177.8,
+        166.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1412.6,
+      "p95Ms": 1678.9,
+      "minMs": 1371.1,
+      "maxMs": 1678.9,
+      "rawMs": [
+        1371.1,
+        1678.9,
+        1412.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.many-notes.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 81.3,
+      "p95Ms": 81.3,
+      "minMs": 81.3,
+      "maxMs": 81.3,
+      "rawMs": [
+        81.3
+      ],
+      "targetMs": 500,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 45,
+      "p95Ms": 50.7,
+      "minMs": 33.8,
+      "maxMs": 50.7,
+      "rawMs": [
+        50.7,
+        45,
+        33.8
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 105.5,
+      "p95Ms": 105.5,
+      "minMs": 105.5,
+      "maxMs": 105.5,
+      "rawMs": [
+        105.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 107.5,
+      "p95Ms": 107.5,
+      "minMs": 107.5,
+      "maxMs": 107.5,
+      "rawMs": [
+        107.5
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 85.9,
+      "p95Ms": 164,
+      "minMs": 80.5,
+      "maxMs": 164,
+      "rawMs": [
+        80.5,
+        164,
+        85.9
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28,
+      "p95Ms": 29.6,
+      "minMs": 26.6,
+      "maxMs": 29.6,
+      "rawMs": [
+        26.6,
+        29.6,
+        28
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.1,
+      "p95Ms": 30.6,
+      "minMs": 26.6,
+      "maxMs": 30.6,
+      "rawMs": [
+        27.1,
+        26.6,
+        30.6
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.5,
+      "p95Ms": 32,
+      "minMs": 31,
+      "maxMs": 32,
+      "rawMs": [
+        31,
+        31.5,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.many-notes.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.1,
+      "p95Ms": 31.8,
+      "minMs": 30.7,
+      "maxMs": 31.8,
+      "rawMs": [
+        31.8,
+        31.1,
+        30.7
+      ],
+      "targetMs": 200,
+      "scenario": "many-notes",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 274.2,
+      "p95Ms": 687.7,
+      "minMs": 250.3,
+      "maxMs": 687.7,
+      "rawMs": [
+        687.7,
+        250.3,
+        274.2
+      ],
+      "targetMs": 2000,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "workload": {
+        "files": 1,
+        "lines": 20000,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 0
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.5,
+      "p95Ms": 32.1,
+      "minMs": 23.1,
+      "maxMs": 32.1,
+      "rawMs": [
+        23.1,
+        27.5,
+        32.1
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29.5,
+      "p95Ms": 30.8,
+      "minMs": 29.3,
+      "maxMs": 30.8,
+      "rawMs": [
+        29.5,
+        30.8,
+        29.3
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 36.9,
+      "p95Ms": 36.9,
+      "minMs": 31.8,
+      "maxMs": 36.9,
+      "rawMs": [
+        36.9,
+        36.9,
+        31.8
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31,
+      "p95Ms": 31.2,
+      "minMs": 30.4,
+      "maxMs": 31.2,
+      "rawMs": [
+        31,
+        30.4,
+        31.2
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.3,
+      "p95Ms": 32.4,
+      "minMs": 28.8,
+      "maxMs": 32.4,
+      "rawMs": [
+        28.8,
+        32.3,
+        32.4
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32,
+      "p95Ms": 32.1,
+      "minMs": 31.6,
+      "maxMs": 32.1,
+      "rawMs": [
+        32.1,
+        31.6,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 64.8,
+      "p95Ms": 71.5,
+      "minMs": 61.1,
+      "maxMs": 71.5,
+      "rawMs": [
+        71.5,
+        61.1,
+        64.8
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 23.9,
+      "p95Ms": 33.6,
+      "minMs": 17,
+      "maxMs": 33.6,
+      "rawMs": [
+        33.6,
+        17,
+        23.9
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 67.8,
+      "p95Ms": 70.9,
+      "minMs": 65.5,
+      "maxMs": 70.9,
+      "rawMs": [
+        65.5,
+        67.8,
+        70.9
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 28.8,
+      "p95Ms": 38,
+      "minMs": 27.8,
+      "maxMs": 38,
+      "rawMs": [
+        27.8,
+        38,
+        28.8
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 53,
+      "p95Ms": 53.2,
+      "minMs": 50.6,
+      "maxMs": 53.2,
+      "rawMs": [
+        50.6,
+        53.2,
+        53
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 13676,
+      "p95Ms": 13676,
+      "minMs": 13676,
+      "maxMs": 13676,
+      "rawMs": [
+        13676
+      ],
+      "targetMs": 500,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "lines": 20000,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.sparse-large-file.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.7,
+      "p95Ms": 40.8,
+      "minMs": 24.2,
+      "maxMs": 40.8,
+      "rawMs": [
+        40.8,
+        24.2,
+        31.7
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 41.4,
+      "p95Ms": 41.4,
+      "minMs": 41.4,
+      "maxMs": 41.4,
+      "rawMs": [
+        41.4
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 26.8,
+      "p95Ms": 26.8,
+      "minMs": 26.8,
+      "maxMs": 26.8,
+      "rawMs": [
+        26.8
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29.9,
+      "p95Ms": 73.9,
+      "minMs": 25.3,
+      "maxMs": 73.9,
+      "rawMs": [
+        29.9,
+        73.9,
+        25.3
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 20.3,
+      "p95Ms": 24.4,
+      "minMs": 16.5,
+      "maxMs": 24.4,
+      "rawMs": [
+        20.3,
+        16.5,
+        24.4
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.8,
+      "p95Ms": 31.1,
+      "minMs": 30.3,
+      "maxMs": 31.1,
+      "rawMs": [
+        30.3,
+        30.8,
+        31.1
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.1,
+      "p95Ms": 32.2,
+      "minMs": 31.1,
+      "maxMs": 32.2,
+      "rawMs": [
+        32.2,
+        32.1,
+        31.1
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.sparse-large-file.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32,
+      "p95Ms": 32.1,
+      "minMs": 31.4,
+      "maxMs": 32.1,
+      "rawMs": [
+        31.4,
+        32.1,
+        32
+      ],
+      "targetMs": 200,
+      "scenario": "sparse-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 9155.4,
+      "p95Ms": 9550.1,
+      "minMs": 9060.9,
+      "maxMs": 9550.1,
+      "rawMs": [
+        9060.9,
+        9155.4,
+        9550.1
+      ],
+      "targetMs": 2000,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "workload": {
+        "files": 1,
+        "lines": 5000,
+        "changed": 5000,
+        "stashes": 20,
+        "notes": 0
+      },
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 8416.9,
+      "p95Ms": 10331.1,
+      "minMs": 7043.5,
+      "maxMs": 10331.1,
+      "rawMs": [
+        8416.9,
+        7043.5,
+        10331.1
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 712,
+      "p95Ms": 1299.7,
+      "minMs": 672.1,
+      "maxMs": 1299.7,
+      "rawMs": [
+        672.1,
+        1299.7,
+        712
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 17464.5,
+      "p95Ms": 18673.8,
+      "minMs": 11903.9,
+      "maxMs": 18673.8,
+      "rawMs": [
+        11903.9,
+        18673.8,
+        17464.5
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 20104.2,
+      "p95Ms": 21253.4,
+      "minMs": 13589.6,
+      "maxMs": 21253.4,
+      "rawMs": [
+        13589.6,
+        20104.2,
+        21253.4
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 652.8,
+      "p95Ms": 3719.6,
+      "minMs": 649.3,
+      "maxMs": 3719.6,
+      "rawMs": [
+        3719.6,
+        652.8,
+        649.3
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 723.8,
+      "p95Ms": 739.6,
+      "minMs": 709.4,
+      "maxMs": 739.6,
+      "rawMs": [
+        709.4,
+        739.6,
+        723.8
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.stash-switch",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 7920,
+      "p95Ms": 7922.3,
+      "minMs": 7897.4,
+      "maxMs": 7922.3,
+      "rawMs": [
+        7897.4,
+        7920,
+        7922.3
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 558.6,
+      "p95Ms": 605.4,
+      "minMs": 553.1,
+      "maxMs": 605.4,
+      "rawMs": [
+        605.4,
+        553.1,
+        558.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 6053.1,
+      "p95Ms": 6543.6,
+      "minMs": 5743.2,
+      "maxMs": 6543.6,
+      "rawMs": [
+        6543.6,
+        6053.1,
+        5743.2
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 594.3,
+      "p95Ms": 764.1,
+      "minMs": 544.2,
+      "maxMs": 764.1,
+      "rawMs": [
+        594.3,
+        764.1,
+        544.2
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 6464,
+      "p95Ms": 6847.1,
+      "minMs": 6007.8,
+      "maxMs": 6847.1,
+      "rawMs": [
+        6464,
+        6007.8,
+        6847.1
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 741.3,
+      "p95Ms": 741.3,
+      "minMs": 741.3,
+      "maxMs": 741.3,
+      "rawMs": [
+        741.3
+      ],
+      "targetMs": 500,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "lines": 5000,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 1175.6,
+      "p95Ms": 1242.4,
+      "minMs": 1164,
+      "maxMs": 1242.4,
+      "rawMs": [
+        1242.4,
+        1164,
+        1175.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 1759.5,
+      "p95Ms": 1759.5,
+      "minMs": 1759.5,
+      "maxMs": 1759.5,
+      "rawMs": [
+        1759.5
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 1774.9,
+      "p95Ms": 1774.9,
+      "minMs": 1774.9,
+      "maxMs": 1774.9,
+      "rawMs": [
+        1774.9
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 631.2,
+      "p95Ms": 7097.3,
+      "minMs": 606.6,
+      "maxMs": 7097.3,
+      "rawMs": [
+        606.6,
+        7097.3,
+        631.2
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": false
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 27.5,
+      "p95Ms": 30.6,
+      "minMs": 23.6,
+      "maxMs": 30.6,
+      "rawMs": [
+        27.5,
+        23.6,
+        30.6
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.3,
+      "p95Ms": 33.7,
+      "minMs": 29.1,
+      "maxMs": 33.7,
+      "rawMs": [
+        29.1,
+        33.7,
+        31.3
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 30.5,
+      "p95Ms": 32.3,
+      "minMs": 30.2,
+      "maxMs": 32.3,
+      "rawMs": [
+        30.2,
+        30.5,
+        32.3
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.dense-large-file.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.2,
+      "p95Ms": 33.1,
+      "minMs": 31.9,
+      "maxMs": 33.1,
+      "rawMs": [
+        31.9,
+        33.1,
+        32.2
+      ],
+      "targetMs": 200,
+      "scenario": "dense-large-file",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.initial-paint",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 388.6,
+      "p95Ms": 718.3,
+      "minMs": 386,
+      "maxMs": 718.3,
+      "rawMs": [
+        718.3,
+        388.6,
+        386
+      ],
+      "targetMs": 2000,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "workload": {
+        "files": 12,
+        "lines": 80,
+        "changed": 3,
+        "stashes": 20,
+        "notes": 10
+      },
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.wrap",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.2,
+      "p95Ms": 47.1,
+      "minMs": 20.6,
+      "maxMs": 47.1,
+      "rawMs": [
+        20.6,
+        47.1,
+        31.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.single-file",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.1,
+      "p95Ms": 39.6,
+      "minMs": 22,
+      "maxMs": 39.6,
+      "rawMs": [
+        39.6,
+        32.1,
+        22
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.split",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.8,
+      "p95Ms": 33.7,
+      "minMs": 30.3,
+      "maxMs": 33.7,
+      "rawMs": [
+        31.8,
+        30.3,
+        33.7
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.unified",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.7,
+      "p95Ms": 33.4,
+      "minMs": 26.7,
+      "maxMs": 33.4,
+      "rawMs": [
+        26.7,
+        31.7,
+        33.4
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-filter",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 29,
+      "p95Ms": 46.1,
+      "minMs": 27.1,
+      "maxMs": 46.1,
+      "rawMs": [
+        46.1,
+        27.1,
+        29
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-filter-clear",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 35.3,
+      "p95Ms": 41.1,
+      "minMs": 34.8,
+      "maxMs": 41.1,
+      "rawMs": [
+        41.1,
+        35.3,
+        34.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.file-tree-end-key",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 24.2,
+      "p95Ms": 31.8,
+      "minMs": 20.9,
+      "maxMs": 31.8,
+      "rawMs": [
+        20.9,
+        24.2,
+        31.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotations-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 35.6,
+      "p95Ms": 45.5,
+      "minMs": 29.3,
+      "maxMs": 45.5,
+      "rawMs": [
+        45.5,
+        35.6,
+        29.3
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.files-tab",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 37.7,
+      "p95Ms": 39.3,
+      "minMs": 36.4,
+      "maxMs": 39.3,
+      "rawMs": [
+        39.3,
+        36.4,
+        37.7
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.collapse-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 60.8,
+      "p95Ms": 63.1,
+      "minMs": 59.9,
+      "maxMs": 63.1,
+      "rawMs": [
+        60.8,
+        63.1,
+        59.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.expand-all",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 134.7,
+      "p95Ms": 147.3,
+      "minMs": 129.5,
+      "maxMs": 147.3,
+      "rawMs": [
+        134.7,
+        147.3,
+        129.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.full-context",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 64,
+      "p95Ms": 64,
+      "minMs": 64,
+      "maxMs": 64,
+      "rawMs": [
+        64
+      ],
+      "targetMs": 500,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "lines": 80,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-open",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 25.2,
+      "p95Ms": 32.3,
+      "minMs": 24.7,
+      "maxMs": 32.3,
+      "rawMs": [
+        32.3,
+        24.7,
+        25.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-save",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 99.4,
+      "p95Ms": 99.4,
+      "minMs": 99.4,
+      "maxMs": 99.4,
+      "rawMs": [
+        99.4
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.annotation-resolve",
+      "group": "browser",
+      "samples": 1,
+      "medianMs": 97.8,
+      "p95Ms": 97.8,
+      "minMs": 97.8,
+      "maxMs": 97.8,
+      "rawMs": [
+        97.8
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.viewed-toggle",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 93.5,
+      "p95Ms": 97.2,
+      "minMs": 88.7,
+      "maxMs": 97.2,
+      "rawMs": [
+        97.2,
+        88.7,
+        93.5
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-source",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 17.2,
+      "p95Ms": 21.2,
+      "minMs": 14.9,
+      "maxMs": 21.2,
+      "rawMs": [
+        21.2,
+        17.2,
+        14.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-markdown-link",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 32.3,
+      "p95Ms": 32.6,
+      "minMs": 31.8,
+      "maxMs": 32.6,
+      "rawMs": [
+        31.8,
+        32.6,
+        32.3
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.copy-markdown-embed",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 31.7,
+      "p95Ms": 32.9,
+      "minMs": 31.6,
+      "maxMs": 32.9,
+      "rawMs": [
+        31.7,
+        31.6,
+        32.9
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    },
+    {
+      "name": "ui.multi-embed.4x.export-review",
+      "group": "browser",
+      "samples": 3,
+      "medianMs": 33.1,
+      "p95Ms": 33.2,
+      "minMs": 31.9,
+      "maxMs": 33.2,
+      "rawMs": [
+        31.9,
+        33.1,
+        33.2
+      ],
+      "targetMs": 200,
+      "scenario": "multi-embed",
+      "cpuRate": 4,
+      "withinTarget": true
+    }
+  ],
+  "browserErrors": [],
+  "coverage": [
+    "Production browser: initial paint, layer/layout/scope switching, stash/file search, navigation, full context, collapse, annotation save/resolve, viewed progress, clipboard/Markdown/export, six embeds, repeated mount/unmount and heap, 1x/4x CPU."
+  ],
+  "memory": [
+    {
+      "name": "ui.typical.4x.end",
+      "heapMiB": 5.06,
+      "domNodes": 762,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 8,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 120.09999999962747,
+          "duration": 60
+        },
+        {
+          "start": 180.40000000037253,
+          "duration": 83
+        },
+        {
+          "start": 337.09999999962747,
+          "duration": 66
+        },
+        {
+          "start": 426,
+          "duration": 67
+        },
+        {
+          "start": 515.8000000007451,
+          "duration": 66
+        },
+        {
+          "start": 702.1999999992549,
+          "duration": 68
+        },
+        {
+          "start": 773.5,
+          "duration": 54
+        },
+        {
+          "start": 875.1999999992549,
+          "duration": 59
+        },
+        {
+          "start": 3226,
+          "duration": 92
+        },
+        {
+          "start": 3418.9000000003725,
+          "duration": 87
+        },
+        {
+          "start": 3596.0999999996275,
+          "duration": 85
+        },
+        {
+          "start": 3782.5,
+          "duration": 94
+        },
+        {
+          "start": 4018.0999999996275,
+          "duration": 101
+        },
+        {
+          "start": 4237,
+          "duration": 84
+        }
+      ]
+    },
+    {
+      "name": "ui.many-files.4x.end",
+      "heapMiB": 15.57,
+      "domNodes": 13008,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 8,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 709.2000000011176,
+          "duration": 3217
+        },
+        {
+          "start": 3926.7000000011176,
+          "duration": 6095
+        },
+        {
+          "start": 10055.300000000745,
+          "duration": 1298
+        },
+        {
+          "start": 11353.800000000745,
+          "duration": 136
+        },
+        {
+          "start": 11513.400000000373,
+          "duration": 1138
+        },
+        {
+          "start": 12651.800000000745,
+          "duration": 7028
+        },
+        {
+          "start": 19680.599999999627,
+          "duration": 421
+        },
+        {
+          "start": 20102.400000000373,
+          "duration": 1173
+        },
+        {
+          "start": 21276.300000000745,
+          "duration": 6114
+        },
+        {
+          "start": 27396.700000001118,
+          "duration": 402
+        },
+        {
+          "start": 27800,
+          "duration": 1131
+        },
+        {
+          "start": 28931.5,
+          "duration": 7745
+        },
+        {
+          "start": 36682.90000000037,
+          "duration": 393
+        },
+        {
+          "start": 37120.09999999963,
+          "duration": 2505
+        },
+        {
+          "start": 39625.59999999963,
+          "duration": 50
+        },
+        {
+          "start": 39681.5,
+          "duration": 1360
+        },
+        {
+          "start": 41073.09999999963,
+          "duration": 3069
+        },
+        {
+          "start": 44142.59999999963,
+          "duration": 5312
+        },
+        {
+          "start": 49489.20000000112,
+          "duration": 1477
+        },
+        {
+          "start": 51001.20000000112,
+          "duration": 2988
+        },
+        {
+          "start": 53990.09999999963,
+          "duration": 5290
+        },
+        {
+          "start": 59301.59999999963,
+          "duration": 1380
+        },
+        {
+          "start": 60734.09999999963,
+          "duration": 91
+        },
+        {
+          "start": 60860,
+          "duration": 73
+        },
+        {
+          "start": 60970.20000000112,
+          "duration": 66
+        },
+        {
+          "start": 61069.90000000037,
+          "duration": 64
+        },
+        {
+          "start": 61161.40000000037,
+          "duration": 57
+        },
+        {
+          "start": 61308.09999999963,
+          "duration": 73
+        },
+        {
+          "start": 61412.90000000037,
+          "duration": 71
+        },
+        {
+          "start": 61534.09999999963,
+          "duration": 66
+        },
+        {
+          "start": 61635.5,
+          "duration": 67
+        },
+        {
+          "start": 61737.20000000112,
+          "duration": 87
+        },
+        {
+          "start": 61906.90000000037,
+          "duration": 76
+        },
+        {
+          "start": 62005.70000000112,
+          "duration": 71
+        },
+        {
+          "start": 62100.59999999963,
+          "duration": 81
+        },
+        {
+          "start": 62198.40000000037,
+          "duration": 74
+        },
+        {
+          "start": 62293.90000000037,
+          "duration": 75
+        },
+        {
+          "start": 62413.800000000745,
+          "duration": 75
+        },
+        {
+          "start": 62509,
+          "duration": 54
+        },
+        {
+          "start": 62577.90000000037,
+          "duration": 50
+        },
+        {
+          "start": 62646.70000000112,
+          "duration": 56
+        },
+        {
+          "start": 62719,
+          "duration": 53
+        },
+        {
+          "start": 62793.300000000745,
+          "duration": 52
+        },
+        {
+          "start": 62852.40000000037,
+          "duration": 58
+        },
+        {
+          "start": 62936,
+          "duration": 94
+        },
+        {
+          "start": 63031.800000000745,
+          "duration": 72
+        },
+        {
+          "start": 63105.59999999963,
+          "duration": 86
+        },
+        {
+          "start": 63192.09999999963,
+          "duration": 74
+        },
+        {
+          "start": 63266.800000000745,
+          "duration": 69
+        },
+        {
+          "start": 63343.800000000745,
+          "duration": 82
+        },
+        {
+          "start": 63431.59999999963,
+          "duration": 81
+        },
+        {
+          "start": 63537.70000000112,
+          "duration": 85
+        },
+        {
+          "start": 63628.800000000745,
+          "duration": 65
+        },
+        {
+          "start": 63695,
+          "duration": 77
+        },
+        {
+          "start": 63778.40000000037,
+          "duration": 60
+        },
+        {
+          "start": 63838.5,
+          "duration": 65
+        },
+        {
+          "start": 63912.20000000112,
+          "duration": 65
+        },
+        {
+          "start": 63982.70000000112,
+          "duration": 50
+        },
+        {
+          "start": 64054.5,
+          "duration": 68
+        },
+        {
+          "start": 64128.59999999963,
+          "duration": 66
+        },
+        {
+          "start": 64196.300000000745,
+          "duration": 75
+        },
+        {
+          "start": 64278.300000000745,
+          "duration": 64
+        },
+        {
+          "start": 64342.70000000112,
+          "duration": 63
+        },
+        {
+          "start": 64412.40000000037,
+          "duration": 62
+        },
+        {
+          "start": 64517.5,
+          "duration": 59
+        },
+        {
+          "start": 64614.40000000037,
+          "duration": 73
+        },
+        {
+          "start": 64728.59999999963,
+          "duration": 144
+        },
+        {
+          "start": 64873.09999999963,
+          "duration": 309
+        },
+        {
+          "start": 65200.90000000037,
+          "duration": 75
+        },
+        {
+          "start": 65317.59999999963,
+          "duration": 137
+        },
+        {
+          "start": 65455.09999999963,
+          "duration": 339
+        },
+        {
+          "start": 65797.59999999963,
+          "duration": 70
+        },
+        {
+          "start": 65930.80000000075,
+          "duration": 129
+        },
+        {
+          "start": 66060.70000000112,
+          "duration": 325
+        },
+        {
+          "start": 66388.90000000037,
+          "duration": 60
+        },
+        {
+          "start": 66476.5,
+          "duration": 132
+        },
+        {
+          "start": 66609.30000000075,
+          "duration": 301
+        },
+        {
+          "start": 66926.59999999963,
+          "duration": 72
+        },
+        {
+          "start": 67020.40000000037,
+          "duration": 145
+        },
+        {
+          "start": 67165.70000000112,
+          "duration": 359
+        },
+        {
+          "start": 67546.80000000075,
+          "duration": 66
+        },
+        {
+          "start": 67740.80000000075,
+          "duration": 67
+        },
+        {
+          "start": 67835.59999999963,
+          "duration": 138
+        },
+        {
+          "start": 67973.80000000075,
+          "duration": 291
+        },
+        {
+          "start": 68345.09999999963,
+          "duration": 156
+        },
+        {
+          "start": 68502,
+          "duration": 326
+        },
+        {
+          "start": 68835.30000000075,
+          "duration": 89
+        },
+        {
+          "start": 68976.20000000112,
+          "duration": 173
+        },
+        {
+          "start": 69149.70000000112,
+          "duration": 327
+        },
+        {
+          "start": 69484.30000000075,
+          "duration": 51
+        },
+        {
+          "start": 69557.5,
+          "duration": 141
+        },
+        {
+          "start": 69699.30000000075,
+          "duration": 292
+        },
+        {
+          "start": 69998.70000000112,
+          "duration": 56
+        },
+        {
+          "start": 70082,
+          "duration": 145
+        },
+        {
+          "start": 70227.80000000075,
+          "duration": 347
+        },
+        {
+          "start": 70583.70000000112,
+          "duration": 3123
+        },
+        {
+          "start": 73707.5,
+          "duration": 5635
+        },
+        {
+          "start": 79467.70000000112,
+          "duration": 55
+        },
+        {
+          "start": 79523.59999999963,
+          "duration": 1250
+        },
+        {
+          "start": 80774.09999999963,
+          "duration": 290
+        },
+        {
+          "start": 81073.59999999963,
+          "duration": 62
+        },
+        {
+          "start": 81136.70000000112,
+          "duration": 2820
+        },
+        {
+          "start": 83957.20000000112,
+          "duration": 5192
+        },
+        {
+          "start": 89150.5,
+          "duration": 52
+        },
+        {
+          "start": 89210.90000000037,
+          "duration": 1341
+        },
+        {
+          "start": 90552.70000000112,
+          "duration": 316
+        },
+        {
+          "start": 90879.70000000112,
+          "duration": 60
+        },
+        {
+          "start": 90945.90000000037,
+          "duration": 3764
+        },
+        {
+          "start": 94710.90000000037,
+          "duration": 5116
+        },
+        {
+          "start": 99828.5,
+          "duration": 50
+        },
+        {
+          "start": 99887.59999999963,
+          "duration": 1256
+        },
+        {
+          "start": 101144.09999999963,
+          "duration": 305
+        },
+        {
+          "start": 101460.70000000112,
+          "duration": 60
+        },
+        {
+          "start": 101554.5,
+          "duration": 50
+        },
+        {
+          "start": 101610.5,
+          "duration": 3191
+        },
+        {
+          "start": 104802.59999999963,
+          "duration": 4957
+        },
+        {
+          "start": 109767,
+          "duration": 50
+        },
+        {
+          "start": 109824.40000000037,
+          "duration": 1351
+        },
+        {
+          "start": 111176.40000000037,
+          "duration": 326
+        },
+        {
+          "start": 111513.80000000075,
+          "duration": 61
+        },
+        {
+          "start": 111581.40000000037,
+          "duration": 3240
+        },
+        {
+          "start": 114822.20000000112,
+          "duration": 4963
+        },
+        {
+          "start": 119841.09999999963,
+          "duration": 1233
+        },
+        {
+          "start": 121074.59999999963,
+          "duration": 311
+        },
+        {
+          "start": 121398.09999999963,
+          "duration": 65
+        },
+        {
+          "start": 121471.30000000075,
+          "duration": 3260
+        },
+        {
+          "start": 124732.09999999963,
+          "duration": 6131
+        },
+        {
+          "start": 130864.30000000075,
+          "duration": 51
+        },
+        {
+          "start": 130924.59999999963,
+          "duration": 1083
+        },
+        {
+          "start": 132057.40000000037,
+          "duration": 115
+        },
+        {
+          "start": 132217.80000000075,
+          "duration": 113
+        },
+        {
+          "start": 132378.59999999963,
+          "duration": 124
+        },
+        {
+          "start": 132535.40000000037,
+          "duration": 118
+        },
+        {
+          "start": 132688.30000000075,
+          "duration": 111
+        },
+        {
+          "start": 132830.90000000037,
+          "duration": 104
+        },
+        {
+          "start": 132964.30000000075,
+          "duration": 106
+        },
+        {
+          "start": 133275.20000000112,
+          "duration": 301
+        },
+        {
+          "start": 133597.30000000075,
+          "duration": 110
+        },
+        {
+          "start": 133727.90000000037,
+          "duration": 112
+        },
+        {
+          "start": 133862.09999999963,
+          "duration": 107
+        },
+        {
+          "start": 133989,
+          "duration": 116
+        },
+        {
+          "start": 134146.80000000075,
+          "duration": 105
+        },
+        {
+          "start": 134274.09999999963,
+          "duration": 114
+        },
+        {
+          "start": 134436.40000000037,
+          "duration": 100
+        },
+        {
+          "start": 134556.59999999963,
+          "duration": 112
+        },
+        {
+          "start": 134702.70000000112,
+          "duration": 107
+        },
+        {
+          "start": 134860.59999999963,
+          "duration": 115
+        },
+        {
+          "start": 134976.09999999963,
+          "duration": 56
+        },
+        {
+          "start": 135062.20000000112,
+          "duration": 92
+        },
+        {
+          "start": 135178.09999999963,
+          "duration": 103
+        },
+        {
+          "start": 135288.30000000075,
+          "duration": 101
+        },
+        {
+          "start": 135415.90000000037,
+          "duration": 100
+        },
+        {
+          "start": 135527.80000000075,
+          "duration": 90
+        },
+        {
+          "start": 135631.59999999963,
+          "duration": 88
+        },
+        {
+          "start": 135744.09999999963,
+          "duration": 90
+        },
+        {
+          "start": 135844.70000000112,
+          "duration": 84
+        },
+        {
+          "start": 135940.59999999963,
+          "duration": 99
+        },
+        {
+          "start": 136063.90000000037,
+          "duration": 100
+        },
+        {
+          "start": 136176,
+          "duration": 88
+        },
+        {
+          "start": 136276.59999999963,
+          "duration": 111
+        },
+        {
+          "start": 136414.30000000075,
+          "duration": 100
+        },
+        {
+          "start": 136525.80000000075,
+          "duration": 93
+        },
+        {
+          "start": 136631.90000000037,
+          "duration": 100
+        },
+        {
+          "start": 136757.09999999963,
+          "duration": 96
+        },
+        {
+          "start": 136864.20000000112,
+          "duration": 88
+        },
+        {
+          "start": 136964.80000000075,
+          "duration": 85
+        },
+        {
+          "start": 137073.09999999963,
+          "duration": 89
+        },
+        {
+          "start": 137172.70000000112,
+          "duration": 82
+        },
+        {
+          "start": 137267.80000000075,
+          "duration": 101
+        },
+        {
+          "start": 137396.70000000112,
+          "duration": 112
+        },
+        {
+          "start": 137519,
+          "duration": 96
+        },
+        {
+          "start": 137630,
+          "duration": 107
+        },
+        {
+          "start": 137766.80000000075,
+          "duration": 120
+        },
+        {
+          "start": 137899.90000000037,
+          "duration": 118
+        },
+        {
+          "start": 138025.70000000112,
+          "duration": 129
+        },
+        {
+          "start": 138182.20000000112,
+          "duration": 113
+        },
+        {
+          "start": 138308.5,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "ui.many-stashes.4x.end",
+      "heapMiB": 11.48,
+      "domNodes": 12522,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 8,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 145.5,
+          "duration": 175
+        },
+        {
+          "start": 320.59999999962747,
+          "duration": 375
+        },
+        {
+          "start": 707.8999999985099,
+          "duration": 163
+        },
+        {
+          "start": 871.7999999988824,
+          "duration": 200
+        },
+        {
+          "start": 1076.7999999988824,
+          "duration": 104
+        },
+        {
+          "start": 1217.5,
+          "duration": 98
+        },
+        {
+          "start": 1315.5999999996275,
+          "duration": 112
+        },
+        {
+          "start": 1441.5999999996275,
+          "duration": 83
+        },
+        {
+          "start": 1525.0999999996275,
+          "duration": 110
+        },
+        {
+          "start": 1654.5,
+          "duration": 91
+        },
+        {
+          "start": 1745.5,
+          "duration": 81
+        },
+        {
+          "start": 1865.699999999255,
+          "duration": 97
+        },
+        {
+          "start": 1982.199999999255,
+          "duration": 137
+        },
+        {
+          "start": 2119.5999999996275,
+          "duration": 115
+        },
+        {
+          "start": 2261.199999999255,
+          "duration": 101
+        },
+        {
+          "start": 2392.5999999996275,
+          "duration": 120
+        },
+        {
+          "start": 2513.0999999996275,
+          "duration": 116
+        },
+        {
+          "start": 2637.199999999255,
+          "duration": 98
+        },
+        {
+          "start": 2806.699999999255,
+          "duration": 92
+        },
+        {
+          "start": 2936.7999999988824,
+          "duration": 98
+        },
+        {
+          "start": 3069.5,
+          "duration": 92
+        },
+        {
+          "start": 3193.5999999996275,
+          "duration": 86
+        },
+        {
+          "start": 3318.2999999988824,
+          "duration": 80
+        },
+        {
+          "start": 3465,
+          "duration": 65
+        },
+        {
+          "start": 3552.7999999988824,
+          "duration": 70
+        },
+        {
+          "start": 3668,
+          "duration": 65
+        },
+        {
+          "start": 3771.199999999255,
+          "duration": 71
+        },
+        {
+          "start": 3870.0999999996275,
+          "duration": 74
+        },
+        {
+          "start": 4028,
+          "duration": 80
+        },
+        {
+          "start": 4137.89999999851,
+          "duration": 156
+        },
+        {
+          "start": 4294.699999999255,
+          "duration": 324
+        },
+        {
+          "start": 4624.5999999996275,
+          "duration": 68
+        },
+        {
+          "start": 4710.699999999255,
+          "duration": 126
+        },
+        {
+          "start": 4837.299999998882,
+          "duration": 303
+        },
+        {
+          "start": 5142.5999999996275,
+          "duration": 73
+        },
+        {
+          "start": 5264.199999999255,
+          "duration": 151
+        },
+        {
+          "start": 5416,
+          "duration": 337
+        },
+        {
+          "start": 5755.5999999996275,
+          "duration": 69
+        },
+        {
+          "start": 5845.89999999851,
+          "duration": 125
+        },
+        {
+          "start": 5971.699999999255,
+          "duration": 304
+        },
+        {
+          "start": 6286.0999999996275,
+          "duration": 76
+        },
+        {
+          "start": 6382.699999999255,
+          "duration": 165
+        },
+        {
+          "start": 6548.5999999996275,
+          "duration": 342
+        },
+        {
+          "start": 6903.39999999851,
+          "duration": 68
+        },
+        {
+          "start": 6984.89999999851,
+          "duration": 77
+        },
+        {
+          "start": 7062.799999998882,
+          "duration": 68
+        },
+        {
+          "start": 7131.39999999851,
+          "duration": 70
+        },
+        {
+          "start": 7202.199999999255,
+          "duration": 63
+        },
+        {
+          "start": 7271.699999999255,
+          "duration": 71
+        },
+        {
+          "start": 7343.799999998882,
+          "duration": 67
+        },
+        {
+          "start": 7454.5,
+          "duration": 71
+        },
+        {
+          "start": 7532.299999998882,
+          "duration": 67
+        },
+        {
+          "start": 7600.0999999996275,
+          "duration": 70
+        },
+        {
+          "start": 7671.199999999255,
+          "duration": 69
+        },
+        {
+          "start": 7746.5,
+          "duration": 61
+        },
+        {
+          "start": 7809.39999999851,
+          "duration": 69
+        },
+        {
+          "start": 7884.5999999996275,
+          "duration": 103
+        },
+        {
+          "start": 8034.0999999996275,
+          "duration": 87
+        },
+        {
+          "start": 8121.5,
+          "duration": 83
+        },
+        {
+          "start": 8205.199999999255,
+          "duration": 77
+        },
+        {
+          "start": 8283.099999999627,
+          "duration": 71
+        },
+        {
+          "start": 8354.799999998882,
+          "duration": 75
+        },
+        {
+          "start": 8431.599999999627,
+          "duration": 85
+        },
+        {
+          "start": 8517.39999999851,
+          "duration": 84
+        },
+        {
+          "start": 8601.89999999851,
+          "duration": 86
+        },
+        {
+          "start": 8691,
+          "duration": 75
+        },
+        {
+          "start": 8767.599999999627,
+          "duration": 81
+        },
+        {
+          "start": 8865.099999999627,
+          "duration": 70
+        },
+        {
+          "start": 8964.799999998882,
+          "duration": 75
+        },
+        {
+          "start": 9063.5,
+          "duration": 73
+        },
+        {
+          "start": 9138.89999999851,
+          "duration": 73
+        },
+        {
+          "start": 9257,
+          "duration": 69
+        },
+        {
+          "start": 9352.799999998882,
+          "duration": 81
+        },
+        {
+          "start": 9461.199999999255,
+          "duration": 80
+        },
+        {
+          "start": 9608.5,
+          "duration": 84
+        },
+        {
+          "start": 9725.39999999851,
+          "duration": 82
+        },
+        {
+          "start": 9848.699999999255,
+          "duration": 78
+        },
+        {
+          "start": 9965.299999998882,
+          "duration": 79
+        },
+        {
+          "start": 10070.599999999627,
+          "duration": 79
+        },
+        {
+          "start": 10314.199999999255,
+          "duration": 84
+        },
+        {
+          "start": 10428.299999998882,
+          "duration": 79
+        },
+        {
+          "start": 10538.599999999627,
+          "duration": 81
+        },
+        {
+          "start": 10653.299999998882,
+          "duration": 93
+        },
+        {
+          "start": 10789.199999999255,
+          "duration": 75
+        },
+        {
+          "start": 10917.599999999627,
+          "duration": 86
+        },
+        {
+          "start": 11038.699999999255,
+          "duration": 86
+        },
+        {
+          "start": 11158.299999998882,
+          "duration": 91
+        },
+        {
+          "start": 11283.599999999627,
+          "duration": 82
+        },
+        {
+          "start": 11394.199999999255,
+          "duration": 78
+        },
+        {
+          "start": 11504.199999999255,
+          "duration": 108
+        },
+        {
+          "start": 11612.39999999851,
+          "duration": 90
+        },
+        {
+          "start": 11728.39999999851,
+          "duration": 87
+        },
+        {
+          "start": 11858.699999999255,
+          "duration": 119
+        },
+        {
+          "start": 11978.199999999255,
+          "duration": 111
+        },
+        {
+          "start": 12101.799999998882,
+          "duration": 87
+        },
+        {
+          "start": 12236.199999999255,
+          "duration": 118
+        },
+        {
+          "start": 12354.299999998882,
+          "duration": 120
+        },
+        {
+          "start": 12483.5,
+          "duration": 97
+        },
+        {
+          "start": 12655.5,
+          "duration": 105
+        },
+        {
+          "start": 12761.199999999255,
+          "duration": 102
+        },
+        {
+          "start": 12868.5,
+          "duration": 90
+        },
+        {
+          "start": 13018.299999998882,
+          "duration": 96
+        },
+        {
+          "start": 13114.39999999851,
+          "duration": 109
+        },
+        {
+          "start": 13234.699999999255,
+          "duration": 88
+        },
+        {
+          "start": 13367.199999999255,
+          "duration": 108
+        },
+        {
+          "start": 13476,
+          "duration": 113
+        },
+        {
+          "start": 13602.799999998882,
+          "duration": 101
+        },
+        {
+          "start": 13735.5,
+          "duration": 99
+        },
+        {
+          "start": 13834.5,
+          "duration": 58
+        },
+        {
+          "start": 13903.099999999627,
+          "duration": 91
+        },
+        {
+          "start": 14019.599999999627,
+          "duration": 105
+        },
+        {
+          "start": 14143.799999998882,
+          "duration": 85
+        },
+        {
+          "start": 14255.39999999851,
+          "duration": 89
+        },
+        {
+          "start": 14362.199999999255,
+          "duration": 88
+        },
+        {
+          "start": 14469.299999998882,
+          "duration": 71
+        },
+        {
+          "start": 14581.39999999851,
+          "duration": 86
+        },
+        {
+          "start": 14682.699999999255,
+          "duration": 76
+        },
+        {
+          "start": 14773.699999999255,
+          "duration": 79
+        },
+        {
+          "start": 14872.599999999627,
+          "duration": 70
+        },
+        {
+          "start": 14955.199999999255,
+          "duration": 83
+        },
+        {
+          "start": 15061.39999999851,
+          "duration": 77
+        },
+        {
+          "start": 15147.299999998882,
+          "duration": 76
+        },
+        {
+          "start": 15254.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 15339.5,
+          "duration": 74
+        },
+        {
+          "start": 15436.5,
+          "duration": 73
+        },
+        {
+          "start": 15528,
+          "duration": 73
+        },
+        {
+          "start": 15651.89999999851,
+          "duration": 70
+        },
+        {
+          "start": 15731.599999999627,
+          "duration": 65
+        },
+        {
+          "start": 15797.199999999255,
+          "duration": 66
+        },
+        {
+          "start": 15877.799999998882,
+          "duration": 62
+        },
+        {
+          "start": 15947.699999999255,
+          "duration": 60
+        },
+        {
+          "start": 16016.299999998882,
+          "duration": 72
+        },
+        {
+          "start": 16100,
+          "duration": 71
+        },
+        {
+          "start": 16178.5,
+          "duration": 80
+        },
+        {
+          "start": 16260.89999999851,
+          "duration": 71
+        },
+        {
+          "start": 16342.599999999627,
+          "duration": 70
+        },
+        {
+          "start": 16420.39999999851,
+          "duration": 67
+        },
+        {
+          "start": 16490.89999999851,
+          "duration": 72
+        },
+        {
+          "start": 16577.599999999627,
+          "duration": 73
+        },
+        {
+          "start": 16658.099999999627,
+          "duration": 69
+        },
+        {
+          "start": 16734.5,
+          "duration": 76
+        },
+        {
+          "start": 16822.099999999627,
+          "duration": 78
+        },
+        {
+          "start": 16907.799999998882,
+          "duration": 64
+        },
+        {
+          "start": 16973.89999999851,
+          "duration": 71
+        },
+        {
+          "start": 17056.699999999255,
+          "duration": 77
+        },
+        {
+          "start": 17142.199999999255,
+          "duration": 72
+        },
+        {
+          "start": 17217.699999999255,
+          "duration": 88
+        },
+        {
+          "start": 17319.099999999627,
+          "duration": 89
+        },
+        {
+          "start": 17417.299999998882,
+          "duration": 73
+        },
+        {
+          "start": 17499.299999998882,
+          "duration": 85
+        },
+        {
+          "start": 17594.89999999851,
+          "duration": 82
+        },
+        {
+          "start": 17685.699999999255,
+          "duration": 72
+        },
+        {
+          "start": 17760.5,
+          "duration": 84
+        },
+        {
+          "start": 17856.5,
+          "duration": 77
+        },
+        {
+          "start": 17941.39999999851,
+          "duration": 72
+        }
+      ]
+    },
+    {
+      "name": "ui.many-notes.4x.end",
+      "heapMiB": 6.19,
+      "domNodes": 762,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 8,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 253.5,
+          "duration": 471
+        },
+        {
+          "start": 725,
+          "duration": 977
+        },
+        {
+          "start": 1706.4000000003725,
+          "duration": 214
+        },
+        {
+          "start": 1975.5999999996275,
+          "duration": 209
+        },
+        {
+          "start": 2185.4000000003725,
+          "duration": 212
+        },
+        {
+          "start": 2411.0999999996275,
+          "duration": 204
+        },
+        {
+          "start": 2616,
+          "duration": 200
+        },
+        {
+          "start": 2829,
+          "duration": 229
+        },
+        {
+          "start": 3058.5,
+          "duration": 79
+        },
+        {
+          "start": 3204.5999999996275,
+          "duration": 165
+        },
+        {
+          "start": 3407.2999999988824,
+          "duration": 421
+        },
+        {
+          "start": 3828.5,
+          "duration": 1012
+        },
+        {
+          "start": 4846.0999999996275,
+          "duration": 138
+        },
+        {
+          "start": 5021.799999998882,
+          "duration": 349
+        },
+        {
+          "start": 5371.199999999255,
+          "duration": 878
+        },
+        {
+          "start": 6261.699999999255,
+          "duration": 125
+        },
+        {
+          "start": 6469.4000000003725,
+          "duration": 72
+        },
+        {
+          "start": 6603.699999999255,
+          "duration": 75
+        },
+        {
+          "start": 6725.299999998882,
+          "duration": 69
+        },
+        {
+          "start": 6834.0999999996275,
+          "duration": 66
+        },
+        {
+          "start": 6937.4000000003725,
+          "duration": 68
+        },
+        {
+          "start": 7109.299999998882,
+          "duration": 68
+        },
+        {
+          "start": 7217.4000000003725,
+          "duration": 72
+        },
+        {
+          "start": 7334.5,
+          "duration": 67
+        },
+        {
+          "start": 7459.5999999996275,
+          "duration": 79
+        },
+        {
+          "start": 7580.299999998882,
+          "duration": 86
+        },
+        {
+          "start": 8224.400000000373,
+          "duration": 62
+        },
+        {
+          "start": 8357.199999999255,
+          "duration": 61
+        },
+        {
+          "start": 8485.199999999255,
+          "duration": 64
+        },
+        {
+          "start": 8621.400000000373,
+          "duration": 64
+        },
+        {
+          "start": 8757.299999998882,
+          "duration": 72
+        },
+        {
+          "start": 8901,
+          "duration": 67
+        },
+        {
+          "start": 9080.400000000373,
+          "duration": 51
+        },
+        {
+          "start": 9132.400000000373,
+          "duration": 100
+        },
+        {
+          "start": 9320.799999998882,
+          "duration": 81
+        },
+        {
+          "start": 9406.5,
+          "duration": 64
+        },
+        {
+          "start": 9470.799999998882,
+          "duration": 98
+        },
+        {
+          "start": 9624.699999999255,
+          "duration": 68
+        },
+        {
+          "start": 9750.5,
+          "duration": 98
+        },
+        {
+          "start": 9938.299999998882,
+          "duration": 66
+        },
+        {
+          "start": 10008,
+          "duration": 52
+        },
+        {
+          "start": 10060.299999998882,
+          "duration": 90
+        },
+        {
+          "start": 10200.900000000373,
+          "duration": 80
+        },
+        {
+          "start": 10297.799999998882,
+          "duration": 51
+        },
+        {
+          "start": 10349.699999999255,
+          "duration": 109
+        },
+        {
+          "start": 10517.799999998882,
+          "duration": 87
+        },
+        {
+          "start": 10765.099999999627,
+          "duration": 455
+        },
+        {
+          "start": 11220.299999998882,
+          "duration": 1147
+        },
+        {
+          "start": 12397.400000000373,
+          "duration": 164
+        },
+        {
+          "start": 12561.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 12648.599999999627,
+          "duration": 414
+        },
+        {
+          "start": 13063.5,
+          "duration": 1067
+        },
+        {
+          "start": 14143.5,
+          "duration": 168
+        },
+        {
+          "start": 14312,
+          "duration": 73
+        },
+        {
+          "start": 14392.299999998882,
+          "duration": 419
+        },
+        {
+          "start": 14812.199999999255,
+          "duration": 1051
+        },
+        {
+          "start": 15899.900000000373,
+          "duration": 172
+        },
+        {
+          "start": 16072.400000000373,
+          "duration": 75
+        },
+        {
+          "start": 16156.900000000373,
+          "duration": 425
+        },
+        {
+          "start": 16582.199999999255,
+          "duration": 1220
+        },
+        {
+          "start": 17802.699999999255,
+          "duration": 113
+        },
+        {
+          "start": 17940.099999999627,
+          "duration": 166
+        },
+        {
+          "start": 18106.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 18193.299999998882,
+          "duration": 421
+        },
+        {
+          "start": 18614.5,
+          "duration": 1061
+        },
+        {
+          "start": 19696.099999999627,
+          "duration": 173
+        },
+        {
+          "start": 19869.699999999255,
+          "duration": 74
+        },
+        {
+          "start": 19957,
+          "duration": 390
+        },
+        {
+          "start": 20347.299999998882,
+          "duration": 900
+        },
+        {
+          "start": 21295.799999998882,
+          "duration": 142
+        },
+        {
+          "start": 21483,
+          "duration": 471
+        },
+        {
+          "start": 21954.299999998882,
+          "duration": 1003
+        },
+        {
+          "start": 22969.699999999255,
+          "duration": 135
+        },
+        {
+          "start": 23149.099999999627,
+          "duration": 381
+        },
+        {
+          "start": 23530.5,
+          "duration": 966
+        },
+        {
+          "start": 24514.400000000373,
+          "duration": 127
+        },
+        {
+          "start": 24687.699999999255,
+          "duration": 376
+        },
+        {
+          "start": 25064.400000000373,
+          "duration": 978
+        },
+        {
+          "start": 26060.199999999255,
+          "duration": 136
+        },
+        {
+          "start": 26231,
+          "duration": 383
+        },
+        {
+          "start": 26614.599999999627,
+          "duration": 1108
+        },
+        {
+          "start": 27723.5,
+          "duration": 180
+        },
+        {
+          "start": 27916.799999998882,
+          "duration": 156
+        },
+        {
+          "start": 28123.099999999627,
+          "duration": 444
+        },
+        {
+          "start": 28567.299999998882,
+          "duration": 959
+        },
+        {
+          "start": 29542.299999998882,
+          "duration": 125
+        },
+        {
+          "start": 30108.199999999255,
+          "duration": 63
+        },
+        {
+          "start": 30221.799999998882,
+          "duration": 58
+        },
+        {
+          "start": 30342.099999999627,
+          "duration": 51
+        },
+        {
+          "start": 30427.900000000373,
+          "duration": 55
+        },
+        {
+          "start": 30489.400000000373,
+          "duration": 72
+        }
+      ]
+    },
+    {
+      "name": "ui.sparse-large-file.4x.end",
+      "heapMiB": 7.47,
+      "domNodes": 630,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 7,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 1999.2000000011176,
+          "duration": 52
+        },
+        {
+          "start": 3014.800000000745,
+          "duration": 5424
+        },
+        {
+          "start": 8438.800000000745,
+          "duration": 8235
+        },
+        {
+          "start": 16701.300000000745,
+          "duration": 1054
+        }
+      ]
+    },
+    {
+      "name": "ui.dense-large-file.4x.end",
+      "heapMiB": 7.48,
+      "domNodes": 630,
+      "codeRows": 0,
+      "listeners": 1,
+      "hostReads": {
+        "repositories": 1,
+        "stashes": 1,
+        "diff": 7,
+        "source": 7,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 470.80000000074506,
+          "duration": 98
+        },
+        {
+          "start": 701.9000000003725,
+          "duration": 2241
+        },
+        {
+          "start": 2943.9000000003725,
+          "duration": 5194
+        },
+        {
+          "start": 8159.200000001118,
+          "duration": 1251
+        },
+        {
+          "start": 9411.200000001118,
+          "duration": 118
+        },
+        {
+          "start": 9555.400000000373,
+          "duration": 560
+        },
+        {
+          "start": 10116.10000000149,
+          "duration": 7523
+        },
+        {
+          "start": 17639.800000000745,
+          "duration": 339
+        },
+        {
+          "start": 17980,
+          "duration": 531
+        },
+        {
+          "start": 18511.5,
+          "duration": 6166
+        },
+        {
+          "start": 24683.700000001118,
+          "duration": 345
+        },
+        {
+          "start": 25029.200000001118,
+          "duration": 503
+        },
+        {
+          "start": 25532.900000000373,
+          "duration": 9327
+        },
+        {
+          "start": 34860.800000000745,
+          "duration": 93
+        },
+        {
+          "start": 34954.300000000745,
+          "duration": 412
+        },
+        {
+          "start": 35402,
+          "duration": 2363
+        },
+        {
+          "start": 37801.60000000149,
+          "duration": 531
+        },
+        {
+          "start": 38333.10000000149,
+          "duration": 131
+        },
+        {
+          "start": 38480.60000000149,
+          "duration": 500
+        },
+        {
+          "start": 38980.60000000149,
+          "duration": 191
+        },
+        {
+          "start": 39188.90000000037,
+          "duration": 1114
+        },
+        {
+          "start": 40302.90000000037,
+          "duration": 179
+        },
+        {
+          "start": 40495.10000000149,
+          "duration": 494
+        },
+        {
+          "start": 40990,
+          "duration": 102
+        },
+        {
+          "start": 41105.60000000149,
+          "duration": 518
+        },
+        {
+          "start": 41624.60000000149,
+          "duration": 186
+        },
+        {
+          "start": 41885.70000000112,
+          "duration": 2643
+        },
+        {
+          "start": 44529.60000000149,
+          "duration": 7688
+        },
+        {
+          "start": 52218.60000000149,
+          "duration": 1618
+        },
+        {
+          "start": 53837.70000000112,
+          "duration": 2565
+        },
+        {
+          "start": 56403,
+          "duration": 13047
+        },
+        {
+          "start": 69457.30000000075,
+          "duration": 1783
+        },
+        {
+          "start": 71241.20000000112,
+          "duration": 2436
+        },
+        {
+          "start": 73677.30000000075,
+          "duration": 14489
+        },
+        {
+          "start": 88168.70000000112,
+          "duration": 1801
+        },
+        {
+          "start": 89976.5,
+          "duration": 2805
+        },
+        {
+          "start": 92782.10000000149,
+          "duration": 14269
+        },
+        {
+          "start": 107058.30000000075,
+          "duration": 1856
+        },
+        {
+          "start": 108915.20000000112,
+          "duration": 2767
+        },
+        {
+          "start": 111683,
+          "duration": 12968
+        },
+        {
+          "start": 124658.20000000112,
+          "duration": 1782
+        },
+        {
+          "start": 126475.5,
+          "duration": 7268
+        },
+        {
+          "start": 133744.20000000112,
+          "duration": 518
+        },
+        {
+          "start": 134268.40000000037,
+          "duration": 2422
+        },
+        {
+          "start": 136690.70000000112,
+          "duration": 8854
+        },
+        {
+          "start": 145552.30000000075,
+          "duration": 2355
+        },
+        {
+          "start": 147909.20000000112,
+          "duration": 2609
+        },
+        {
+          "start": 150518.40000000037,
+          "duration": 15966
+        },
+        {
+          "start": 166491.6000000015,
+          "duration": 3278
+        },
+        {
+          "start": 169770.70000000112,
+          "duration": 2679
+        },
+        {
+          "start": 172450,
+          "duration": 15373
+        },
+        {
+          "start": 187830,
+          "duration": 2111
+        },
+        {
+          "start": 189941.5,
+          "duration": 3229
+        },
+        {
+          "start": 193170.5,
+          "duration": 15704
+        },
+        {
+          "start": 208881.80000000075,
+          "duration": 2057
+        },
+        {
+          "start": 210940,
+          "duration": 3504
+        },
+        {
+          "start": 214444.6000000015,
+          "duration": 15707
+        },
+        {
+          "start": 230158.40000000037,
+          "duration": 2102
+        },
+        {
+          "start": 232275,
+          "duration": 9392
+        },
+        {
+          "start": 241667.40000000037,
+          "duration": 1946
+        },
+        {
+          "start": 243615.30000000075,
+          "duration": 600
+        },
+        {
+          "start": 244216.20000000112,
+          "duration": 2249
+        },
+        {
+          "start": 246472,
+          "duration": 1712
+        },
+        {
+          "start": 248185.90000000037,
+          "duration": 1305
+        },
+        {
+          "start": 249491.6000000015,
+          "duration": 123
+        },
+        {
+          "start": 249630,
+          "duration": 604
+        },
+        {
+          "start": 250288.90000000037,
+          "duration": 597
+        },
+        {
+          "start": 250886.30000000075,
+          "duration": 124
+        },
+        {
+          "start": 251024.1000000015,
+          "duration": 603
+        },
+        {
+          "start": 251699.80000000075,
+          "duration": 580
+        },
+        {
+          "start": 252280,
+          "duration": 122
+        },
+        {
+          "start": 252415.70000000112,
+          "duration": 622
+        },
+        {
+          "start": 253096.70000000112,
+          "duration": 611
+        },
+        {
+          "start": 253707.90000000037,
+          "duration": 121
+        },
+        {
+          "start": 253843.1000000015,
+          "duration": 605
+        },
+        {
+          "start": 254500,
+          "duration": 590
+        },
+        {
+          "start": 255090.1000000015,
+          "duration": 126
+        },
+        {
+          "start": 255230.5,
+          "duration": 605
+        },
+        {
+          "start": 255850.40000000037,
+          "duration": 2510
+        },
+        {
+          "start": 258361.1000000015,
+          "duration": 4381
+        },
+        {
+          "start": 262742.2000000011,
+          "duration": 1004
+        },
+        {
+          "start": 263746.4000000004,
+          "duration": 593
+        },
+        {
+          "start": 264354.1000000015,
+          "duration": 2568
+        },
+        {
+          "start": 266922.1000000015,
+          "duration": 4309
+        },
+        {
+          "start": 271236.7000000011,
+          "duration": 1651
+        },
+        {
+          "start": 272888.80000000075,
+          "duration": 597
+        },
+        {
+          "start": 273499.7000000011,
+          "duration": 2689
+        },
+        {
+          "start": 276189.4000000004,
+          "duration": 4279
+        },
+        {
+          "start": 280469.5,
+          "duration": 948
+        },
+        {
+          "start": 281418.30000000075,
+          "duration": 593
+        },
+        {
+          "start": 282025.2000000011,
+          "duration": 3112
+        },
+        {
+          "start": 285137.30000000075,
+          "duration": 4278
+        },
+        {
+          "start": 289416.2000000011,
+          "duration": 1249
+        },
+        {
+          "start": 290667.4000000004,
+          "duration": 599
+        },
+        {
+          "start": 291280.5,
+          "duration": 2537
+        },
+        {
+          "start": 293817.6000000015,
+          "duration": 4270
+        },
+        {
+          "start": 298088.30000000075,
+          "duration": 1113
+        },
+        {
+          "start": 299201.4000000004,
+          "duration": 609
+        },
+        {
+          "start": 299827.5,
+          "duration": 2628
+        },
+        {
+          "start": 302455.80000000075,
+          "duration": 4352
+        },
+        {
+          "start": 306808.80000000075,
+          "duration": 993
+        },
+        {
+          "start": 307802.80000000075,
+          "duration": 602
+        },
+        {
+          "start": 308419.2000000011,
+          "duration": 1277
+        },
+        {
+          "start": 309696.2000000011,
+          "duration": 98
+        },
+        {
+          "start": 309879.5,
+          "duration": 591
+        },
+        {
+          "start": 310488.6000000015,
+          "duration": 1574
+        },
+        {
+          "start": 312063.4000000004,
+          "duration": 4323
+        },
+        {
+          "start": 316426.9000000004,
+          "duration": 538
+        },
+        {
+          "start": 316983.1000000015,
+          "duration": 1936
+        },
+        {
+          "start": 318919.30000000075,
+          "duration": 4240
+        },
+        {
+          "start": 323192.80000000075,
+          "duration": 544
+        },
+        {
+          "start": 323950.30000000075,
+          "duration": 1939
+        },
+        {
+          "start": 325890.2000000011,
+          "duration": 4576
+        },
+        {
+          "start": 330517.4000000004,
+          "duration": 531
+        },
+        {
+          "start": 331065.6000000015,
+          "duration": 1741
+        },
+        {
+          "start": 332806.80000000075,
+          "duration": 4298
+        },
+        {
+          "start": 337138.2000000011,
+          "duration": 543
+        },
+        {
+          "start": 337693.2000000011,
+          "duration": 1544
+        },
+        {
+          "start": 339237.6000000015,
+          "duration": 4189
+        },
+        {
+          "start": 343454.9000000004,
+          "duration": 721
+        },
+        {
+          "start": 344176.7000000011,
+          "duration": 88
+        },
+        {
+          "start": 344343.6000000015,
+          "duration": 88
+        },
+        {
+          "start": 344439.1000000015,
+          "duration": 576
+        },
+        {
+          "start": 345039.80000000075,
+          "duration": 1529
+        },
+        {
+          "start": 346569.1000000015,
+          "duration": 4338
+        },
+        {
+          "start": 350921.2000000011,
+          "duration": 540
+        },
+        {
+          "start": 351715.7000000011,
+          "duration": 1915
+        },
+        {
+          "start": 353630.80000000075,
+          "duration": 4386
+        },
+        {
+          "start": 358022.30000000075,
+          "duration": 532
+        },
+        {
+          "start": 358575.4000000004,
+          "duration": 1550
+        },
+        {
+          "start": 360125.5,
+          "duration": 4910
+        },
+        {
+          "start": 365045.30000000075,
+          "duration": 529
+        },
+        {
+          "start": 365596.4000000004,
+          "duration": 1612
+        },
+        {
+          "start": 367208.4000000004,
+          "duration": 4392
+        },
+        {
+          "start": 371617.80000000075,
+          "duration": 554
+        },
+        {
+          "start": 372201.2000000011,
+          "duration": 1468
+        },
+        {
+          "start": 373669.7000000011,
+          "duration": 5254
+        },
+        {
+          "start": 378924.30000000075,
+          "duration": 121
+        },
+        {
+          "start": 379055.80000000075,
+          "duration": 537
+        },
+        {
+          "start": 379593.4000000004,
+          "duration": 92
+        },
+        {
+          "start": 379704.7000000011,
+          "duration": 598
+        },
+        {
+          "start": 380302.7000000011,
+          "duration": 140
+        },
+        {
+          "start": 380453.30000000075,
+          "duration": 1205
+        },
+        {
+          "start": 381659.1000000015,
+          "duration": 143
+        },
+        {
+          "start": 381894.1000000015,
+          "duration": 604
+        },
+        {
+          "start": 382498.30000000075,
+          "duration": 632
+        },
+        {
+          "start": 383138.80000000075,
+          "duration": 555
+        },
+        {
+          "start": 383693.80000000075,
+          "duration": 628
+        },
+        {
+          "start": 384325.4000000004,
+          "duration": 560
+        },
+        {
+          "start": 384886,
+          "duration": 602
+        },
+        {
+          "start": 385514.1000000015,
+          "duration": 535
+        },
+        {
+          "start": 386049.5,
+          "duration": 645
+        },
+        {
+          "start": 386722,
+          "duration": 548
+        },
+        {
+          "start": 387270.5,
+          "duration": 625
+        },
+        {
+          "start": 387899.6000000015,
+          "duration": 53
+        },
+        {
+          "start": 388016.9000000004,
+          "duration": 550
+        },
+        {
+          "start": 388567.30000000075,
+          "duration": 667
+        },
+        {
+          "start": 389234.7000000011,
+          "duration": 539
+        },
+        {
+          "start": 389816.1000000015,
+          "duration": 553
+        },
+        {
+          "start": 390370.1000000015,
+          "duration": 660
+        },
+        {
+          "start": 391031.1000000015,
+          "duration": 558
+        },
+        {
+          "start": 391626.5,
+          "duration": 580
+        },
+        {
+          "start": 392237.30000000075,
+          "duration": 1674
+        },
+        {
+          "start": 393911.80000000075,
+          "duration": 4758
+        },
+        {
+          "start": 398670.4000000004,
+          "duration": 658
+        },
+        {
+          "start": 399388.2000000011,
+          "duration": 598
+        }
+      ]
+    },
+    {
+      "name": "ui.multi-embed.4x.end",
+      "heapMiB": 7.93,
+      "domNodes": 5466,
+      "codeRows": 45,
+      "listeners": 6,
+      "hostReads": {
+        "repositories": 6,
+        "stashes": 6,
+        "diff": 6,
+        "source": 7,
+        "saves": 5,
+        "exports": 3,
+        "mutations": 0
+      },
+      "longTasks": [
+        {
+          "start": 192.09999999962747,
+          "duration": 67
+        },
+        {
+          "start": 259.7999999988824,
+          "duration": 66
+        },
+        {
+          "start": 493.09999999962747,
+          "duration": 56
+        },
+        {
+          "start": 549.1999999992549,
+          "duration": 86
+        },
+        {
+          "start": 717.4000000003725,
+          "duration": 59
+        },
+        {
+          "start": 858.7999999988824,
+          "duration": 59
+        },
+        {
+          "start": 2470.7999999988824,
+          "duration": 86
+        },
+        {
+          "start": 2648.9000000003725,
+          "duration": 56
+        },
+        {
+          "start": 2706,
+          "duration": 107
+        },
+        {
+          "start": 2931.5999999996275,
+          "duration": 100
+        },
+        {
+          "start": 3193.0999999996275,
+          "duration": 92
+        },
+        {
+          "start": 3385.5,
+          "duration": 91
+        },
+        {
+          "start": 3581.5999999996275,
+          "duration": 90
+        },
+        {
+          "start": 4008.7999999988824,
+          "duration": 52
+        },
+        {
+          "start": 4226.4000000003725,
+          "duration": 53
+        }
+      ]
+    }
+  ],
+  "browserBundle": {
+    "bytes": 482304,
+    "gzipBytes": 151014,
+    "brotliBytes": 122552
+  },
+  "completedAt": "2026-10-12T11:49:40.450Z"
+}
