@@ -21,7 +21,7 @@ Stash Review runs on **Obsidian desktop 1.6 or later**, with Git installed on yo
 
 ## Install
 
-Download **`stash-review-0.2.0.zip`** from the [latest GitHub release](https://github.com/Nielk74/obsidian-stash-review/releases/latest). Extract the `stash-review` folder into:
+Download **`stash-review-0.3.0.zip`** from the [latest GitHub release](https://github.com/Nielk74/obsidian-stash-review/releases/latest). Extract the `stash-review` folder into:
 
 ```text
 YOUR_VAULT/.obsidian/plugins/stash-review/
@@ -160,6 +160,6 @@ All 206 unthrottled browser cases meet their recorded targets. With a 4× CPU sl
 
 The long-session check visits every group in the dense diff before repeating wrapping and annotation edits. Twelve six-embed mount/unmount cycles leave zero metadata listeners after each unmount and show 0.11 MiB of retained heap growth after collection. This is a bounded lifecycle check, not a guarantee against every possible leak.
 
-For a release, update `package.json`, `manifest.json`, and `versions.json`, then push an annotated version tag such as `0.2.0`. The release workflow builds, tests, packages the plugin folder, and publishes assets using the GitHub CLI. Obsidian version tags have no `v` prefix.
+For a release, update `package.json`, `manifest.json`, and `versions.json`, then push an annotated version tag such as `0.3.0`. The release workflow builds, tests, packages the plugin folder, and publishes assets using the GitHub CLI. Obsidian version tags have no `v` prefix.
 
 MIT licensed.

@@ -60,7 +60,7 @@ test('large diffs defer rows without losing drafts or selected code across unloa
     range.setStartBefore(codes[0]); range.setEndAfter(codes[codes.length - 1]);
     getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
   });
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press('ControlOrMeta+c');
   const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n');
   const expected = fixture.files[0].hunks[0].lines.map(line => line.text).join('\n');
   expect(copied).toBe(expected);
@@ -80,7 +80,7 @@ test('split selections include unloaded rows from only the selected side', async
     range.setStart(codes[0], 0); range.setEnd(codes[codes.length - 1], codes[codes.length - 1].childNodes.length);
     getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
   });
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press('ControlOrMeta+c');
   const copied = (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n');
   expect(copied).toBe(fixture.files[0].newContent!.trimEnd());
 });

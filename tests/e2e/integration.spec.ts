@@ -39,7 +39,7 @@ test('code remains selectable under Obsidian chrome and copying excludes the dif
     range.setStartBefore(codes[0]); range.setEndAfter(codes[1]);
     getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
   });
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press('ControlOrMeta+c');
   expect((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n')).toBe("import { App, TFile } from 'obsidian';\nimport { CaptureSettings } from './settings';");
   await file.getByRole('button', {name: 'Copy stashed code for src/capture.ts', exact: true}).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('async open(result: CaptureResult)');
@@ -109,7 +109,7 @@ test('copying a vertical split selection keeps only that side of the diff', asyn
     range.setStart(codes[0], 0); range.setEnd(codes[1], codes[1].childNodes.length);
     getSelection()!.removeAllRanges(); getSelection()!.addRange(range);
   });
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press('ControlOrMeta+c');
   expect((await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, '\n')).toBe("import { App, TFile } from 'obsidian';\nimport { CaptureSettings } from './settings';");
 });
 
